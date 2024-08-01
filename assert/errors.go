@@ -1,4 +1,4 @@
-package debug
+package assert
 
 // AssertionFailed is the message that is shown when an assertion fails.
 const AssertionFailed string = "assertion failed: "
