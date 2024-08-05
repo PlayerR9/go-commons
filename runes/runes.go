@@ -35,3 +35,33 @@ func ToInt(char rune) (int, bool) {
 
 	return int(char - 'a' + 10), true
 }
+
+// FromInt converts an integer to a rune if possible. Conversion is case-insensitive and
+// values from 0-9 and a-z are converted to 0-35.
+//
+// Parameters:
+//   - digit: The integer to convert.
+//
+// Returns:
+//   - rune: The converted rune.
+//   - bool: True if the conversion was successful. False otherwise.
+//
+// Example:
+//
+//	char, ok := FromInt(10)
+//	if !ok {
+//		panic("Could not convert 10 to a rune")
+//	}
+//
+//	fmt.Println(char) // 'A'
+func FromInt(digit int) (rune, bool) {
+	if digit < 0 || digit > 35 {
+		return 0, false
+	}
+
+	if digit < 10 {
+		return rune(digit + '0'), true
+	}
+
+	return rune(digit - 10 + 'a'), true
+}
