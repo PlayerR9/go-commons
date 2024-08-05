@@ -1,40 +1,90 @@
 package errors
 
 import (
-	"reflect"
+	"strconv"
+	"strings"
 )
 
-// ErrEmpty represents an error when a value is empty.
-type ErrEmpty struct {
-	// Type is the type of the empty value.
-	Type any
+// ErrInvalidParameter represents an error when a parameter is invalid.
+type ErrInvalidParameter struct {
+	// Parameter is the invalid parameter.
+	Parameter string
+
+	// Reason is the reason for the error.
+	Reason error
 }
 
 // Error implements the error interface.
 //
-// Message: "{{ .Type }} must not be empty"
-func (e *ErrEmpty) Error() string {
-	var t_string string
+// Message:
+// - "parameter (<parameter>) is invalid" if Reason is nil
+// - "parameter (<parameter>) is invalid: <reason>" if Reason is not nil
+func (e *ErrInvalidParameter) Error() string {
+	var parameter string
 
-	if e.Type == nil {
-		t_string = "nil"
-	} else {
-		to := reflect.TypeOf(e.Type)
-		t_string = to.String()
+	if e.Parameter != "" {
+		parameter = "(" + strconv.Quote(e.Parameter) + ")"
 	}
 
-	return t_string + " must not be empty"
+	var builder strings.Builder
+
+	builder.WriteString("parameter ")
+	builder.WriteString(parameter)
+	builder.WriteString(" is invalid")
+
+	if e.Reason != nil {
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
 }
 
-// NewErrEmpty creates a new ErrEmpty error.
+// NewErrInvalidParameter creates a new ErrInvalidParameter error.
 //
 // Parameters:
-//   - var_type: The type of the empty value.
+//   - parameter: The invalid parameter.
+//   - reason: The reason for the error.
 //
 // Returns:
-//   - *ErrEmpty: A pointer to the newly created ErrEmpty. Never returns nil.
-func NewErrEmpty(var_type any) *ErrEmpty {
-	return &ErrEmpty{
-		Type: var_type,
+//   - *ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
+func NewErrInvalidParameter(parameter string, reason error) *ErrInvalidParameter {
+	return &ErrInvalidParameter{
+		Parameter: parameter,
+		Reason:    reason,
+	}
+}
+
+// Unwrap is a method that returns the wrapped error.
+//
+// Returns:
+//   - error: The wrapped error.
+func (e *ErrInvalidParameter) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason is a method that changes the reason for the error.
+//
+// Parameters:
+//   - reason: The new reason for the error.
+//
+// Returns:
+//   - error: The new reason for the error.
+func (e *ErrInvalidParameter) ChangeReason(reason error) {
+	e.Reason = reason
+}
+
+// NewErrNilParameter is a convenience method that creates a new *ErrInvalidParameter error
+// with a *ErrNilValue as the reason.
+//
+// Parameters:
+//   - parameter: The invalid parameter.
+//
+// Returns:
+//   - *ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
+func NewErrNilParameter(parameter string) *ErrInvalidParameter {
+	return &ErrInvalidParameter{
+		Parameter: parameter,
+		Reason:    NewErrNilValue(),
 	}
 }
