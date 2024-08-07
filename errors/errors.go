@@ -75,7 +75,7 @@ func (e *ErrInvalidParameter) ChangeReason(reason error) {
 }
 
 // NewErrNilParameter is a convenience method that creates a new *ErrInvalidParameter error
-// with a *ErrNilValue as the reason.
+// with a NilValue as the reason.
 //
 // Parameters:
 //   - parameter: The invalid parameter.
@@ -85,6 +85,6 @@ func (e *ErrInvalidParameter) ChangeReason(reason error) {
 func NewErrNilParameter(parameter string) *ErrInvalidParameter {
 	return &ErrInvalidParameter{
 		Parameter: parameter,
-		Reason:    NewErrNilValue(),
+		Reason:    NilValue,
 	}
 }

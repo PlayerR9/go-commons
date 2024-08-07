@@ -1,25 +1,18 @@
 package errors
 
 import (
+	"errors"
 	"reflect"
 )
 
-// ErrNilValue represents an error when a pointer is nil.
-type ErrNilValue struct{}
+var (
+	// NilValue is the error returned when a pointer is nil. While readers are not expected to return this
+	// error by itself, if it does, readers must not wrap it as callers will test this error using ==.
+	NilValue error
+)
 
-// Error implements the error interface.
-//
-// Message: "pointer must not be nil"
-func (e *ErrNilValue) Error() string {
-	return "pointer must not be nil"
-}
-
-// NewErrNilValue creates a new ErrNilValue error.
-//
-// Returns:
-//   - *ErrNilValue: A pointer to the newly created ErrNilValue. Never returns nil.
-func NewErrNilValue() *ErrNilValue {
-	return &ErrNilValue{}
+func init() {
+	NilValue = errors.New("pointer must not be nil")
 }
 
 // ErrEmpty represents an error when a value is empty.
