@@ -2,6 +2,8 @@ package ints
 
 import (
 	"strings"
+
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // ErrAt represents an error that occurs at a specific index.
@@ -48,6 +50,11 @@ func (e *ErrAt) Error() string {
 	return builder.String()
 }
 
+// Unwrap implements the errors.Unwrap interface.
+func (e *ErrAt) Unwrap() error {
+	return e.Reason
+}
+
 // NewErrAt creates a new ErrAt error.
 //
 // Parameters:
@@ -65,14 +72,6 @@ func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
 		IdxType: idx_type,
 		Reason:  reason,
 	}
-}
-
-// Unwrap is a method that returns the error wrapped by the ErrAt.
-//
-// Returns:
-//   - error: The error wrapped by the ErrAt.
-func (e *ErrAt) Unwrap() error {
-	return e.Reason
 }
 
 // ChangeReason changes the reason for the error.
@@ -143,6 +142,11 @@ func (e *ErrWhileAt) Error() string {
 	return builder.String()
 }
 
+// Unwrap implements the errors.Unwrap interface.
+func (e *ErrWhileAt) Unwrap() error {
+	return e.Reason
+}
+
 // NewErrWhileAt creates a new ErrWhileAt error.
 //
 // Parameters:
@@ -165,14 +169,6 @@ func NewErrWhileAt(operation string, idx int, idx_type string, reason error) *Er
 	return e
 }
 
-// Unwrap is a method that returns the error wrapped by the ErrWhileAt.
-//
-// Returns:
-//   - error: The error wrapped by the ErrWhileAt.
-func (e *ErrWhileAt) Unwrap() error {
-	return e.Reason
-}
-
 // ChangeReason changes the reason for the error.
 //
 // Parameters:
@@ -193,4 +189,20 @@ func (e *ErrWhileAt) ChangeReason(reason error) {
 //   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
 func NewErrInvalidDigit(idx, digit, base int) *ErrAt {
 	return NewErrAt(idx+1, "digit", NewErrOutOfBounds(digit, 0, base))
+}
+
+// NewErrInvalidBase is a convenience function for creating an *errors.ErrInvalidParameter
+// with the *errors.ErrGT error.
+//
+// Parameters:
+//   - param_name: The name of the invalid parameter. Defaults to "base" if empty.
+//
+// Returns:
+//   - *errors.ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
+func NewErrInvalidBase(param_name string) *gcers.ErrInvalidParameter {
+	if param_name == "" {
+		param_name = "base"
+	}
+
+	return gcers.NewErrInvalidParameter(param_name, gcers.NewErrGT(0))
 }

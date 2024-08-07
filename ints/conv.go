@@ -2,8 +2,6 @@ package ints
 
 import (
 	"math"
-
-	gcerrors "github.com/PlayerR9/go-commons/errors"
 )
 
 const (
@@ -121,7 +119,7 @@ func BaseToDec(digits []int, base int) (int, bool) {
 //   - *ErrAt: If any digit is not in the range [0, base-1].
 func CheckDigits(digits []int, base int) error {
 	if base <= 0 {
-		return NewErrInvalidBase()
+		return NewErrInvalidBase("base")
 	} else if len(digits) == 0 || base == 1 {
 		return nil
 	}
@@ -154,9 +152,9 @@ func BaseToBase(digits []int, base_from, base_to int) ([]int, error) {
 	}
 
 	if base_from <= 0 {
-		return nil, gcerrors.NewErrInvalidParameter("base_from", NewErrInvalidBase())
+		return nil, NewErrInvalidBase("base_from")
 	} else if base_to <= 0 {
-		return nil, gcerrors.NewErrInvalidParameter("base_to", NewErrInvalidBase())
+		return nil, NewErrInvalidBase("base_to")
 	}
 
 	res, _ := BaseToDec(digits, base_from)

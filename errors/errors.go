@@ -40,6 +40,11 @@ func (e *ErrInvalidParameter) Error() string {
 	return builder.String()
 }
 
+// Unwrap implements the errors.Unwrap interface.
+func (e *ErrInvalidParameter) Unwrap() error {
+	return e.Reason
+}
+
 // NewErrInvalidParameter creates a new ErrInvalidParameter error.
 //
 // Parameters:
@@ -53,14 +58,6 @@ func NewErrInvalidParameter(parameter string, reason error) *ErrInvalidParameter
 		Parameter: parameter,
 		Reason:    reason,
 	}
-}
-
-// Unwrap is a method that returns the wrapped error.
-//
-// Returns:
-//   - error: The wrapped error.
-func (e *ErrInvalidParameter) Unwrap() error {
-	return e.Reason
 }
 
 // ChangeReason is a method that changes the reason for the error.
@@ -87,4 +84,65 @@ func NewErrNilParameter(parameter string) *ErrInvalidParameter {
 		Parameter: parameter,
 		Reason:    NilValue,
 	}
+}
+
+// ErrInvalidUsage represents an error that occurs when a function is used incorrectly.
+type ErrInvalidUsage struct {
+	// Reason is the reason for the invalid usage.
+	Reason error
+
+	// Usage is the usage of the function.
+	Usage string
+}
+
+// Error is a method of the Unwrapper interface.
+//
+// Message: "{reason}. {usage}".
+//
+// However, if the reason is nil, the message is "invalid usage. {usage}" instead.
+//
+// If the usage is empty, no usage is added to the message.
+func (e *ErrInvalidUsage) Error() string {
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("invalid usage")
+	} else {
+		builder.WriteString(e.Reason.Error())
+	}
+
+	if e.Usage != "" {
+		builder.WriteString(". ")
+		builder.WriteString(e.Usage)
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the errors.Unwrap interface.
+func (e *ErrInvalidUsage) Unwrap() error {
+	return e.Reason
+}
+
+// NewErrInvalidUsage creates a new ErrInvalidUsage error.
+//
+// Parameters:
+//   - reason: The reason for the invalid usage.
+//   - usage: The usage of the function.
+//
+// Returns:
+//   - *ErrInvalidUsage: A pointer to the new ErrInvalidUsage error.
+func NewErrInvalidUsage(reason error, usage string) *ErrInvalidUsage {
+	return &ErrInvalidUsage{
+		Reason: reason,
+		Usage:  usage,
+	}
+}
+
+// ChangeReason is a method that changes the reason for the error.
+//
+// Parameters:
+//   - reason: The new reason for the error.
+func (e *ErrInvalidUsage) ChangeReason(reason error) {
+	e.Reason = reason
 }

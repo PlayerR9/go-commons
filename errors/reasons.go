@@ -1,7 +1,9 @@
 package errors
 
 import (
+	"cmp"
 	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -48,4 +50,112 @@ func NewErrEmpty(var_type any) *ErrEmpty {
 	return &ErrEmpty{
 		Type: var_type,
 	}
+}
+
+// ErrGT represents an error when a value is less than or equal to a specified value.
+type ErrGT[T cmp.Ordered] struct {
+	// Value is the value that caused the error.
+	Value T
+}
+
+// Error implements the error interface.
+//
+// Message: "value must be greater than <value>"
+func (e *ErrGT[T]) Error() string {
+	return fmt.Sprintf("value must ge greater than %v", e.Value)
+}
+
+// NewErrGT creates a new ErrGT error with the specified value.
+//
+// Parameters:
+//   - value: The minimum value that is not allowed.
+//
+// Returns:
+//   - *ErrGT: A pointer to the newly created ErrGT.
+func NewErrGT[T cmp.Ordered](value T) *ErrGT[T] {
+	e := &ErrGT[T]{
+		Value: value,
+	}
+	return e
+}
+
+// ErrLT represents an error when a value is greater than or equal to a specified value.
+type ErrLT[T cmp.Ordered] struct {
+	// Value is the value that caused the error.
+	Value T
+}
+
+// Error implements the error interface.
+//
+// Message: "value must be less than <value>"
+func (e *ErrLT[T]) Error() string {
+	return fmt.Sprintf("value must be less than %v", e.Value)
+}
+
+// NewErrLT creates a new ErrLT error with the specified value.
+//
+// Parameters:
+//   - value: The maximum value that is not allowed.
+//
+// Returns:
+//   - *ErrLT: A pointer to the newly created ErrLT.
+func NewErrLT[T cmp.Ordered](value T) *ErrLT[T] {
+	e := &ErrLT[T]{
+		Value: value,
+	}
+	return e
+}
+
+// ErrGTE represents an error when a value is less than a specified value.
+type ErrGTE[T cmp.Ordered] struct {
+	// Value is the value that caused the error.
+	Value T
+}
+
+// Error implements the error interface.
+//
+// Message: "value must be greater than or equal to <value>"
+func (e *ErrGTE[T]) Error() string {
+	return fmt.Sprintf("value must be greater than or equal to %v", e.Value)
+}
+
+// NewErrGTE creates a new ErrGTE error with the specified value.
+//
+// Parameters:
+//   - value: The minimum value that is allowed.
+//
+// Returns:
+//   - *ErrGTE: A pointer to the newly created ErrGTE.
+func NewErrGTE[T cmp.Ordered](value T) *ErrGTE[T] {
+	e := &ErrGTE[T]{
+		Value: value,
+	}
+	return e
+}
+
+// ErrLTE represents an error when a value is greater than a specified value.
+type ErrLTE[T cmp.Ordered] struct {
+	// Value is the value that caused the error.
+	Value T
+}
+
+// Error implements the error interface.
+//
+// Message: "value must be less than or equal to <value>"
+func (e *ErrLTE[T]) Error() string {
+	return fmt.Sprintf("value must be less than or equal to %v", e.Value)
+}
+
+// NewErrLTE creates a new ErrLTE error with the specified value.
+//
+// Parameters:
+//   - value: The maximum value that is allowed.
+//
+// Returns:
+//   - *ErrLTE: A pointer to the newly created ErrLTE.
+func NewErrLTE[T cmp.Ordered](value T) *ErrLTE[T] {
+	e := &ErrLTE[T]{
+		Value: value,
+	}
+	return e
 }
