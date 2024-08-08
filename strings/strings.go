@@ -198,59 +198,43 @@ func FindContentIndexes(op_token, cl_token string, tokens []string) (result [2]i
 }
 
 // AndString is a function that returns a string representation of a slice
-// of strings.
+// of strings. Empty strings are ignored.
 //
 // Parameters:
 //   - values: The values to convert to a string.
-//   - quote: Whether to quote the values.
 //
 // Returns:
 //   - string: The string representation of the values.
-func AndString(values []string, quote bool) string {
+func AndString(values []string) string {
 	values = TrimEmpty(values)
 	if len(values) == 0 {
 		return ""
 	}
 
 	if len(values) == 1 {
-		if !quote {
-			return values[0]
-		} else {
-			return strconv.Quote(values[0])
-		}
-	}
-
-	var elems []string
-
-	if quote {
-		for i := 0; i < len(values); i++ {
-			elems = append(elems, strconv.Quote(values[i]))
-		}
-	} else {
-		elems = values
+		return values[0]
 	}
 
 	var builder strings.Builder
 
-	builder.WriteString(elems[0])
-
-	if len(elems) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+	if len(values) > 2 {
+		builder.WriteString(strings.Join(values[:len(values)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(values[0])
 	}
 
 	builder.WriteString(" and ")
-	builder.WriteString(elems[len(elems)-1])
+	builder.WriteString(values[len(values)-1])
 
 	return builder.String()
 }
 
 // EitherOrString is a function that returns a string representation of a slice
-// of strings.
+// of strings. Empty strings are ignored.
 //
 // Parameters:
 //   - values: The values to convert to a string.
-//   - quote: True if the values should be quoted, false otherwise.
 //
 // Returns:
 //   - string: The string representation.
@@ -258,51 +242,39 @@ func AndString(values []string, quote bool) string {
 // Example:
 //
 //	EitherOrString([]string{"a", "b", "c"}, false) // "a, b or c"
-func EitherOrString(values []string, quote bool) string {
+func EitherOrString(values []string) string {
+	values = TrimEmpty(values)
+
 	if len(values) == 0 {
 		return ""
 	}
 
 	if len(values) == 1 {
-		if !quote {
-			return values[0]
-		} else {
-			return strconv.Quote(values[0])
-		}
-	}
-
-	var elems []string
-
-	if quote {
-		for _, v := range values {
-			elems = append(elems, strconv.Quote(v))
-		}
-	} else {
-		elems = values
+		return values[0]
 	}
 
 	var builder strings.Builder
 
 	builder.WriteString("either ")
-	builder.WriteString(elems[0])
 
 	if len(values) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+		builder.WriteString(strings.Join(values[:len(values)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(values[0])
 	}
 
 	builder.WriteString(" or ")
-	builder.WriteString(elems[len(elems)-1])
+	builder.WriteString(values[len(values)-1])
 
 	return builder.String()
 }
 
 // OrString is a function that returns a string representation of a slice of
-// strings.
+// strings. Empty strings are ignored.
 //
 // Parameters:
 //   - values: The values to convert to a string.
-//   - quote: True if the values should be quoted, false otherwise.
 //   - is_negative: True if the string should use "nor" instead of "or", false
 //     otherwise.
 //
@@ -311,19 +283,15 @@ func EitherOrString(values []string, quote bool) string {
 //
 // Example:
 //
-//	OrString([]string{"a", "b", "c"}, false, true) // "a, b, nor c"
-func OrString(values []string, quote, is_negative bool) string {
+//	OrString([]string{"a", "b", "c"}, true) // "a, b, nor c"
+func OrString(values []string, is_negative bool) string {
 	values = TrimEmpty(values)
 	if len(values) == 0 {
 		return ""
 	}
 
 	if len(values) == 1 {
-		if !quote {
-			return values[0]
-		} else {
-			return strconv.Quote(values[0])
-		}
+		return values[0]
 	}
 
 	var sep string
@@ -334,27 +302,17 @@ func OrString(values []string, quote, is_negative bool) string {
 		sep = " or "
 	}
 
-	var elems []string
-
-	if quote {
-		for _, v := range values {
-			elems = append(elems, strconv.Quote(v))
-		}
-	} else {
-		elems = values
-	}
-
 	var builder strings.Builder
 
-	builder.WriteString(elems[0])
-
 	if len(values) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+		builder.WriteString(strings.Join(values[:len(values)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(values[0])
 	}
 
 	builder.WriteString(sep)
-	builder.WriteString(elems[len(elems)-1])
+	builder.WriteString(values[len(values)-1])
 
 	return builder.String()
 }

@@ -208,11 +208,11 @@ func AndString[T fmt.Stringer](values []T, quote bool) string {
 
 	var builder strings.Builder
 
-	builder.WriteString(elems[0])
-
 	if len(elems) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+		builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(elems[0])
 	}
 
 	builder.WriteString(" and ")
@@ -268,11 +268,12 @@ func EitherOrString[T fmt.Stringer](values []T, quote bool) string {
 	var builder strings.Builder
 
 	builder.WriteString("either ")
-	builder.WriteString(elems[0])
 
 	if len(values) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+		builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(elems[0])
 	}
 
 	builder.WriteString(" or ")
@@ -338,11 +339,11 @@ func OrString[T fmt.Stringer](values []T, quote, is_negative bool) string {
 
 	var builder strings.Builder
 
-	builder.WriteString(elems[0])
-
 	if len(values) > 2 {
-		builder.WriteString(strings.Join(elems[1:len(elems)-1], ", "))
+		builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
 		builder.WriteRune(',')
+	} else {
+		builder.WriteString(elems[0])
 	}
 
 	builder.WriteString(sep)

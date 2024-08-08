@@ -74,5 +74,7 @@ func ErrIfInvalidExt(file_name string, exts ...string) error {
 		}
 	}
 
-	return fmt.Errorf("invalid file extension: %s", gcstr.OrString(exts, true, true))
+	gcstr.QuoteStrings(exts)
+
+	return fmt.Errorf("invalid file extension: %s", gcstr.OrString(exts, true))
 }
