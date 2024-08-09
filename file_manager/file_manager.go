@@ -78,3 +78,39 @@ func ErrIfInvalidExt(file_name string, exts ...string) error {
 
 	return fmt.Errorf("invalid file extension: %s", gcstr.OrString(exts, true))
 }
+
+// ModifyPath modifies a path based on the given suffix and sub_directories.
+//
+// Parameters:
+//   - path: The path to modify.
+//   - suffix: The suffix to add.
+//   - sub_directories: The sub directories to add.
+//
+// Returns:
+//   - string: The modified path.
+//   - error: An error if the path is not a file.
+//
+// This function returns an empty string if the path is empty.
+func ModifyPath(path, suffix string, sub_directories ...string) (string, error) {
+	if path == "" {
+		return "", nil
+	}
+
+	if len(sub_directories) > 0 {
+		dir, file := filepath.Split(path)
+		path = filepath.Join(dir, filepath.Join(sub_directories...), file)
+	}
+
+	if suffix != "" {
+		ext := filepath.Ext(path)
+
+		if ext == "" {
+			return "", errors.New("expected file, got directory instead")
+		}
+
+		path = strings.TrimSuffix(path, ext)
+		path += suffix + ext
+	}
+
+	return path, nil
+}
