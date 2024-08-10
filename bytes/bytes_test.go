@@ -25,3 +25,13 @@ func TestFindContentIndexes(t *testing.T) {
 		t.Errorf("expected 9, got %d instead", indices[1])
 	}
 }
+
+func TestLimitReverseLines(t *testing.T) {
+	str := "\nThis\nis\n\na\nmultiline\nstring"
+
+	data := LimitReverseLines([]byte(str), 1)
+
+	if string(data) != "string" {
+		t.Errorf("expected %s, got %s instead", "string", string(data))
+	}
+}
