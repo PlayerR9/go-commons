@@ -1,5 +1,7 @@
 package runes
 
+import "errors"
+
 var (
 	// DefaultBoxStyle is the default box style.
 	DefaultBoxStyle *BoxStyle
@@ -243,7 +245,130 @@ func make_tb_border(width int, border, left_corner, right_corner rune) []rune {
 	return row
 }
 
-// DrawBox draws a box around the content.
+// Apply draws a box around a content that is specified in a table.
+//
+// Format: If the content is [['H', 'e', 'l', 'l', 'o'], ['W', 'o', 'r', 'l', 'd']], the box will be:
+//
+//	┏━━━━━━━┓
+//	┃ Hello ┃
+//	┃ World ┃
+//	┗━━━━━━━┛
+//
+// Parameters:
+//   - table: The table that contains the content to be drawn.
+//
+// Returns:
+//   - error: An error if the content could not be processed.
+//
+// Behaviors:
+//   - If the box style is nil, the default box style will be used.
+//
+// Each string of the content represents a row in the box.
+func (bs *BoxStyle) Apply(table *RuneTable) error {
+	if table == nil {
+		return errors.New("table cannot be nil")
+	}
+
+	for i := 0; i < 4; i++ {
+		if bs.Padding[i] < 0 {
+			bs.Padding[i] = 0
+		}
+	}
+
+	side_border := bs.SideBorder()
+	left_padding := make_side_padding(bs.Padding[3])
+	right_padding := make_side_padding(bs.Padding[1])
+	tbb_char := bs.TopBorder()
+	corners := bs.Corners()
+	prefix := append([]rune{side_border}, left_padding...)
+	suffix := append(right_padding, side_border)
+
+	right_edge := table.AlignRightEdge()
+
+	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
+	empty_row := make_empty_row(total_width, side_border)
+
+	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
+	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])
+
+	for i := 0; i < bs.Padding[0]; i++ {
+		table.PrependTopRow(empty_row)
+	}
+
+	for i := 0; i < bs.Padding[2]; i++ {
+		table.AppendBottomRow(empty_row)
+	}
+
+	table.PrefixEachRow(prefix)
+	table.SuffixEachRow(suffix)
+	table.PrependTopRow(top_border)
+	table.AppendBottomRow(bottom_border)
+
+	return nil
+}
+
+// ApplyRunes draws a box around a content of runes.
+//
+// Format: If the content is [['H', 'e', 'l', 'l', 'o'], ['W', 'o', 'r', 'l', 'd']], the box will be:
+//
+//	┏━━━━━━━┓
+//	┃ Hello ┃
+//	┃ World ┃
+//	┗━━━━━━━┛
+//
+// Parameters:
+//   - content: The content.
+//
+// Returns:
+//   - *RuneTable: The content in a box.
+//   - error: An error if the content could not be processed.
+//
+// Behaviors:
+//   - If the box style is nil, the default box style will be used.
+//
+// Each string of the content represents a row in the box.
+func (bs *BoxStyle) ApplyRunes(content [][]rune) (*RuneTable, error) {
+	for i := 0; i < 4; i++ {
+		if bs.Padding[i] < 0 {
+			bs.Padding[i] = 0
+		}
+	}
+
+	side_border := bs.SideBorder()
+	left_padding := make_side_padding(bs.Padding[3])
+	right_padding := make_side_padding(bs.Padding[1])
+	tbb_char := bs.TopBorder()
+	corners := bs.Corners()
+	prefix := append([]rune{side_border}, left_padding...)
+	suffix := append(right_padding, side_border)
+
+	var table RuneTable
+
+	table.FromRunes(content)
+
+	right_edge := table.AlignRightEdge()
+
+	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
+	empty_row := make_empty_row(total_width, side_border)
+
+	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
+	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])
+
+	for i := 0; i < bs.Padding[0]; i++ {
+		table.PrependTopRow(empty_row)
+	}
+
+	for i := 0; i < bs.Padding[2]; i++ {
+		table.AppendBottomRow(empty_row)
+	}
+	table.PrefixEachRow(prefix)
+	table.SuffixEachRow(suffix)
+	table.PrependTopRow(top_border)
+	table.AppendBottomRow(bottom_border)
+	return &table, nil
+}
+
+// ApplyStrings draws a box around a content of strings.
 //
 // Format: If the content is ["Hello", "World"], the box will be:
 //
@@ -261,6 +386,8 @@ func make_tb_border(width int, border, left_corner, right_corner rune) []rune {
 //
 // Behaviors:
 //   - If the box style is nil, the default box style will be used.
+//
+// Each string of the content represents a row in the box.
 func (bs *BoxStyle) ApplyStrings(content []string) (*RuneTable, error) {
 	for i := 0; i < 4; i++ {
 		if bs.Padding[i] < 0 {
@@ -276,7 +403,9 @@ func (bs *BoxStyle) ApplyStrings(content []string) (*RuneTable, error) {
 	prefix := append([]rune{side_border}, left_padding...)
 	suffix := append(right_padding, side_border)
 
-	table, err := NewRuneTable(content)
+	var table RuneTable
+
+	err := table.FromStrings(content)
 	if err != nil {
 		return nil, err
 	}
@@ -300,5 +429,6 @@ func (bs *BoxStyle) ApplyStrings(content []string) (*RuneTable, error) {
 	table.SuffixEachRow(suffix)
 	table.PrependTopRow(top_border)
 	table.AppendBottomRow(bottom_border)
-	return table, nil
+
+	return &table, nil
 }

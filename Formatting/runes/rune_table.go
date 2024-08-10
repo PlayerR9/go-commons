@@ -1,6 +1,7 @@
 package runes
 
 import (
+	"bytes"
 	"strings"
 
 	gcint "github.com/PlayerR9/go-commons/ints"
@@ -14,42 +15,80 @@ type RuneTable struct {
 }
 
 // String implements the fmt.Stringer interface.
-func (rt *RuneTable) String() string {
-	var builder strings.Builder
+func (rt RuneTable) String() string {
+	lines := make([]string, 0, len(rt.table))
 
 	for _, row := range rt.table {
-		builder.WriteString(string(row))
-		builder.WriteRune('\n')
+		lines = append(lines, string(row))
 	}
 
-	return builder.String()
+	return strings.Join(lines, "\n")
 }
 
-// NewRuneTable creates a new RuneTable with the given lines.
-//
-// Parameters:
-//   - lines: The lines to add to the table.
+// NewRuneTable creates a new RuneTable.
 //
 // Returns:
-//   - *RuneTable: The new RuneTable.
-//   - error: An error if any.
-func NewRuneTable(lines []string) (*RuneTable, error) {
+//   - RuneTable: The new RuneTable.
+func NewRuneTable() RuneTable {
+	return RuneTable{
+		table: make([][]rune, 0),
+	}
+}
+
+// FromBytes initializes the RuneTable from a slice of slice of bytes.
+//
+// Parameters:
+//   - lines: The slice of slice of bytes.
+//
+// Returns:
+//   - error: An error of type *ints.ErrAt if the lines could not be processed.
+func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	table := make([][]rune, 0, len(lines))
 
 	for i, line := range lines {
-		row, err := gcch.StringToUtf8(line)
+		row, err := gcch.BytesToUtf8(line)
 		if err != nil {
-			return nil, gcint.NewErrAt(i+1, "line", err)
+			return gcint.NewErrAt(i+1, "line", err)
 		}
 
 		table = append(table, row)
 	}
 
-	rt := &RuneTable{
-		table: table,
+	rt.table = table
+
+	return nil
+}
+
+// FromRunes initializes the RuneTable from a slice of slice of runes.
+//
+// Parameters:
+//   - lines: The slice of slice of runes.
+func (rt *RuneTable) FromRunes(lines [][]rune) {
+	rt.table = lines
+}
+
+// FromStrings initializes the RuneTable from a slice of strings.
+//
+// Parameters:
+//   - lines: The slice of strings.
+//
+// Returns:
+//   - error: An error of type *ints.ErrAt if the lines could not be processed.
+func (rt *RuneTable) FromStrings(lines []string) error {
+	table := make([][]rune, 0, len(lines))
+
+	for i, line := range lines {
+		row, err := gcch.StringToUtf8(line)
+		if err != nil {
+			return gcint.NewErrAt(i+1, "line", err)
+		}
+
+		table = append(table, row)
 	}
 
-	return rt, nil
+	rt.table = table
+
+	return nil
 }
 
 // RightMostEdge gets the right most edge of the content.
@@ -59,7 +98,7 @@ func NewRuneTable(lines []string) (*RuneTable, error) {
 //
 // Returns:
 //   - int: The right most edge.
-func (rt *RuneTable) RightMostEdge() int {
+func (rt RuneTable) RightMostEdge() int {
 	var longest_line int
 
 	for _, row := range rt.table {
@@ -130,4 +169,40 @@ func (rt *RuneTable) SuffixEachRow(suffix []rune) {
 		new_row := append(rt.table[i], suffix...)
 		rt.table[i] = new_row
 	}
+}
+
+// Byte returns the byte representation of the table.
+//
+// Returns:
+//   - []byte: The byte representation of the table.
+func (rt RuneTable) Byte() []byte {
+	if len(rt.table) == 0 {
+		return []byte{}
+	}
+
+	var buffer bytes.Buffer
+
+	buffer.Grow(gcch.JoinSize(rt.table))
+
+	for _, r := range rt.table[0] {
+		buffer.WriteRune(r)
+	}
+
+	for i := 1; i < len(rt.table); i++ {
+		buffer.WriteRune('\n')
+
+		for _, r := range rt.table[i] {
+			buffer.WriteRune(r)
+		}
+	}
+
+	return buffer.Bytes()
+}
+
+// Rune returns the rune representation of the table.
+//
+// Returns:
+//   - []rune: The rune representation of the table.
+func (rt RuneTable) Rune() []rune {
+	return gcch.Join(rt.table, '\n')
 }

@@ -82,14 +82,18 @@ func Split(data []rune, sep rune) [][]rune {
 	return lines
 }
 
-// join_size returns the number of runes in the data.
+// JoinSize returns the number of runes in the data.
 //
 // Parameters:
 //   - data: The data to join.
 //
 // Returns:
 //   - int: The number of runes.
-func join_size(data [][]rune) int {
+func JoinSize(data [][]rune) int {
+	if len(data) == 0 {
+		return 0
+	}
+
 	var size int
 
 	for _, line := range data {
@@ -114,7 +118,7 @@ func Join(data [][]rune, sep rune) []rune {
 		return nil
 	}
 
-	size := join_size(data)
+	size := JoinSize(data)
 
 	result := make([]rune, 0, size)
 
