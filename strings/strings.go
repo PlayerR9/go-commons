@@ -9,6 +9,56 @@ import (
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
+// LimitReverseLines is a function that limits the lines of the data in reverse order.
+//
+// Parameters:
+//   - data: The data to limit.
+//   - limit: The limit of the lines.
+//
+// Returns:
+//   - []byte: The limited data.
+func LimitReverseLines(data string, limit int) string {
+	if len(data) == 0 {
+		return ""
+	}
+
+	lines := strings.Split(data, "\n")
+
+	if limit == -1 || limit > len(lines) {
+		limit = len(lines)
+	}
+
+	start_idx := len(lines) - limit
+
+	lines = lines[start_idx:]
+
+	return strings.Join(lines, "\n")
+}
+
+// LimitLines is a function that limits the lines of the data.
+//
+// Parameters:
+//   - data: The data to limit.
+//   - limit: The limit of the lines.
+//
+// Returns:
+//   - string: The limited data.
+func LimitLines(data string, limit int) string {
+	if len(data) == 0 {
+		return ""
+	}
+
+	lines := strings.Split(data, "\n")
+
+	if limit == -1 || limit > len(lines) {
+		limit = len(lines)
+	}
+
+	lines = lines[:limit]
+
+	return strings.Join(lines, "\n")
+}
+
 // GoStringOf returns a string representation of the element.
 //
 // Parameters:
