@@ -1,6 +1,10 @@
 package runes
 
-import "errors"
+import (
+	"errors"
+
+	gcch "github.com/PlayerR9/go-commons/runes"
+)
 
 var (
 	// DefaultBoxStyle is the default box style.
@@ -166,33 +170,6 @@ func (bs *BoxStyle) SideBorder() rune {
 	return side_border
 }
 
-// make_empty_row is a helper function to make an empty row.
-//
-// Parameters:
-//   - width: The width of the row.
-//   - side_border: The side border of the row.
-//
-// Returns:
-//   - []rune: The empty row.
-//
-// Assertions:
-//   - width >= 0
-//   - side_border != 0
-func make_empty_row(width int, side_border rune) []rune {
-	// dbg.AssertParam("width", width >= 0, luc.NewErrGTE(0))
-	// dbg.AssertParam("side_border", side_border != 0, errors.New("side_border cannot be \\0"))
-
-	empty_row := make([]rune, 0, width)
-	for i := 0; i < width; i++ {
-		empty_row = append(empty_row, ' ')
-	}
-
-	empty_row = append([]rune{side_border}, empty_row...)
-	empty_row = append(empty_row, side_border)
-
-	return empty_row
-}
-
 // make_side_padding is a helper function to make side padding.
 //
 // Parameters:
@@ -286,7 +263,7 @@ func (bs *BoxStyle) Apply(table *RuneTable) error {
 	right_edge := table.AlignRightEdge()
 
 	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
-	empty_row := make_empty_row(total_width, side_border)
+	empty_row := gcch.Repeat(' ', right_edge)
 
 	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
 	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])
@@ -349,7 +326,8 @@ func (bs *BoxStyle) ApplyRunes(content [][]rune) (*RuneTable, error) {
 	right_edge := table.AlignRightEdge()
 
 	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
-	empty_row := make_empty_row(total_width, side_border)
+
+	empty_row := gcch.Repeat(' ', right_edge)
 
 	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
 	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])
@@ -413,7 +391,7 @@ func (bs *BoxStyle) ApplyStrings(content []string) (*RuneTable, error) {
 	right_edge := table.AlignRightEdge()
 
 	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
-	empty_row := make_empty_row(total_width, side_border)
+	empty_row := gcch.Repeat(' ', right_edge)
 
 	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
 	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])

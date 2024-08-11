@@ -132,6 +132,30 @@ func Join(data [][]rune, sep rune) []rune {
 	return result
 }
 
+// Repeat is a function that repeats the character.
+//
+// Parameters:
+//   - char: The character to repeat.
+//   - count: The number of times to repeat the character.
+//
+// Returns:
+//   - []rune: The repeated character. Returns nil if count is less than 0.
+func Repeat(char rune, count int) []rune {
+	if count < 0 {
+		return nil
+	} else if count == 0 {
+		return []rune{}
+	}
+
+	chars := make([]rune, 0, count)
+
+	for i := 0; i < count; i++ {
+		chars = append(chars, char)
+	}
+
+	return chars
+}
+
 // LimitReverseLines is a function that limits the lines of the data in reverse order.
 //
 // Parameters:
