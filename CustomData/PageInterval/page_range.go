@@ -1,11 +1,89 @@
 package PageInterval
 
 import (
-	"io"
-	"slices"
 	"strconv"
 	"strings"
+
+	itr "github.com/PlayerR9/go-commons/iterator"
 )
+
+// PageRangeIterator represents an iterator that iterates over a collection of
+// page ranges.
+type PageRangeIterator struct {
+	// from is the start page number of the iterator.
+	from int
+
+	// to is the end page number of the iterator.
+	to int
+
+	// current is the current page number of the iterator.
+	current int
+}
+
+// Apply implements the iterator.Iterable interface.
+//
+// The argument passed to the function is the current page number of the
+// iterator and it is of type int.
+func (it *PageRangeIterator) Apply(fn itr.IteratorFunc) error {
+	if it.current > it.to {
+		return itr.ErrExausted
+	}
+
+	page := it.current
+
+	err := fn(page)
+	if err != nil {
+		return err
+	}
+
+	it.current++
+
+	return nil
+}
+
+// Reset implements the iterator.Iterable interface.
+func (it *PageRangeIterator) Reset() {
+	it.current = it.from
+}
+
+// PageRangeReverseIterator represents an iterator that iterates over a
+// collection of page ranges in reverse order.
+type PageRangeReverseIterator struct {
+	// from is the start page number of the iterator.
+	from int
+
+	// to is the end page number of the iterator.
+	to int
+
+	// current is the current page number of the iterator.
+	current int
+}
+
+// Apply implements the iterator.Iterable interface.
+//
+// The argument passed to the function is the current page number of the
+// iterator and it is of type int.
+func (it *PageRangeReverseIterator) Apply(fn itr.IteratorFunc) error {
+	if it.current < it.from {
+		return itr.ErrExausted
+	}
+
+	page := it.current
+
+	err := fn(page)
+	if err != nil {
+		return err
+	}
+
+	it.current--
+
+	return nil
+}
+
+// Reset implements the iterator.Iterable interface.
+func (it *PageRangeReverseIterator) Reset() {
+	it.current = it.to
+}
 
 // PageRange represents a pair of integers that represent the start and end
 // page numbers of an interval.
@@ -15,8 +93,11 @@ import (
 // For instance, the PageRange [1, 5] represents the interval from page 1 to
 // page 5.
 type PageRange struct {
-	First  int
-	Second int
+	// first is the start page number of the interval.
+	first int
+
+	// second is the end page number of the interval.
+	second int
 }
 
 /* // FString returns the string representation of the PageRange using the given
@@ -62,122 +143,73 @@ func (pr *PageRange) FString(trav *ffs.Traversor, opts ...ffs.Option) error {
 	return nil
 } */
 
-// String returns the string representation of the PageRange.
+// String implements the fmt.Stringer interface.
 //
-// Returns:
-//   - string: The string representation of the PageRange.
-func (pr *PageRange) String() string {
-	if pr.First == pr.Second {
-		return strconv.Itoa(pr.First)
-	} else {
-		var builder strings.Builder
-
-		builder.WriteString(strconv.Itoa(pr.First))
-		builder.WriteRune(':')
-		builder.WriteString(strconv.Itoa(pr.Second))
-
-		return builder.String()
+// Format:
+//
+//	<from>:<to> // for example, 1:5
+//	<from> // for example, 1 if first is equal to second
+func (pr PageRange) String() string {
+	if pr.first == pr.second {
+		return strconv.Itoa(pr.first)
 	}
+
+	var builder strings.Builder
+
+	builder.WriteString(strconv.Itoa(pr.first))
+	builder.WriteRune(':')
+	builder.WriteString(strconv.Itoa(pr.second))
+
+	return builder.String()
 }
 
-// Iterator returns an iterator that iterates over the pages in the interval.
-//
-// Returns:
-//   - *PageRangeIterator: The iterator that iterates over the pages in the interval. Never returns nil.
-func (pr *PageRange) Iterator() *PageRangeIterator {
+// Iterator implements the iterator.Iterater interface.
+func (pr PageRange) Iterator() itr.Iterable {
 	return &PageRangeIterator{
-		from:    pr.First,
-		to:      pr.Second,
-		current: pr.First,
+		from:    pr.first,
+		to:      pr.second,
+		current: pr.first,
 	}
 }
 
-func (pr *PageRange) ReverseIterator() *PageRangeReverseIterator {
-	return &PageRangeReverseIterator{
-		from:    pr.Second,
-		to:      pr.First,
-		current: pr.Second,
-	}
-}
-
-// newPageRange creates a new instance of PageRange with the given start and
+// NewPageRange creates a new instance of PageRange with the given start and
 // end page numbers.
 //
 // Parameters:
-//
 //   - start: The start page number of the interval.
 //   - end: The end page number of the interval.
 //
 // Returns:
+//   - PageRange: The new PageRange.
 //
-//   - *PageRange: The new PageRange.
-func newPageRange(start, end int) *PageRange {
-	return &PageRange{start, end}
+// If start is greater than end, the start and end are swapped. Negative numbers
+// are treated as positive.
+func NewPageRange(start, end int) PageRange {
+	if start < 1 {
+		start *= -1
+	}
+
+	if end < 1 {
+		end *= -1
+	}
+
+	if start > end {
+		start, end = end, start
+	}
+
+	return PageRange{start, end}
 }
 
-// findPageInterval searches for the interval that contains the given page
-// number in the PageInterval.
-//
-// Parameters:
-//   - pi: A pointer to the PageInterval to search in.
-//   - page: The page number to search for in the PageInterval.
+// ReverseIterator returns an iterator that iterates over the pages in the
+// interval in reverse order.
 //
 // Returns:
-//   - int: The index of the interval in the intervals slice if found, otherwise -1.
-func (pi *PageInterval) findPageInterval(page int) int {
-	if page < 1 || pi.pageCount == 0 {
-		return -1
+//   - PageRangeReverseIterator: The iterator that iterates over the pages in
+//     the interval in reverse order. Never returns nil.
+func (pr PageRange) ReverseIterator() itr.Iterable {
+	return &PageRangeReverseIterator{
+		from:    pr.first,
+		to:      pr.second,
+		current: pr.second,
 	}
-
-	isPageBetween := func(interval *PageRange) bool {
-		return interval.First <= page && page <= interval.Second
-	}
-
-	return slices.IndexFunc(pi.intervals, isPageBetween)
-}
-
-type PageRangeIterator struct {
-	from int
-	to   int
-
-	current int
-}
-
-func (it *PageRangeIterator) Consume() (int, error) {
-	if it.current > it.to {
-		return -1, io.EOF
-	}
-
-	page := it.current
-
-	it.current++
-
-	return page, nil
-}
-
-func (it *PageRangeIterator) Reset() {
-	it.current = it.from
-}
-
-type PageRangeReverseIterator struct {
-	from int
-	to   int
-
-	current int
-}
-
-func (it *PageRangeReverseIterator) Consume() (int, error) {
-	if it.current < it.to {
-		return -1, io.EOF
-	}
-
-	page := it.current
-
-	it.current--
-
-	return page, nil
-}
-
-func (it *PageRangeReverseIterator) Reset() {
-	it.current = it.from
 }
