@@ -50,18 +50,29 @@ type Iterable interface {
 //
 // Returns:
 //   - error: An error of type *ErrIteration if the iteration failed.
-func Iterate(it Iterable, fn IteratorFunc) error {
+func Iterate(it any, fn IteratorFunc) error {
 	if fn == nil || it == nil {
 		return nil
 	}
 
-	it.Reset()
+	var iter Iterable
+
+	switch it := it.(type) {
+	case Iterable:
+		iter = it
+	case Iterater:
+		iter = it.Iterator()
+	default:
+		return nil
+	}
+
+	iter.Reset()
 
 	var err error
 	idx := -1
 
 	for err == nil {
-		err = it.Apply(fn)
+		err = iter.Apply(fn)
 		idx++
 	}
 
