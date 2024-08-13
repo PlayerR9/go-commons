@@ -1,5 +1,5 @@
 // Package PageInterval provides a data structure for managing page intervals.
-package PageInterval
+package page_interval
 
 import (
 	"slices"

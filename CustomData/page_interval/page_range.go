@@ -1,4 +1,4 @@
-package PageInterval
+package page_interval
 
 import (
 	"strconv"
