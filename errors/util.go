@@ -46,3 +46,27 @@ func GetOrdinalSuffix(number int) string {
 
 	return builder.String()
 }
+
+// FilterNonEmpty removes nil errors from a slice of errors.
+//
+// Parameters:
+//   - values: The slice of errors to trim.
+//
+// Returns:
+//   - []string: The slice of errors with nil errors removed.
+func FilterNonEmpty(values []error) []error {
+	if len(values) == 0 {
+		return nil
+	}
+
+	var top int
+
+	for i := 0; i < len(values); i++ {
+		if values[i] != nil {
+			values[top] = values[i]
+			top++
+		}
+	}
+
+	return values[:top:top]
+}

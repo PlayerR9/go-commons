@@ -404,3 +404,45 @@ func ForwardSearch(data []byte, from int, sep []byte) int {
 		from = idx
 	}
 }
+
+// FixTabSize fixes the tab size by replacing it with a specified bytes iff
+// the tab size is greater than 0. The replacement bytes are repeated for the
+// specified number of times.
+//
+// Parameters:
+//   - size: The size of the tab.
+//   - rep: The replacement bytes.
+//
+// Returns:
+//   - []byte: The fixed tab size.
+func FixTabSize(size int, rep []byte) []byte {
+	if size <= 0 {
+		return []byte{'\t'}
+	}
+
+	return bytes.Repeat(rep, size)
+}
+
+// FilterNonEmpty removes empty bytes from a slice of bytes.
+//
+// Parameters:
+//   - values: The slice of bytes to trim.
+//
+// Returns:
+//   - [][]byte: The slice of bytes with empty bytes removed.
+func FilterNonEmpty(values [][]byte) [][]byte {
+	if len(values) == 0 {
+		return nil
+	}
+
+	var top int
+
+	for i := 0; i < len(values); i++ {
+		if len(values[i]) > 0 {
+			values[top] = values[i]
+			top++
+		}
+	}
+
+	return values[:top:top]
+}

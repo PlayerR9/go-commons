@@ -493,3 +493,45 @@ func FindContentIndexes(op_token, cl_token rune, tokens []rune) (result [2]int, 
 	result[1] = len(tokens)
 	return
 }
+
+// FixTabSize fixes the tab size by replacing it with a specified rune iff
+// the tab size is greater than 0. The replacement rune is repeated for the
+// specified number of times.
+//
+// Parameters:
+//   - size: The size of the tab.
+//   - rep: The replacement rune.
+//
+// Returns:
+//   - []rune: The fixed tab size.
+func FixTabSize(size int, rep rune) []rune {
+	if size <= 0 {
+		return []rune{'\t'}
+	}
+
+	return Repeat(rep, size)
+}
+
+// FilterNonEmpty removes zero runes from a slice of runes.
+//
+// Parameters:
+//   - values: The slice of runes to trim.
+//
+// Returns:
+//   - []rune: The slice of runes with zero runes removed.
+func FilterNonEmpty(values []rune) []rune {
+	if len(values) == 0 {
+		return nil
+	}
+
+	var top int
+
+	for i := 0; i < len(values); i++ {
+		if values[i] != 0 && values[i] != '\000' {
+			values[top] = values[i]
+			top++
+		}
+	}
+
+	return values[:top:top]
+}

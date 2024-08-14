@@ -540,3 +540,31 @@ func OrderedUniquefy[T cmp.Ordered](elems []T) []T {
 
 	return unique
 }
+
+// FilterNonEmpty removes zero values from a slice of elements.
+//
+// Parameters:
+//   - values: The slice of elements to trim.
+//
+// Returns:
+//   - []T: The slice of elements with zero values removed.
+//
+// For example, in a slice of ints, all the values that are 0 will be removed.
+func FilterNonEmpty[T cmp.Ordered](values []T) []T {
+	if len(values) == 0 {
+		return nil
+	}
+
+	empty := *new(T)
+
+	var top int
+
+	for i := 0; i < len(values); i++ {
+		if values[i] != empty {
+			values[top] = values[i]
+			top++
+		}
+	}
+
+	return values[:top:top]
+}

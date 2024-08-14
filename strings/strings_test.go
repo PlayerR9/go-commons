@@ -38,3 +38,14 @@ func TestOrString(t *testing.T) {
 		t.Errorf("OrString(%q) = %q; want %q", TestValues, str, "a, b, or c")
 	}
 }
+
+func TestAdaptToScreeenWidth(t *testing.T) {
+	adapted, cut := AdaptToScreenWidth([]string{"a", "bb", "ccc", "dddd"}, 13, " ")
+	if cut != 1 {
+		t.Errorf("expected 1, got %d instead", cut)
+	}
+
+	if adapted != "a bb ... dddd" {
+		t.Errorf("expected %q, got %q instead", "a bb ... dddd", adapted)
+	}
+}

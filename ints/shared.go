@@ -156,3 +156,27 @@ func FindContentIndexes(op_token, cl_token int, tokens []int) ([2]int, error) {
 	result[1] = len(tokens)
 	return result, nil
 }
+
+// FilterNonEmpty removes zeros from a slice of ints.
+//
+// Parameters:
+//   - values: The slice of ints to trim.
+//
+// Returns:
+//   - []int: The slice of ints with zeros removed.
+func FilterNonEmpty(values []int) []int {
+	if len(values) == 0 {
+		return nil
+	}
+
+	var top int
+
+	for i := 0; i < len(values); i++ {
+		if values[i] != 0 {
+			values[top] = values[i]
+			top++
+		}
+	}
+
+	return values[:top:top]
+}
