@@ -1,89 +1,10 @@
 package page_interval
 
 import (
+	"iter"
 	"strconv"
 	"strings"
-
-	itr "github.com/PlayerR9/go-commons/iterator"
 )
-
-// PageRangeIterator represents an iterator that iterates over a collection of
-// page ranges.
-type PageRangeIterator struct {
-	// from is the start page number of the iterator.
-	from int
-
-	// to is the end page number of the iterator.
-	to int
-
-	// current is the current page number of the iterator.
-	current int
-}
-
-// Apply implements the iterator.Iterable interface.
-//
-// The argument passed to the function is the current page number of the
-// iterator and it is of type int.
-func (it *PageRangeIterator) Apply(fn itr.IteratorFunc) error {
-	if it.current > it.to {
-		return itr.ErrExausted
-	}
-
-	page := it.current
-
-	err := fn(page)
-	if err != nil {
-		return err
-	}
-
-	it.current++
-
-	return nil
-}
-
-// Reset implements the iterator.Iterable interface.
-func (it *PageRangeIterator) Reset() {
-	it.current = it.from
-}
-
-// PageRangeReverseIterator represents an iterator that iterates over a
-// collection of page ranges in reverse order.
-type PageRangeReverseIterator struct {
-	// from is the start page number of the iterator.
-	from int
-
-	// to is the end page number of the iterator.
-	to int
-
-	// current is the current page number of the iterator.
-	current int
-}
-
-// Apply implements the iterator.Iterable interface.
-//
-// The argument passed to the function is the current page number of the
-// iterator and it is of type int.
-func (it *PageRangeReverseIterator) Apply(fn itr.IteratorFunc) error {
-	if it.current < it.from {
-		return itr.ErrExausted
-	}
-
-	page := it.current
-
-	err := fn(page)
-	if err != nil {
-		return err
-	}
-
-	it.current--
-
-	return nil
-}
-
-// Reset implements the iterator.Iterable interface.
-func (it *PageRangeReverseIterator) Reset() {
-	it.current = it.to
-}
 
 // PageRange represents a pair of integers that represent the start and end
 // page numbers of an interval.
@@ -163,15 +84,6 @@ func (pr PageRange) String() string {
 	return builder.String()
 }
 
-// Iterator implements the iterator.Iterater interface.
-func (pr PageRange) Iterator() itr.Iterable {
-	return &PageRangeIterator{
-		from:    pr.first,
-		to:      pr.second,
-		current: pr.first,
-	}
-}
-
 // NewPageRange creates a new instance of PageRange with the given start and
 // end page numbers.
 //
@@ -200,16 +112,32 @@ func NewPageRange(start, end int) PageRange {
 	return PageRange{start, end}
 }
 
-// ReverseIterator returns an iterator that iterates over the pages in the
-// interval in reverse order.
+// All returns an iterator that iterates over the pages in the interval from
+// the first page number to the second page number.
 //
 // Returns:
-//   - PageRangeReverseIterator: The iterator that iterates over the pages in
-//     the interval in reverse order. Never returns nil.
-func (pr PageRange) ReverseIterator() itr.Iterable {
-	return &PageRangeReverseIterator{
-		from:    pr.first,
-		to:      pr.second,
-		current: pr.second,
+//   - iter.Seq[int]: The iterator. Never returns nil.
+func (pr PageRange) All() iter.Seq[int] {
+	return func(yield func(page int) bool) {
+		for i := pr.first; i <= pr.second; i++ {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
+// Backward returns an iterator that iterates over the pages in the interval
+// from the second page number to the first page number.
+//
+// Returns:
+//   - iter.Seq[int]: The iterator. Never returns nil.
+func (pr PageRange) Backward() iter.Seq[int] {
+	return func(yield func(page int) bool) {
+		for i := pr.second; i >= pr.first; i-- {
+			if !yield(i) {
+				return
+			}
+		}
 	}
 }

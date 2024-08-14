@@ -2,114 +2,13 @@
 package page_interval
 
 import (
+	"iter"
 	"slices"
 	"sort"
 	"strings"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
-	itr "github.com/PlayerR9/go-commons/iterator"
 )
-
-// PageIterator represents an iterator that iterates over a collection of
-// page ranges.
-type PageIterator struct {
-	// intervals is the collection of page ranges.
-	intervals []PageRange
-
-	// sub_iter is the sub iterator of the current page range.
-	sub_iter itr.Iterable
-
-	// current is the current page number of the iterator.
-	current int
-}
-
-// Apply implements the iterator.Iterable interface.
-//
-// The argument passed to the function is the current page number of the
-// iterator and it is of type int.
-func (it *PageIterator) Apply(fn itr.IteratorFunc) error {
-	if it.sub_iter == nil {
-		if it.current >= len(it.intervals) {
-			return itr.ErrExausted
-		}
-
-		it.sub_iter = it.intervals[it.current].Iterator()
-	}
-
-	for {
-		err := it.sub_iter.Apply(fn)
-		if err == nil {
-			return nil
-		} else if err != itr.ErrExausted {
-			return err
-		}
-
-		it.current++
-
-		if it.current >= len(it.intervals) {
-			break
-		}
-
-		it.sub_iter = it.intervals[it.current].Iterator()
-	}
-
-	return itr.ErrExausted
-}
-
-// Reset implements the iterator.Iterable interface.
-func (it *PageIterator) Reset() {
-	it.current = 0
-	it.sub_iter = nil
-}
-
-// PageReverseIterator represents an iterator that iterates over a
-// collection of page ranges in reverse order.
-type PageReverseIterator struct {
-	// intervals is the collection of page ranges.
-	intervals []PageRange
-
-	// sub_iter is the sub iterator of the current page range.
-	sub_iter itr.Iterable
-
-	// current is the current page number of the iterator.
-	current int
-}
-
-// Apply implements the iterator.Iterable interface.
-//
-// The argument passed to the function is the current page number of the
-// iterator and it is of type int.
-func (it *PageReverseIterator) Apply(fn itr.IteratorFunc) error {
-	if it.sub_iter == nil {
-		if it.current < 0 {
-			return itr.ErrExausted
-		}
-
-		it.sub_iter = it.intervals[it.current].ReverseIterator()
-	}
-
-	for {
-		err := it.sub_iter.Apply(fn)
-		if err == nil {
-			return nil
-		} else if err != itr.ErrExausted {
-			return err
-		}
-
-		if it.current < 0 {
-			return itr.ErrExausted
-		}
-
-		it.sub_iter = it.intervals[it.current].ReverseIterator()
-		it.current--
-	}
-}
-
-// Reset implements the iterator.Iterable interface.
-func (it *PageReverseIterator) Reset() {
-	it.current = len(it.intervals) - 1
-	it.sub_iter = nil
-}
 
 // PageInterval represents a collection of page intervals, where each
 // interval is represented by a pair of integers.
@@ -196,14 +95,6 @@ func (pi PageInterval) String() string {
 	}
 
 	return strings.Join(values, ",")
-}
-
-// Iterator implements the iterator.Iterater interface.
-func (pi PageInterval) Iterator() itr.Iterable {
-	return &PageIterator{
-		intervals: pi.intervals,
-		current:   0,
-	}
 }
 
 // NewPageInterval creates a new instance of PageInterval with
@@ -522,20 +413,6 @@ func (pi *PageInterval) RemovePagesBetween(first, last int) {
 	}
 }
 
-// ReverseIterator is a method of the PageInterval type that returns a
-// PageIntervalReverseIterator for iterating over the intervals in the
-// PageInterval in reverse order.
-//
-// Returns:
-//   - itr.Iterable: An iterator for iterating over the intervals in the
-//     PageInterval in reverse order. Never returns nil.
-func (pi PageInterval) ReverseIterator() itr.Iterable {
-	return &PageReverseIterator{
-		intervals: pi.intervals,
-		current:   len(pi.intervals) - 1,
-	}
-}
-
 // reduce merges overlapping intervals in the PageInterval.
 // It sorts the intervals based on the start value and then merges any
 // overlapping intervals.
@@ -593,4 +470,60 @@ func (pi PageInterval) find_page_interval(page int) int {
 	}
 
 	return slices.IndexFunc(pi.intervals, is_page_between)
+}
+
+// All returns an iterator that iterates over the pages in the PageInterval
+// from the first page number to the last page number.
+//
+// The actual page ranges are dealt with a pull iterator to avoid allocating
+// unnecessary slices.
+//
+// Returns:
+//   - itr.Seq[int]: The iterator. Never returns nil.
+func (pi PageInterval) All() iter.Seq[int] {
+	return func(yield func(page int) bool) {
+		for _, interval := range pi.intervals {
+			next, stop := iter.Pull(interval.All())
+			defer stop()
+
+			for {
+				p, ok := next()
+				if !ok {
+					break
+				}
+
+				if !yield(p) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// Backward returns an iterator that iterates over the pages in the PageInterval
+// from the last page number to the first page number.
+//
+// The actual page ranges are dealt with a pull iterator to avoid allocating
+// unnecessary slices.
+//
+// Returns:
+//   - itr.Seq[int]: The iterator. Never returns nil.
+func (pi PageInterval) Backward() iter.Seq[int] {
+	return func(yield func(page int) bool) {
+		for i := len(pi.intervals) - 1; i >= 0; i-- {
+			next, stop := iter.Pull(pi.intervals[i].Backward())
+			defer stop()
+
+			for {
+				p, ok := next()
+				if !ok {
+					break
+				}
+
+				if !yield(p) {
+					return
+				}
+			}
+		}
+	}
 }
