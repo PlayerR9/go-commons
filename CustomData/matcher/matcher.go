@@ -108,11 +108,52 @@ func (m *Matcher[T]) AddToMatch(symbol T, word string) error {
 // AddToSkipRule adds a rule to skip.
 //
 // Parameters:
+//   - word: The word to skip.
+//
+// Returns:
+//   - error: An error if the rule to skip is invalid.
+func (m *Matcher[T]) AddToSkipRule(word string) error {
+	if word == "" {
+		return nil
+	}
+
+	var chars []rune
+
+	for at := 0; len(word) > 0; at++ {
+		c, size := utf8.DecodeRuneInString(word)
+		if c == utf8.RuneError {
+			return gcch.NewErrInvalidUTF8Encoding(at)
+		}
+
+		chars = append(chars, c)
+		at += size
+		word = word[size:]
+	}
+
+	rule := MatchRule[T]{
+		symbol:      T(0),
+		chars:       chars,
+		should_skip: true,
+	}
+
+	idx := m.find_index(chars)
+	if idx == -1 {
+		m.rules = append(m.rules, rule)
+	} else {
+		m.rules[idx] = rule
+	}
+
+	return nil
+}
+
+// AddToSkipRules adds more rules to skip. This is a more efficient way to add multiple rules to skip.
+//
+// Parameters:
 //   - words: The words to skip.
 //
 // Returns:
 //   - error: An error if the rule to skip is invalid.
-func (m *Matcher[T]) AddToSkipRule(words ...string) error {
+func (m *Matcher[T]) AddToSkipRules(words []string) error {
 	words = gcstr.FilterNonEmpty(words)
 	if len(words) == 0 {
 		return nil
