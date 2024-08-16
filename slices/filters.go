@@ -185,7 +185,7 @@ func SliceFilter[T any](S []T, filter PredicateFilter[T]) []T {
 		}
 	}
 
-	return S[:top]
+	return S[:top:top]
 }
 
 // FilterNilValues is a function that iterates over the slice and removes the
@@ -213,7 +213,7 @@ func FilterNilValues[T any](S []*T) []*T {
 		}
 	}
 
-	return S[:top]
+	return S[:top:top]
 }
 
 // FilterNilPredicates is a function that iterates over the slice and removes the
@@ -241,7 +241,7 @@ func FilterNilPredicates[T any](S []PredicateFilter[T]) []PredicateFilter[T] {
 		}
 	}
 
-	return S[:top]
+	return S[:top:top]
 }
 
 // SFSeparate is a function that iterates over the slice and applies the filter
@@ -260,7 +260,7 @@ func FilterNilPredicates[T any](S []PredicateFilter[T]) []PredicateFilter[T] {
 //   - If S is empty, the function returns two empty slices.
 func SFSeparate[T any](S []T, filter PredicateFilter[T]) ([]T, []T) {
 	if len(S) == 0 {
-		return []T{}, []T{}
+		return nil, nil
 	}
 
 	var failed []T
@@ -276,7 +276,7 @@ func SFSeparate[T any](S []T, filter PredicateFilter[T]) ([]T, []T) {
 		}
 	}
 
-	return S[:top], failed
+	return S[:top:top], failed
 }
 
 // SFSeparateEarly is a variant of SFSeparate that returns all successful elements.
@@ -294,7 +294,7 @@ func SFSeparate[T any](S []T, filter PredicateFilter[T]) ([]T, []T) {
 //   - If S is empty, the function returns an empty slice and true.
 func SFSeparateEarly[T any](S []T, filter PredicateFilter[T]) ([]T, bool) {
 	if len(S) == 0 {
-		return []T{}, true
+		return nil, true
 	}
 
 	var top int
@@ -310,7 +310,7 @@ func SFSeparateEarly[T any](S []T, filter PredicateFilter[T]) ([]T, bool) {
 	if top == 0 {
 		return S, false
 	} else {
-		return S[:top], true
+		return S[:top:top], true
 	}
 }
 
@@ -332,5 +332,5 @@ func RemoveEmpty[T comparable](elems []T) []T {
 		}
 	}
 
-	return elems[:top]
+	return elems[:top:top]
 }

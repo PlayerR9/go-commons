@@ -198,19 +198,23 @@ func (m *Matcher[T]) AddToSkipRules(words []string) error {
 // Returns:
 //   - error: An error if the first character does not match.
 func (m *Matcher[T]) match_first(scanner io.RuneScanner) error {
-	c, _, err := scanner.ReadRune()
-	if err != nil {
-		return err
-	}
-
 	m.indices = m.indices[:0]
 	m.prev = nil
-	m.got = &c
+	m.got = nil
 	m.at = 0
 	m.chars = m.chars[:0]
 
+	char, _, err := scanner.ReadRune()
+	if err == io.EOF {
+		return m.make_error()
+	} else if err != nil {
+		return err
+	}
+
+	m.got = &char
+
 	for i, rule := range m.rules {
-		char, _ := rule.CharAt(m.at)
+		c, _ := rule.CharAt(m.at)
 
 		if char == c {
 			m.indices = append(m.indices, i)
@@ -218,15 +222,17 @@ func (m *Matcher[T]) match_first(scanner io.RuneScanner) error {
 	}
 
 	if len(m.indices) == 0 {
-		_ = scanner.UnreadRune()
+		err := scanner.UnreadRune()
+		if err != nil {
+			panic(err.Error()) // This should never happen.
+		}
 
 		return m.make_error()
 	}
 
-	m.prev = &c
+	m.prev = &char
 	m.at++
-
-	m.chars = append(m.chars, c)
+	m.chars = append(m.chars, char)
 
 	return nil
 }

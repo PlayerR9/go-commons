@@ -94,7 +94,7 @@ func Uniquefy[T comparable](S []T, prioritizeFirst bool) []T {
 		}
 	}
 
-	return unique
+	return unique[:len(unique):len(unique)]
 }
 
 // UniquefyLeft is a helper function that removes duplicate elements from the slice.
@@ -124,7 +124,7 @@ func uniquefyLeft[T Equaler](S []T) []T {
 		S = S[:top]
 	}
 
-	return S
+	return S[:len(S):len(S)]
 }
 
 // UniquefyEquals is the same as Uniquefy but uses the Equals method of the elements.
@@ -232,7 +232,7 @@ func MergeUniqueEquals[T Equaler](S1, S2 []T) []T {
 		}
 	}
 
-	return elems
+	return elems[:len(elems):len(elems)]
 }
 
 // IndexOfDuplicate returns the index of the first duplicate element in the slice.
@@ -538,7 +538,7 @@ func OrderedUniquefy[T cmp.Ordered](elems []T) []T {
 		}
 	}
 
-	return unique
+	return unique[:len(unique):len(unique)]
 }
 
 // FilterNonEmpty removes zero values from a slice of elements.
