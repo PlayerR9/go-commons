@@ -117,3 +117,17 @@ func (s CharStream) IsExhausted() bool {
 
 	return len(s.data) == 0
 }
+
+// Copy creates a copy of the stream.
+//
+// Returns:
+//   - CharStream: A copy of the stream.
+func (s CharStream) Copy() CharStream {
+	return CharStream{
+		data:      s.data,
+		pos:       s.pos,
+		get_prev:  s.get_prev,
+		prev:      s.prev,
+		prev_size: s.prev_size,
+	}
+}
