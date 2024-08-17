@@ -163,7 +163,7 @@ func (e *ErrOrSol[T]) AddAny(elem any, level int) {
 //
 // Returns:
 //   - bool: True if errors are not ignored and the error list is not empty, otherwise false.
-func (e *ErrOrSol[T]) HasError() bool {
+func (e ErrOrSol[T]) HasError() bool {
 	return !e.ignore_err && len(e.error_list) > 0
 }
 
@@ -171,7 +171,7 @@ func (e *ErrOrSol[T]) HasError() bool {
 //
 // Returns:
 //   - []error: The list of errors.
-func (e *ErrOrSol[T]) Errors() []error {
+func (e ErrOrSol[T]) Errors() []error {
 	err_list := make([]error, len(e.error_list))
 	copy(err_list, e.error_list)
 
