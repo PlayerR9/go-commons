@@ -188,3 +188,23 @@ func (e *ErrOrSol[T]) Solutions() []T {
 
 	return sol_list
 }
+
+// Reset resets the ErrOrSol struct to allow for reuse.
+func (e *ErrOrSol[T]) Reset() {
+	if e.error_list != nil {
+		for i := 0; i < len(e.error_list); i++ {
+			e.error_list[i] = nil
+		}
+		e.error_list = nil
+	}
+
+	if e.solution_list != nil {
+		for i := 0; i < len(e.solution_list); i++ {
+			e.solution_list[i] = *new(T)
+		}
+		e.solution_list = nil
+	}
+
+	e.level = 0
+	e.ignore_err = false
+}
