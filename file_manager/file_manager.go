@@ -3,7 +3,9 @@ package file_manager
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
@@ -113,4 +115,119 @@ func ModifyPath(path, suffix string, sub_directories ...string) (string, error) 
 	}
 
 	return path, nil
+}
+
+// ReadDir reads a directory and returns a list of file paths in the directory; includes
+// sub directories.
+//
+// Parameters:
+//   - loc: The location of the directory to read.
+//
+// Returns:
+//   - []string: The list of file paths in the directory.
+//   - error: An error if the directory could not be read.
+func ReadDir(loc string) ([]string, error) {
+	if loc == "" {
+		return nil, gcers.NewErrInvalidParameter("loc", gcers.NewErrEmpty(loc))
+	}
+
+	var sols []string
+
+	dirs, err := os.ReadDir(loc)
+	if err != nil {
+		return sols, err
+	}
+
+	for len(dirs) > 0 {
+		dir := dirs[0]
+		dirs = dirs[1:]
+
+		dir_name := dir.Name()
+
+		full_loc := filepath.Join(loc, dir_name)
+
+		if !dir.IsDir() {
+			sols = append(sols, full_loc)
+		} else {
+			new_dirs, err := os.ReadDir(full_loc)
+			if err != nil {
+				return sols, err
+			}
+
+			dirs = append(dirs, new_dirs...)
+		}
+	}
+
+	return sols, nil
+}
+
+// fix_exts fixes the extension list by sorting and removing duplicates/invalid extensions.
+//
+// Parameters:
+//   - exts: The extension list.
+//
+// Returns:
+//   - []string: The fixed extension list.
+func fix_exts(exts []string) []string {
+	if len(exts) == 0 {
+		return nil
+	}
+
+	new_exts := make([]string, 0, len(exts))
+
+	for _, ext := range exts {
+		if ext == "" || !strings.HasPrefix(ext, ".") {
+			continue
+		}
+
+		pos, ok := slices.BinarySearch(new_exts, ext)
+		if !ok {
+			new_exts = slices.Insert(new_exts, pos, ext)
+		}
+	}
+
+	return new_exts[:len(new_exts):len(new_exts)]
+}
+
+// FilterFiles returns a list of files that have one of the given extensions.
+//
+// Parameters:
+//   - files: The list of files to filter.
+//   - exts: The extensions to filter for.
+//
+// Returns:
+//   - []string: The filtered list of files.
+//
+// If no extensions are valid or provided, then the function returns all the directories in the list.
+func FilterFiles(files []string, exts ...string) []string {
+	if len(files) == 0 {
+		return nil
+	}
+
+	var top int
+
+	exts = fix_exts(exts)
+	if len(exts) == 0 {
+
+		for i := 0; i < len(files); i++ {
+			ext := filepath.Ext(files[i])
+
+			if ext == "" {
+				files[top] = files[i]
+				top++
+			}
+		}
+	} else {
+		for i := 0; i < len(files); i++ {
+			ext := filepath.Ext(files[i])
+
+			_, ok := slices.BinarySearch(exts, ext)
+			if ok {
+				files[top] = files[i]
+				top++
+			}
+		}
+	}
+
+	return files[:top:top]
 }
