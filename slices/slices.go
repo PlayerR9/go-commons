@@ -568,3 +568,87 @@ func FilterNonEmpty[T cmp.Ordered](values []T) []T {
 
 	return values[:top:top]
 }
+
+// MinsFunc returns the minimums of the elements in the slice.
+//
+// Parameters:
+//   - elems: The elements.
+//   - w: The weight function.
+//
+// Returns:
+//   - []T: The minimum elements.
+//
+// if 'w' is nil, the function returns nil.
+func MinsFunc[T any, W cmp.Ordered](elems []T, w func(elem T) W) []T {
+	if len(elems) == 0 || w == nil {
+		return nil
+	}
+
+	if len(elems) == 1 {
+		return elems[:1:1]
+	}
+
+	min := w(elems[0])
+	res := []int{0}
+
+	for i := 1; i < len(elems); i++ {
+		weight := w(elems[i])
+
+		if weight < min {
+			min = weight
+			res = []int{i}
+		} else if weight == min {
+			res = append(res, i)
+		}
+	}
+
+	sol := make([]T, 0, len(res))
+
+	for _, i := range res {
+		sol = append(sol, elems[i])
+	}
+
+	return sol[:len(sol):len(sol)]
+}
+
+// MaxsFunc returns the maximums of the elements in the slice.
+//
+// Parameters:
+//   - elems: The elements.
+//   - w: The weight function.
+//
+// Returns:
+//   - []T: The maximum elements.
+//
+// if 'w' is nil, the function returns nil.
+func MaxsFunc[T any, W cmp.Ordered](elems []T, w func(elem T) W) []T {
+	if len(elems) == 0 || w == nil {
+		return nil
+	}
+
+	if len(elems) == 1 {
+		return elems[:1:1]
+	}
+
+	max := w(elems[0])
+	res := []int{0}
+
+	for i := 1; i < len(elems); i++ {
+		weight := w(elems[i])
+
+		if weight > max {
+			max = weight
+			res = []int{i}
+		} else if weight == max {
+			res = append(res, i)
+		}
+	}
+
+	sol := make([]T, 0, len(res))
+
+	for _, i := range res {
+		sol = append(sol, elems[i])
+	}
+
+	return sol[:len(sol):len(sol)]
+}
