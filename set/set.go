@@ -1,145 +1,161 @@
 package set
 
 import (
-	"cmp"
-	"fmt"
 	"iter"
 	"slices"
-	"strings"
 )
 
-// SetElem represents an element in a set.
-type SetElem interface {
-	cmp.Ordered
-	fmt.GoStringer
-}
-
 // Set represents a set of elements.
-type Set[T SetElem] struct {
+type Set[T interface {
+	// Equals checks whether the given element is equal to the current element.
+	// Nil elements are never equal.
+	//
+	// Parameters:
+	//   - other: The other element.
+	//
+	// Returns:
+	//   - bool: True if the given element is equal to the current element, false otherwise.
+	Equals(other T) bool
+}] struct {
 	// elems is the set of elements
 	elems []T
 }
 
-// String implements the fmt.Stringer interface
-//
-// Format:
-//
-//	{elem1, elem2, ...}
-func (s Set[T]) String() string {
-	elems := make([]string, 0, len(s.elems))
-	for _, elem := range s.elems {
-		elems = append(elems, elem.GoString())
-	}
-
-	return "{" + strings.Join(elems, ", ") + "}"
-}
-
-// NewSet creates a new Set.
+// NewSet creates a new empty set.
 //
 // Returns:
-//   - *Set[T]: The created Set. Never returns nil.
-func NewSet[T SetElem]() *Set[T] {
+//   - *Set[T]: The created set. Never returns nil.
+func NewSet[T interface {
+	// Equals checks whether the given element is equal to the current element.
+	// Nil elements are never equal.
+	//
+	// Parameters:
+	//   - other: The other element.
+	//
+	// Returns:
+	//   - bool: True if the given element is equal to the current element, false otherwise.
+	Equals(other T) bool
+}]() *Set[T] {
 	return &Set[T]{
 		elems: make([]T, 0),
 	}
+}
+
+// NewSetWithItems creates a new set with the given items.
+//
+// Returns:
+//   - *Set[T]: The created set. Never returns nil.
+func NewSetWithItems[T interface {
+	// Equals checks whether the given element is equal to the current element.
+	// Nil elements are never equal.
+	//
+	// Parameters:
+	//   - other: The other element.
+	//
+	// Returns:
+	//   - bool: True if the given element is equal to the current element, false otherwise.
+	Equals(other T) bool
+}](items []T) *Set[T] {
+	unique := make([]T, 0, len(items))
+
+	for _, item := range items {
+		if !slices.ContainsFunc(unique, item.Equals) {
+			unique = append(unique, item)
+		}
+	}
+
+	return &Set[T]{
+		elems: unique,
+	}
+}
+
+// IsEmpty checks whether the set is empty.
+//
+// Returns:
+//   - bool: True if the set is empty, false otherwise.
+func (s *Set[T]) IsEmpty() bool {
+	return len(s.elems) == 0
+}
+
+// Size returns the number of elements in the set.
+//
+// Returns:
+//   - int: The number of elements in the set.
+func (s *Set[T]) Size() int {
+	return len(s.elems)
 }
 
 // Add adds an element to the set. If the element is already in the set, this method does nothing.
 //
 // Parameters:
 //   - elem: The element to add.
-func (s *Set[T]) Add(elem T) {
-	pos, ok := slices.BinarySearch(s.elems, elem)
-	if ok {
-		return
-	}
-
-	s.elems = slices.Insert(s.elems, pos, elem)
-}
-
-// Contains checks whether the set contains the given element.
-//
-// Parameters:
-//   - elem: The element to check for.
 //
 // Returns:
-//   - bool: True if the set contains the element, false otherwise.
-func (s Set[T]) Contains(elem T) bool {
-	_, ok := slices.BinarySearch(s.elems, elem)
-	return ok
-}
+//   - bool: True if the element was added, false otherwise.
+func (s *Set[T]) Add(elem T) bool {
+	has_element := slices.ContainsFunc(s.elems, elem.Equals)
 
-// Equals checks whether the set is equal to another set. Two Sets are said to be equal
-// if the intersection of their elements is non-empty.
-//
-// Parameters:
-//   - other: The other set to compare with.
-//
-// Returns:
-//   - bool: True if the sets are equal, false otherwise.
-//
-// If 'others' is nil, this method returns false.
-func (s Set[T]) Equals(other *Set[T]) bool {
-	if other == nil {
-		return false
+	if !has_element {
+		s.elems = append(s.elems, elem)
 	}
 
-	for _, elem := range s.elems {
-		if !other.Contains(elem) {
-			return false
-		}
-	}
-
-	return true
+	return !has_element
 }
 
 // Union adds all elements from another set to the set.
 //
 // Parameters:
 //   - other: The other set to add.
-func (s *Set[T]) Union(other *Set[T]) {
+//
+// Returns:
+//   - int: The number of elements added.
+func (s *Set[T]) Union(other *Set[T]) int {
 	if other == nil {
+		return 0
+	}
+
+	var count int
+
+	for _, elem := range other.elems {
+		if !slices.ContainsFunc(s.elems, elem.Equals) {
+			s.elems = append(s.elems, elem)
+			count++
+		}
+	}
+
+	return count
+}
+
+// Clear removes all elements from the set.
+func (s *Set[T]) Clear() {
+	if s == nil {
 		return
 	}
 
-	for _, elem := range other.elems {
-		pos, ok := slices.BinarySearch(s.elems, elem)
-		if ok {
-			continue
-		}
-
-		s.elems = slices.Insert(s.elems, pos, elem)
+	for i := 0; i < len(s.elems); i++ {
+		s.elems[i] = *new(T)
 	}
+	s.elems = s.elems[:0]
 }
 
-// All returns an iterator over all elements in the set.
+// All returns an iterator that iterates over all elements in the set.
 //
 // Returns:
-//   - iter.Seq[T]: An iterator over all elements in the set.
-func (s Set[T]) All() iter.Seq[T] {
-	fn := func(yield func(T) bool) {
-		for _, elem := range s.elems {
-			if !yield(elem) {
-				return
+//   - iter.Seq[T]: The iterator. Never returns nil.
+func (s *Set[T]) All() iter.Seq[T] {
+	var fn func(yield func(T) bool)
+
+	if s == nil {
+		fn = func(yield func(T) bool) {}
+	} else {
+		fn = func(yield func(T) bool) {
+			for _, elem := range s.elems {
+				if !yield(elem) {
+					return
+				}
 			}
 		}
 	}
 
 	return fn
-}
-
-// Slice returns the slice of elements in the set.
-//
-// Returns:
-//   - []T: The slice of elements in the set.
-func (s Set[T]) Slice() []T {
-	return s.elems
-}
-
-// Len returns the number of elements in the set.
-//
-// Returns:
-//   - int: The number of elements in the set.
-func (s Set[T]) Len() int {
-	return len(s.elems)
 }
