@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -158,4 +160,179 @@ func NewErrLTE[T cmp.Ordered](value T) *ErrLTE[T] {
 		Value: value,
 	}
 	return e
+}
+
+// ErrUnexpected represents an error when an unexpected value is encountered.
+type ErrUnexpected[T fmt.Stringer] struct {
+	// Expecteds is the list of expected values.
+	Expecteds []T
+
+	// Got is the unexpected value.
+	Got *T
+
+	// Quoted is a flag indicating whether values should be quoted.
+	Quoted bool
+}
+
+// Error implements the error interface.
+//
+// Message: "expected <expecteds>, got <got> instead"
+func (e ErrUnexpected[T]) Error() string {
+	var got string
+
+	if e.Got == nil {
+		got = "nothing"
+	} else if e.Quoted {
+		got = strconv.Quote((*e.Got).String())
+	} else {
+		got = (*e.Got).String()
+	}
+
+	if len(e.Expecteds) == 0 {
+		return fmt.Sprintf("expected nothing, got %s instead", got)
+	}
+
+	elems := make([]string, 0, len(e.Expecteds))
+
+	for i := 0; i < len(e.Expecteds); i++ {
+		str := strings.TrimSpace(e.Expecteds[i].String())
+		if str != "" {
+			elems = append(elems, str)
+		}
+	}
+
+	elems = elems[:len(elems):len(elems)]
+
+	if e.Quoted {
+		for i := 0; i < len(elems); i++ {
+			elems[i] = strconv.Quote(elems[i])
+		}
+	}
+
+	if len(elems) == 1 {
+		return fmt.Sprintf("expected %s, got %s instead", elems[0], got)
+	}
+
+	var builder strings.Builder
+
+	builder.WriteString("either ")
+
+	if len(elems) > 2 {
+		builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
+		builder.WriteRune(',')
+	} else {
+		builder.WriteString(elems[0])
+	}
+
+	builder.WriteString(" or ")
+	builder.WriteString(elems[len(elems)-1])
+
+	return fmt.Sprintf("expected %s, got %s instead", builder.String(), got)
+}
+
+// NewErrUnexpected creates a new ErrUnexpected error with the specified values.
+//
+// Parameters:
+//   - expecteds: The list of expected values.
+//   - got: The unexpected value.
+//   - quoted: A flag indicating whether values should be quoted.
+//
+// Returns:
+//   - *ErrUnexpected: A pointer to the newly created ErrUnexpected. Never returns nil.
+func NewErrUnexpected[T fmt.Stringer](quoted bool, expecteds []T, got *T) *ErrUnexpected[T] {
+	return &ErrUnexpected[T]{
+		Expecteds: expecteds,
+		Got:       got,
+		Quoted:    quoted,
+	}
+}
+
+// ErrUnexpectedType represents an error when a value has an invalid type.
+type ErrUnexpectedType[T any] struct {
+	// Elem is the element that caused the error.
+	Elem T
+
+	// Kind is the category of the type that was expected.
+	Kind string
+}
+
+// Error implements the error interface.
+//
+// Message: "type <type> is not a valid <kind> type"
+func (e ErrUnexpectedType[T]) Error() string {
+	return fmt.Sprintf("type (%T) is not a valid %s type", e.Elem, e.Kind)
+}
+
+// NewErrUnexpectedType creates a new ErrUnexpectedType error.
+//
+// Parameters:
+//   - kind: The name of the type that was expected.
+//   - elem: The element that caused the error.
+//
+// Returns:
+//   - *ErrUnexpectedType: A pointer to the newly created ErrUnexpectedType.
+func NewErrUnexpectedType[T any](kind string, elem T) *ErrUnexpectedType[T] {
+	e := &ErrUnexpectedType[T]{
+		Elem: elem,
+		Kind: kind,
+	}
+	return e
+}
+
+// ErrUnexpectedValue represents an error when an unexpected value is encountered.
+// This is mostly used in the 'default' case of switch statements.
+type ErrUnexpectedValue[T fmt.Stringer] struct {
+	// Elem is the element that caused the error.
+	Elem T
+
+	// Kind is the category of the type that was expected.
+	Kind string
+}
+
+// Error implements the error interface.
+//
+// Message: "<type> (<elem>) is not a supported <kind> type"
+func (e ErrUnexpectedValue[T]) Error() string {
+	return fmt.Sprintf("%T (%s) is not a supported %s", e.Elem, strconv.Quote(e.Elem.String()), e.Kind)
+}
+
+// NewErrUnexpectedValue creates a new ErrUnexpectedValue error.
+//
+// Parameters:
+//   - elem: The element that caused the error.
+//   - kind: The name of the type that was expected.
+//
+// Returns:
+//   - *ErrUnexpectedValue: A pointer to the newly created ErrUnexpectedValue. Never returns nil.
+func NewErrUnexpectedValue[T fmt.Stringer](elem T, kind string) *ErrUnexpectedValue[T] {
+	return &ErrUnexpectedValue[T]{
+		Elem: elem,
+		Kind: kind,
+	}
+}
+
+// ErrPanic represents an error when a panic occurs.
+type ErrPanic struct {
+	// Value is the value that caused the panic.
+	Value any
+}
+
+// Error implements the error interface.
+//
+// Message: "panic: {value}"
+func (e ErrPanic) Error() string {
+	return fmt.Sprintf("panic: %v", e.Value)
+}
+
+// NewErrPanic creates a new ErrPanic error.
+//
+// Parameters:
+//   - value: The value that caused the panic.
+//
+// Returns:
+//   - *ErrPanic: A pointer to the newly created ErrPanic. Never returns nil.
+func NewErrPanic(value any) *ErrPanic {
+	return &ErrPanic{
+		Value: value,
+	}
 }

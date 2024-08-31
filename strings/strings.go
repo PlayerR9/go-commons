@@ -399,21 +399,16 @@ func TrimEmpty(values []string) []string {
 		return values
 	}
 
-	var top int
+	res := make([]string, 0, len(values))
 
-	for i := 0; i < len(values); i++ {
-		current_value := values[i]
-
-		str := strings.TrimSpace(current_value)
+	for _, value := range values {
+		str := strings.TrimSpace(value)
 		if str != "" {
-			values[top] = str
-			top++
+			res = append(res, str)
 		}
 	}
 
-	values = values[:top]
-
-	return values
+	return res[:len(res):len(res)]
 }
 
 // FixTabSize fixes the tab size by replacing it with a specified string iff

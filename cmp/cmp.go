@@ -164,3 +164,49 @@ func DeleteElem[T cmp.Ordered](slice []T, elem T) []T {
 
 	return slices.Delete(slice, pos, pos+1)
 }
+
+// Uniquefy removes duplicate elements from the slice.
+//
+// Parameters:
+//   - S: slice of elements.
+//   - prioritizeFirst: If true, the first occurrence of an element is kept.
+//     If false, the last occurrence of an element is kept.
+//
+// Returns:
+//   - []T: slice of elements with duplicates removed.
+//
+// Behavior:
+//   - The function preserves the order of the elements in the slice.
+func Uniquefy[T cmp.Ordered](S []T, prioritizeFirst bool) []T {
+	if len(S) < 2 {
+		return S
+	}
+
+	var unique []T
+
+	if prioritizeFirst {
+		seen := make(map[T]bool)
+
+		for _, e := range S {
+			_, ok := seen[e]
+			if !ok {
+				unique = append(unique, e)
+				seen[e] = true
+			}
+		}
+	} else {
+		seen := make(map[T]int)
+
+		for _, e := range S {
+			pos, ok := seen[e]
+			if !ok {
+				seen[e] = len(unique)
+				unique = append(unique, e)
+			} else {
+				unique[pos] = e
+			}
+		}
+	}
+
+	return unique[:len(unique):len(unique)]
+}

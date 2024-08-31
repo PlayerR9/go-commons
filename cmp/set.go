@@ -44,6 +44,28 @@ func NewSet[T SetElem]() *Set[T] {
 	}
 }
 
+// NewSetFromSlice creates a new Set from a slice of elements.
+//
+// Parameters:
+//   - elems: The slice of elements.
+//
+// Returns:
+//   - *Set[T]: The created Set. Never returns nil.
+func NewSetFromSlice[T SetElem](elems []T) *Set[T] {
+	if len(elems) == 0 {
+		return &Set[T]{
+			elems: make([]T, 0),
+		}
+	}
+
+	elems = Uniquefy(elems, true)
+	slices.Sort(elems)
+
+	return &Set[T]{
+		elems: elems,
+	}
+}
+
 // Add adds an element to the set. If the element is already in the set, this method does nothing.
 //
 // Parameters:

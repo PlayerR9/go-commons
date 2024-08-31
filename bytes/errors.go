@@ -18,7 +18,7 @@ type ErrTokenNotFound struct {
 // Error implements the error interface.
 //
 // Message: "{Type} token {Token} is not in the content"
-func (e *ErrTokenNotFound) Error() string {
+func (e ErrTokenNotFound) Error() string {
 	var str_type string
 
 	if e.IsOpening {
