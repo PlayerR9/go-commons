@@ -163,87 +163,88 @@ func NewErrLTE[T cmp.Ordered](value T) *ErrLTE[T] {
 }
 
 // ErrUnexpected represents an error when an unexpected value is encountered.
-type ErrUnexpected[T fmt.Stringer] struct {
+type ErrUnexpected[T any] struct {
 	// Expecteds is the list of expected values.
 	Expecteds []T
 
 	// Got is the unexpected value.
-	Got *T
+	Got any
 
 	// Quoted is a flag indicating whether values should be quoted.
 	Quoted bool
+
+	// Kind is the kind of the unexpected value.
+	Kind string
 }
 
 // Error implements the error interface.
 //
-// Message: "expected <expecteds>, got <got> instead"
+// Message: "expected <expecteds> <kind>, got <got> instead"
 func (e ErrUnexpected[T]) Error() string {
-	var got string
-
-	if e.Got == nil {
-		got = "nothing"
-	} else if e.Quoted {
-		got = strconv.Quote((*e.Got).String())
-	} else {
-		got = (*e.Got).String()
-	}
-
-	if len(e.Expecteds) == 0 {
-		return fmt.Sprintf("expected nothing, got %s instead", got)
-	}
-
-	elems := make([]string, 0, len(e.Expecteds))
-
-	for i := 0; i < len(e.Expecteds); i++ {
-		str := strings.TrimSpace(e.Expecteds[i].String())
-		if str != "" {
-			elems = append(elems, str)
-		}
-	}
-
-	elems = elems[:len(elems):len(elems)]
-
-	if e.Quoted {
-		for i := 0; i < len(elems); i++ {
-			elems[i] = strconv.Quote(elems[i])
-		}
-	}
-
-	if len(elems) == 1 {
-		return fmt.Sprintf("expected %s, got %s instead", elems[0], got)
-	}
+	got := Got(e.Quoted, e.Got)
+	elems := StringOfSlice(e.Quoted, e.Expecteds)
 
 	var builder strings.Builder
 
-	builder.WriteString("either ")
+	builder.WriteString("expected ")
 
-	if len(elems) > 2 {
-		builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
-		builder.WriteRune(',')
-	} else {
-		builder.WriteString(elems[0])
+	if len(elems) == 0 {
+		if e.Kind != "" {
+			builder.WriteString("no ")
+			builder.WriteString(e.Kind)
+			builder.WriteString(", ")
+		} else {
+			builder.WriteString("nothing, ")
+		}
+
+		builder.WriteString(got)
+
+		return builder.String()
 	}
 
-	builder.WriteString(" or ")
-	builder.WriteString(elems[len(elems)-1])
+	if len(elems) == 1 {
+		builder.WriteString(elems[0])
+	} else {
+		builder.WriteString("either ")
 
-	return fmt.Sprintf("expected %s, got %s instead", builder.String(), got)
+		if len(elems) > 2 {
+			builder.WriteString(strings.Join(elems[:len(elems)-1], ", "))
+			builder.WriteRune(',')
+		} else {
+			builder.WriteString(elems[0])
+		}
+
+		builder.WriteString(" or ")
+		builder.WriteString(elems[len(elems)-1])
+	}
+
+	if e.Kind != "" {
+		builder.WriteString(" ")
+		builder.WriteString(e.Kind)
+	}
+
+	builder.WriteString(", ")
+	builder.WriteString(got)
+
+	return builder.String()
 }
 
 // NewErrUnexpected creates a new ErrUnexpected error with the specified values.
 //
 // Parameters:
-//   - expecteds: The list of expected values.
-//   - got: The unexpected value.
 //   - quoted: A flag indicating whether values should be quoted.
+//   - expecteds: The list of expected values.
+//   - kind: The kind of the unexpected value.
+//   - got: The unexpected value.
 //
 // Returns:
 //   - *ErrUnexpected: A pointer to the newly created ErrUnexpected. Never returns nil.
-func NewErrUnexpected[T fmt.Stringer](quoted bool, expecteds []T, got *T) *ErrUnexpected[T] {
+func NewErrUnexpected[T any](quoted bool, expecteds []T, kind string, got any) *ErrUnexpected[T] {
 	return &ErrUnexpected[T]{
 		Expecteds: expecteds,
 		Got:       got,
 		Quoted:    quoted,
+		Kind:      kind,
 	}
 }
 
