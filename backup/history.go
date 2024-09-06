@@ -2,8 +2,6 @@ package backup
 
 import (
 	"iter"
-
-	gcstck "github.com/PlayerR9/go-commons/stack"
 )
 
 // Execute executes a walker.
@@ -57,19 +55,17 @@ func Execute[W interface {
 			return
 		}
 
-		possible_paths := gcstck.NewStack[[]T]()
+		var possible_paths [][]T
 
 		for i := len(first_events) - 1; i > 0; i-- {
-			possible_paths.Push([]T{first_events[i]})
+			possible_paths = append(possible_paths, []T{first_events[i]})
 		}
 
 		var invalid_walkers []W
 
-		for {
-			path, ok := possible_paths.Pop()
-			if !ok {
-				break
-			}
+		for len(possible_paths) > 0 {
+			path := possible_paths[len(possible_paths)-1]
+			possible_paths = possible_paths[:len(possible_paths)-1]
 
 			active_walker := init_fn()
 
@@ -105,7 +101,7 @@ func Execute[W interface {
 				}
 
 				for i := len(nexts) - 1; i > 0; i-- {
-					possible_paths.Push(append(path, nexts[i]))
+					possible_paths = append(possible_paths, append(path, nexts[i]))
 				}
 
 				if active_walker.HasError() {
