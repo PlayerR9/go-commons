@@ -146,3 +146,175 @@ func NewErrInvalidUsage(reason error, usage string) *ErrInvalidUsage {
 func (e *ErrInvalidUsage) ChangeReason(reason error) {
 	e.Reason = reason
 }
+
+// ErrWhile represents an error that occurs while performing an operation.
+type ErrWhile struct {
+	// Operation is the operation that was being performed.
+	Operation string
+
+	// Reason is the reason for the error.
+	Reason error
+}
+
+// Error implements the Unwrapper interface.
+//
+// Message: "error while {operation}: {reason}"
+//
+// However, if the reason is nil, the message is "an error occurred while {operation}"
+// instead.
+func (e *ErrWhile) Error() string {
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("an error occurred while ")
+		builder.WriteString(e.Operation)
+	} else {
+		builder.WriteString("error while ")
+		builder.WriteString(e.Operation)
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the Unwrapper interface.
+func (e *ErrWhile) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrWhile) ChangeReason(reason error) {
+	e.Reason = reason
+}
+
+// NewErrWhile creates a new ErrWhile error.
+//
+// Parameters:
+//   - operation: The operation that was being performed.
+//   - reason: The reason for the error.
+//
+// Returns:
+//   - *ErrWhile: A pointer to the newly created ErrWhile.
+func NewErrWhile(operation string, reason error) *ErrWhile {
+	e := &ErrWhile{
+		Operation: operation,
+		Reason:    reason,
+	}
+
+	return e
+}
+
+// ErrAfter is an error that is returned when something goes wrong after a certain
+// element in a stream of data.
+type ErrAfter struct {
+	// After is the element that was processed before the error occurred.
+	After string
+
+	// Reason is the reason for the error.
+	Reason error
+}
+
+// Error implements the Unwrapper interface.
+//
+// Message: "after {after}: {reason}".
+//
+// However, if the reason is nil, the message is "something went wrong after {after}"
+// instead.
+func (e *ErrAfter) Error() string {
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("something went wrong after ")
+		builder.WriteString(e.After)
+	} else {
+		builder.WriteString("after ")
+		builder.WriteString(e.After)
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the Unwrapper interface.
+func (e *ErrAfter) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrAfter) ChangeReason(reason error) {
+	e.Reason = reason
+}
+
+// NewErrAfter creates a new ErrAfter error.
+//
+// Parameters:
+//   - after: The element that was processed before the error occurred.
+//   - reason: The reason for the error.
+//
+// Returns:
+//   - *ErrAfter: A pointer to the new ErrAfter error.
+func NewErrAfter(after string, reason error) *ErrAfter {
+	return &ErrAfter{
+		After:  after,
+		Reason: reason,
+	}
+}
+
+// ErrBefore is an error that is returned when something goes wrong before
+// a certain element in a stream of data.
+type ErrBefore struct {
+	// Before is the element that was processed before the error occurred.
+	Before string
+
+	// Reason is the reason for the error.
+	Reason error
+}
+
+// Error implements the Unwrapper interface.
+//
+// Message: "before {before}: {reason}".
+//
+// However, if the reason is nil, the message is "something went wrong before {before}"
+// instead.
+func (e *ErrBefore) Error() string {
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("something went wrong before ")
+		builder.WriteString(e.Before)
+	} else {
+		builder.WriteString("before ")
+		builder.WriteString(e.Before)
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the Unwrapper interface.
+func (e *ErrBefore) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrBefore) ChangeReason(reason error) {
+	e.Reason = reason
+}
+
+// NewErrBefore creates a new ErrBefore error.
+//
+// Parameters:
+//   - before: The element that was processed before the error occurred.
+//   - reason: The reason for the error.
+//
+// Returns:
+//   - *ErrBefore: A pointer to the new ErrBefore error.
+func NewErrBefore(before string, reason error) *ErrBefore {
+	return &ErrBefore{
+		Before: before,
+		Reason: reason,
+	}
+}

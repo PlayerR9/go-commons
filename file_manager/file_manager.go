@@ -12,6 +12,54 @@ import (
 	gcstr "github.com/PlayerR9/go-commons/strings"
 )
 
+// FileExists checks if a file exists.
+//
+// Parameters:
+//   - path: The path of the file.
+//   - opts: The file settings options.
+//
+// Returns:
+//   - bool: True if the file exists, false otherwise.
+//   - error: The error if any.
+//
+// By default, it will allow directories and files with any extension.
+func FileExists(path string, opts ...FileSettingsOption) (bool, error) {
+	settings := FileSettings{
+		allow_dir:    true,
+		allow_file:   true,
+		allowed_exts: nil,
+	}
+
+	for _, opt := range opts {
+		opt(&settings)
+	}
+
+	stat, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	if stat.IsDir() {
+		return settings.allow_dir, nil
+	}
+
+	if !settings.allow_file {
+		return false, nil
+	}
+
+	if len(settings.allowed_exts) == 0 {
+		return true, nil
+	}
+
+	name := stat.Name()
+	ext := filepath.Ext(name)
+
+	_, ok := slices.BinarySearch(settings.allowed_exts, ext)
+	return ok, nil
+}
+
 // AddSuffixToFileName adds a suffix to a file name.
 //
 // Parameters:
