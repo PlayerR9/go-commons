@@ -399,3 +399,40 @@ func NewErrInvalidCall(functionName string, function any, reason error) *ErrInva
 		Reason:    reason,
 	}
 }
+
+// AssertionFailed is the message that is shown when an assertion fails.
+const AssertionFailed string = "[ASSERTION FAILED]: "
+
+// ErrAssertFailed is the error that is shown when an assertion fails.
+type ErrAssertFailed struct {
+	// Msg is the message that is shown when the assertion fails.
+	Msg string
+}
+
+// Error implements the error interface.
+//
+// Message: "[ASSERTION FAILED]: <msg>"
+func (e ErrAssertFailed) Error() string {
+	var msg string
+
+	if e.Msg == "" {
+		msg = "something went wrong"
+	} else {
+		msg = e.Msg
+	}
+
+	return AssertionFailed + msg
+}
+
+// NewErrAssertFailed is a constructor for ErrAssertFailed.
+//
+// Parameters:
+//   - msg: the message that is shown when the assertion fails.
+//
+// Returns:
+//   - *ErrAssertFailed: the error. Never returns nil.
+func NewErrAssertFailed(msg string) *ErrAssertFailed {
+	return &ErrAssertFailed{
+		Msg: msg,
+	}
+}
