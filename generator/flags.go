@@ -28,12 +28,16 @@ type OutputLocVal struct {
 }
 
 // String implements the flag.Value interface.
-func (v *OutputLocVal) String() string {
+func (v OutputLocVal) String() string {
 	return v.loc
 }
 
 // Set implements the flag.Value interface.
 func (v *OutputLocVal) Set(loc string) error {
+	if v == nil {
+		return gcers.NilReceiver
+	}
+
 	v.loc = loc
 	return nil
 }
@@ -136,6 +140,10 @@ func NewOutputFlag(def_value string, required bool) *OutputLocVal {
 //
 //	fmt.Println(loc) // test.go
 func (o *OutputLocVal) fix(default_file_name string) (string, error) {
+	if o == nil {
+		return "", gcers.NilReceiver
+	}
+
 	if o.loc == "" {
 		if o.is_required {
 			return "", errors.New("flag must be set")
@@ -215,6 +223,10 @@ func (s StructFieldsVal) String() string {
 
 // Set implements the flag.Value interface.
 func (s *StructFieldsVal) Set(value string) error {
+	if s == nil {
+		return gcers.NilReceiver
+	}
+
 	if value == "" && s.is_required {
 		return errors.New("value must be set")
 	}
@@ -369,7 +381,7 @@ func (s StructFieldsVal) Fields() map[string]string {
 //
 // Returns:
 //   - []rune: The letters of the generics.
-func (s *StructFieldsVal) Generics() []rune {
+func (s StructFieldsVal) Generics() []rune {
 	return s.generics.Keys()
 }
 
@@ -383,7 +395,7 @@ func (s *StructFieldsVal) Generics() []rune {
 // Returns:
 //   - string: A string representing the parameters.
 //   - error: An error if any.
-func (s *StructFieldsVal) MakeParameterList() (string, error) {
+func (s StructFieldsVal) MakeParameterList() (string, error) {
 	var field_list []string
 	var type_list []string
 
@@ -447,7 +459,7 @@ func (s *StructFieldsVal) MakeParameterList() (string, error) {
 // Returns:
 //   - string: A string representing the assignments.
 //   - error: An error if any.
-func (s *StructFieldsVal) MakeAssignmentList() (map[string]string, error) {
+func (s StructFieldsVal) MakeAssignmentList() (map[string]string, error) {
 	var field_list []string
 	var type_list []string
 
@@ -547,6 +559,10 @@ func (s GenericsSignVal) String() string {
 
 // Set implements the flag.Value interface.
 func (s *GenericsSignVal) Set(value string) error {
+	if s == nil {
+		return gcers.NilReceiver
+	}
+
 	if value == "" {
 		return nil
 	}
@@ -660,6 +676,10 @@ func NewGenericsSignFlag(flag_name string, is_required bool, count int) *Generic
 //   - letter is an upper case letter.
 //   - g_type != ""
 func (gv *GenericsSignVal) add(letter rune, g_type string) error {
+	if gv == nil {
+		panic(gcers.NilReceiver)
+	}
+
 	// dbg.AssertParam("letter", unicode.IsUpper(letter), errors.New("letter must be an upper case letter"))
 	// dbg.AssertParam("g_type", g_type != "", errors.New("type must be set"))
 
@@ -745,6 +765,10 @@ func (s TypeListVal) String() string {
 
 // Set implements the flag.Value interface.
 func (s *TypeListVal) Set(value string) error {
+	if s == nil {
+		return gcers.NilReceiver
+	}
+
 	if value == "" && s.is_required {
 		return errors.New("value must be set")
 	}

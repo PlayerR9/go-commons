@@ -18,7 +18,10 @@ type PackageNameSetter interface {
 	//
 	// Parameters:
 	//   - pkg_name: The package name to use for the generated code.
-	SetPackageName(pkg_name string)
+	//
+	// Returns:
+	// 	- bool: True if the receiver is not nil, false otherwise.
+	SetPackageName(pkg_name string) bool
 }
 
 // DoFunc is the type of the function to perform on the data before generating the code.
@@ -46,17 +49,16 @@ type CodeGenerator[T PackageNameSetter] struct {
 //
 // Returns:
 //   - *CodeGenerator: The code generator.
-//
-// This function returns nil iff templ is nil.
-func NewCodeGenerator[T PackageNameSetter](templ *template.Template) *CodeGenerator[T] {
+//   - error: An error of type *errors.ErrInvalidParameter if 'templ' is nil.
+func NewCodeGenerator[T PackageNameSetter](templ *template.Template) (*CodeGenerator[T], error) {
 	if templ == nil {
-		return nil
+		return nil, gcers.NewErrNilParameter("templ")
 	}
 
 	return &CodeGenerator[T]{
 		templ:    templ,
 		do_funcs: make([]DoFunc[T], 0),
-	}
+	}, nil
 }
 
 // NewCodeGeneratorFromTemplate creates a new code generator from a template. Panics
@@ -86,13 +88,16 @@ func NewCodeGeneratorFromTemplate[T PackageNameSetter](name, templ string) (*Cod
 // Parameters:
 //   - do_func: The function to perform on the data before generating the code.
 //
-// Does nothing if the do_func is nil.
-func (cg *CodeGenerator[T]) AddDoFunc(do_func DoFunc[T]) {
-	if do_func == nil {
-		return
+// Returns:
+//   - bool: True if neither the receiver nor the 'do_func' are nil, false otherwise.
+func (cg *CodeGenerator[T]) AddDoFunc(do_func DoFunc[T]) bool {
+	if cg == nil || do_func == nil {
+		return false
 	}
 
 	cg.do_funcs = append(cg.do_funcs, do_func)
+
+	return true
 }
 
 // fix_import_dir takes a destination string and manipulates it to get the correct import path.
@@ -220,7 +225,10 @@ func (cg CodeGenerator[T]) GenerateWithLoc(loc string, data T) (*Generated, erro
 		return g, fmt.Errorf("failed to fix import path: %w", err)
 	}
 
-	data.SetPackageName(pkg_name)
+	ok := data.SetPackageName(pkg_name)
+	if !ok {
+		return nil, gcers.NewErrNilParameter("data")
+	}
 
 	for _, f := range cg.do_funcs {
 		err := f(data)
@@ -295,7 +303,10 @@ func (cg CodeGenerator[T]) Generate(o *OutputLocVal, default_file_name string, d
 		return g, fmt.Errorf("failed to fix import path: %w", err)
 	}
 
-	data.SetPackageName(pkg_name)
+	ok := data.SetPackageName(pkg_name)
+	if !ok {
+		return nil, gcers.NewErrNilParameter("data")
+	}
 
 	for _, f := range cg.do_funcs {
 		err := f(data)

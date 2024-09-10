@@ -42,6 +42,10 @@ type CharStream struct {
 // Do err == io.EOF to check if the stream is exhausted. As in Go specification, do not wrap this io.EOF error
 // if you want to propagate it as callers should also be able to do err == io.EOF to check the error.
 func (s *CharStream) ReadRune() (rune, int, error) {
+	if s == nil {
+		return utf8.RuneError, 0, errors.New("nil receiver")
+	}
+
 	if s.get_prev {
 		if s.prev == nil {
 			panic(Unread.Error())
@@ -74,7 +78,7 @@ func (s *CharStream) ReadRune() (rune, int, error) {
 // Errors:
 //   - Unread: When no previous rune was read.
 func (s *CharStream) UnreadRune() error {
-	if s.prev == nil {
+	if s == nil || s.prev == nil {
 		return Unread
 	}
 
@@ -87,11 +91,20 @@ func (s *CharStream) UnreadRune() error {
 //
 // Parameters:
 //   - data: The content of the stream.
-func (s *CharStream) Init(data []byte) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (s *CharStream) Init(data []byte) bool {
+	if s == nil {
+		return false
+	}
+
 	s.data = data
 	s.get_prev = false
 	s.prev = nil
 	s.pos = 0
+
+	return true
 }
 
 // Pos returns the current position in the stream.

@@ -3,6 +3,7 @@ package f_string
 import (
 	"fmt"
 
+	gcers "github.com/PlayerR9/go-commons/errors"
 	gcint "github.com/PlayerR9/go-commons/ints"
 )
 
@@ -49,8 +50,8 @@ type FormatConfig struct {
 // Copy is a method that creates a copy of the formatter configuration.
 //
 // Returns:
-//   - *FormatterConfig: A copy of the formatter configuration.
-func (form *FormatConfig) Copy() *FormatConfig {
+//   - *FormatterConfig: A copy of the formatter configuration. Never returns nil.
+func (form FormatConfig) Copy() *FormatConfig {
 	formCopy := new(FormatConfig)
 
 	if form.indentation != nil {
@@ -126,7 +127,7 @@ func NewFormatter(options ...any) *FormatConfig {
 //
 // Returns:
 //   - int: The tab size.
-func (form *FormatConfig) GetTabSize() int {
+func (form FormatConfig) GetTabSize() int {
 	size := form.format.tabSize
 	return size
 }
@@ -135,7 +136,7 @@ func (form *FormatConfig) GetTabSize() int {
 //
 // Returns:
 //   - int: The indentation size.
-func (form *FormatConfig) GetSpacingSize() int {
+func (form FormatConfig) GetSpacingSize() int {
 	size := form.format.spacingSize
 	return size
 }
@@ -160,9 +161,16 @@ func ApplyForm[T FStringer](form *FormatConfig, trav *Traversor, elem T) error {
 		return nil
 	}
 
-	otherTrav := newTraversor(form, trav.source)
+	if form == nil {
+		form = DefaultFormatter.Copy()
+	}
 
-	err := elem.FString(otherTrav)
+	otherTrav, err := newTraversor(form, trav.source)
+	if err != nil {
+		panic(gcers.NewErrAssertFailed(err.Error()))
+	}
+
+	err = elem.FString(otherTrav)
 	if err != nil {
 		return err
 	}
@@ -189,7 +197,14 @@ func ApplyFormMany[T FStringer](form *FormatConfig, trav *Traversor, elems []T) 
 		return nil
 	}
 
-	otherTrav := newTraversor(form, trav.source)
+	if form == nil {
+		form = DefaultFormatter.Copy()
+	}
+
+	otherTrav, err := newTraversor(form, trav.source)
+	if err != nil {
+		panic(gcers.NewErrAssertFailed(err.Error()))
+	}
 
 	for i, elem := range elems {
 		err := elem.FString(otherTrav)
@@ -219,9 +234,16 @@ func ApplyFormFunc[T any](form *FormatConfig, trav *Traversor, elem T, f FString
 		return nil
 	}
 
-	otherTrav := newTraversor(form, trav.source)
+	if form == nil {
+		form = DefaultFormatter.Copy()
+	}
 
-	err := f(otherTrav, elem)
+	otherTrav, err := newTraversor(form, trav.source)
+	if err != nil {
+		panic(gcers.NewErrAssertFailed(err.Error()))
+	}
+
+	err = f(otherTrav, elem)
 	if err != nil {
 		return err
 	}
@@ -248,7 +270,14 @@ func ApplyFormManyFunc[T any](form *FormatConfig, trav *Traversor, elems []T, f 
 		return nil
 	}
 
-	otherTrav := newTraversor(form, trav.source)
+	if form == nil {
+		form = DefaultFormatter.Copy()
+	}
+
+	otherTrav, err := newTraversor(form, trav.source)
+	if err != nil {
+		panic(gcers.NewErrAssertFailed(err.Error()))
+	}
 
 	for i, elem := range elems {
 		err := f(otherTrav, elem)

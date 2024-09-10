@@ -18,7 +18,7 @@ type ErrTokenNotFound struct {
 // Error implements the error interface.
 //
 // Message: "{Type} token {Token} is not in the content"
-func (e *ErrTokenNotFound) Error() string {
+func (e ErrTokenNotFound) Error() string {
 	var str_type string
 
 	if e.IsOpening {
@@ -72,7 +72,7 @@ type ErrNeverOpened struct {
 //
 // Message:
 //   - "closing token {ClosingToken} found without a corresponding opening token {OpeningToken}".
-func (e *ErrNeverOpened) Error() string {
+func (e ErrNeverOpened) Error() string {
 	values := []string{
 		"closing token",
 		"(",
@@ -123,7 +123,7 @@ type ErrUnexpectedRune struct {
 // Format:
 //
 //	"expected <expected> <prev>, got <actual> instead"
-func (e *ErrUnexpectedRune) Error() string {
+func (e ErrUnexpectedRune) Error() string {
 	var builder strings.Builder
 
 	builder.WriteString("expected ")

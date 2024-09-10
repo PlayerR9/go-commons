@@ -81,8 +81,11 @@ type StdPrinter struct {
 
 // Cleanup implements the Cleaner interface.
 func (p *StdPrinter) Clean() {
-	p.buff.Clean()
+	if p == nil || p.buff == nil {
+		return
+	}
 
+	p.buff.Clean()
 	p.buff = nil
 }
 
@@ -107,7 +110,7 @@ func NewStdPrinter(form *FormatConfig) (*StdPrinter, *Traversor) {
 		formatter: form,
 	}
 
-	trav := newTraversor(p.formatter, p.buff)
+	trav, _ := newTraversor(p.formatter, p.buff)
 
 	return p, trav
 }
@@ -131,7 +134,7 @@ func NewStdPrinterFromConfig(opts ...any) (*StdPrinter, *Traversor) {
 		formatter: NewFormatter(opts...),
 	}
 
-	trav := newTraversor(p.formatter, p.buff)
+	trav, _ := newTraversor(p.formatter, p.buff)
 
 	return p, trav
 }
@@ -139,8 +142,12 @@ func NewStdPrinterFromConfig(opts ...any) (*StdPrinter, *Traversor) {
 // GetPages returns the pages of the StdPrinter.
 //
 // Returns:
-//   - [][][][]string: The pages of the StdPrinter.
+//   - [][][][]string: The pages of the StdPrinter. Nil if the receiver is nil.
 func (p *StdPrinter) GetPages() [][][][]string {
+	if p == nil {
+		return nil
+	}
+
 	tabSize, fieldSpacing := p.formatter.GetTabSize(), p.formatter.GetSpacingSize()
 
 	pages := p.buff.GetPages(tabSize, fieldSpacing)
@@ -170,7 +177,7 @@ func SprintFString[T FStringer](form *FormatConfig, elem T) ([][][][]string, err
 
 	buff := internal.NewBuffer()
 
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	err := elem.FString(trav)
 	if err != nil {
@@ -206,7 +213,7 @@ func Sprint(form *FormatConfig, strs ...string) ([][][][]string, error) {
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	for i, str := range strs {
 		err := trav.writeString(str)
@@ -245,7 +252,7 @@ func Sprintj(form *FormatConfig, sep string, strs ...string) ([][][][]string, er
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	str := strings.Join(strs, sep)
 
@@ -283,7 +290,7 @@ func Sfprint(form *FormatConfig, a ...interface{}) ([][][][]string, error) {
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	_, err := fmt.Fprint(trav, a...)
 	if err != nil {
@@ -320,7 +327,7 @@ func Sfprintf(form *FormatConfig, format string, a ...interface{}) ([][][][]stri
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	_, err := fmt.Fprintf(trav, format, a...)
 	if err != nil {
@@ -356,7 +363,7 @@ func Sprintln(form *FormatConfig, lines ...string) ([][][][]string, error) {
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	for i, line := range lines {
 		err := trav.writeLine(line)
@@ -395,7 +402,7 @@ func Sprintjln(form *FormatConfig, sep string, lines ...string) ([][][][]string,
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	str := strings.Join(lines, sep)
 
@@ -433,7 +440,7 @@ func Sfprintln(form *FormatConfig, a ...interface{}) ([][][][]string, error) {
 	}
 
 	buff := internal.NewBuffer()
-	trav := newTraversor(form, buff)
+	trav, _ := newTraversor(form, buff)
 
 	_, err := fmt.Fprintln(trav, a...)
 	if err != nil {

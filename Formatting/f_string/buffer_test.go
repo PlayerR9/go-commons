@@ -28,10 +28,12 @@ func TestBufferIndent(t *testing.T) {
 		t.Fatalf("Expected no error, but got %s", err.Error())
 	}
 
+	form, _ := trav.GetConfig(
+		WithModifiedIndent(2),
+	)
+
 	err = ApplyForm(
-		trav.GetConfig(
-			WithModifiedIndent(2),
-		),
+		form,
 		trav,
 		&MockElement{},
 	)

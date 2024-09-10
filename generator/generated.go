@@ -24,9 +24,16 @@ type Generated struct {
 //   - suffix: The suffix to add to the file name. If empty, no suffix is added.
 //   - sub_directories: The sub directories to create the file in.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // The suffix is useful for when generating multiple files as it adds a suffix without
 // changing the extension.
-func (g *Generated) ModifySuffixPath(suffix string, sub_directories ...string) {
+func (g *Generated) ModifySuffixPath(suffix string, sub_directories ...string) bool {
+	if g == nil {
+		return false
+	}
+
 	var loc string
 
 	if len(sub_directories) > 0 {
@@ -41,6 +48,8 @@ func (g *Generated) ModifySuffixPath(suffix string, sub_directories ...string) {
 	}
 
 	g.DestLoc = loc
+
+	return true
 }
 
 // ModifyPrefixPath modifies the path of the generated code.
@@ -49,9 +58,16 @@ func (g *Generated) ModifySuffixPath(suffix string, sub_directories ...string) {
 //   - prefix: The prefix to add to the file name. If empty, no prefix is added.
 //   - sub_directories: The sub directories to create the file in.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // The prefix is useful for when generating multiple files as it adds a prefix without
 // changing the extension.
-func (g *Generated) ModifyPrefixPath(prefix string, sub_directories ...string) {
+func (g *Generated) ModifyPrefixPath(prefix string, sub_directories ...string) bool {
+	if g == nil {
+		return false
+	}
+
 	var loc string
 
 	dir, file := filepath.Split(g.DestLoc)
@@ -63,6 +79,8 @@ func (g *Generated) ModifyPrefixPath(prefix string, sub_directories ...string) {
 	}
 
 	g.DestLoc = loc
+
+	return true
 }
 
 // WriteFile writes the generated code to the destination file.

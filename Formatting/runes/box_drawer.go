@@ -1,8 +1,7 @@
 package runes
 
 import (
-	"errors"
-
+	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
 
@@ -63,7 +62,7 @@ type BoxStyle struct {
 //   - padding: The padding of the box. [Top, Right, Bottom, Left]
 //
 // Returns:
-//   - *BoxStyle: The new box style.
+//   - *BoxStyle: The new box style. Never returns nil.
 func NewBoxStyle(line_type BoxBorderType, is_heavy bool, padding [4]int) *BoxStyle {
 	for i := 0; i < 4; i++ {
 		if padding[i] < 0 {
@@ -84,7 +83,7 @@ func NewBoxStyle(line_type BoxBorderType, is_heavy bool, padding [4]int) *BoxSty
 //
 // Returns:
 //   - [4]rune: The corners. [TopLeft, TopRight, BottomLeft, BottomRight]
-func (bs *BoxStyle) Corners() [4]rune {
+func (bs BoxStyle) Corners() [4]rune {
 	var corners [4]rune
 
 	if bs.IsHeavy {
@@ -102,7 +101,7 @@ func (bs *BoxStyle) Corners() [4]rune {
 //
 // Returns:
 //   - string: The top border.
-func (bs *BoxStyle) TopBorder() rune {
+func (bs BoxStyle) TopBorder() rune {
 	var tb_border rune
 
 	switch bs.LineType {
@@ -139,7 +138,7 @@ func (bs *BoxStyle) TopBorder() rune {
 //
 // Returns:
 //   - string: The side border.
-func (bs *BoxStyle) SideBorder() rune {
+func (bs BoxStyle) SideBorder() rune {
 	var side_border rune
 
 	switch bs.LineType {
@@ -241,9 +240,9 @@ func make_tb_border(width int, border, left_corner, right_corner rune) []rune {
 //   - If the box style is nil, the default box style will be used.
 //
 // Each string of the content represents a row in the box.
-func (bs *BoxStyle) Apply(table *RuneTable) error {
+func (bs BoxStyle) Apply(table *RuneTable) error {
 	if table == nil {
-		return errors.New("table cannot be nil")
+		return gcers.NewErrNilParameter("table")
 	}
 
 	for i := 0; i < 4; i++ {
@@ -260,7 +259,7 @@ func (bs *BoxStyle) Apply(table *RuneTable) error {
 	prefix := append([]rune{side_border}, left_padding...)
 	suffix := append(right_padding, side_border)
 
-	right_edge := table.AlignRightEdge()
+	right_edge, _ := table.AlignRightEdge()
 
 	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
 	empty_row := gcch.Repeat(' ', right_edge)
@@ -269,17 +268,17 @@ func (bs *BoxStyle) Apply(table *RuneTable) error {
 	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])
 
 	for i := 0; i < bs.Padding[0]; i++ {
-		table.PrependTopRow(empty_row)
+		_ = table.PrependTopRow(empty_row)
 	}
 
 	for i := 0; i < bs.Padding[2]; i++ {
-		table.AppendBottomRow(empty_row)
+		_ = table.AppendBottomRow(empty_row)
 	}
 
-	table.PrefixEachRow(prefix)
-	table.SuffixEachRow(suffix)
-	table.PrependTopRow(top_border)
-	table.AppendBottomRow(bottom_border)
+	_ = table.PrefixEachRow(prefix)
+	_ = table.SuffixEachRow(suffix)
+	_ = table.PrependTopRow(top_border)
+	_ = table.AppendBottomRow(bottom_border)
 
 	return nil
 }

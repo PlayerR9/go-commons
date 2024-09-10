@@ -5,6 +5,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	gcers "github.com/PlayerR9/go-commons/errors"
 	gcf "github.com/PlayerR9/go-commons/fixer"
 	gcint "github.com/PlayerR9/go-commons/ints"
 )
@@ -28,23 +29,31 @@ type Buffer struct {
 
 // Cleanup implements the object.Cleaner interface method.
 func (b *Buffer) Clean() {
-	// pages are the pages of the buffer.
-	for i := 0; i < len(b.pages); i++ {
-		slice := gcf.CleanSlice(b.pages[i])
-		b.pages[i] = slice
-		b.pages[i] = nil
+	if b == nil {
+		return
 	}
 
-	b.pages = nil
+	if len(b.pages) > 0 {
+		// pages are the pages of the buffer.
+		for i := 0; i < len(b.pages); i++ {
+			slice := gcf.CleanSlice(b.pages[i])
+			b.pages[i] = slice
+			b.pages[i] = nil
+		}
 
-	b.buff.Cleanup()
-	b.buff = nil
+		b.pages = nil
+	}
+
+	if b.buff != nil {
+		b.buff.Cleanup()
+		b.buff = nil
+	}
 }
 
 // NewBuffer creates a new buffer.
 //
 // Returns:
-//   - *Buffer: The new buffer.
+//   - *Buffer: The new buffer. Never returns nil.
 func NewBuffer() *Buffer {
 	b := &Buffer{
 		pages:     [][]*sectionBuilder{{}},
@@ -59,13 +68,15 @@ func NewBuffer() *Buffer {
 // position of a line.
 //
 // Returns:
-//   - bool: True if the current position is the first position of a line.
+//   - bool: True if the current position is the first position of a line, false otherwise.
+//
+// If the receiver is nil, this function returns true.
 func (b *Buffer) IsFirstOfLine() bool {
 	if b.buff == nil {
 		return true
 	}
 
-	ok := b.buff.is_first_of_line()
+	ok, _ := b.buff.is_first_of_line()
 	return ok
 }
 
@@ -75,16 +86,25 @@ func (b *Buffer) IsFirstOfLine() bool {
 //
 // Parameters:
 //   - str: The string to write.
-func (b *Buffer) ForceWriteString(str string) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) ForceWriteString(str string) bool {
+	if b == nil {
+		return false
+	}
+
 	if str == "" {
-		return
+		return true
 	}
 
 	if b.buff == nil {
 		b.buff = new_section_builder()
 	}
 
-	b.buff.write_string(str)
+	_ = b.buff.write_string(str)
+
+	return true
 }
 
 // WriteRune is a private function that appends a rune to the buffer
@@ -92,12 +112,21 @@ func (b *Buffer) ForceWriteString(str string) {
 //
 // Parameters:
 //   - r: The rune to append.
-func (b *Buffer) WriteRune(r rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) WriteRune(r rune) bool {
+	if b == nil {
+		return false
+	}
+
 	if b.buff == nil {
 		b.buff = new_section_builder()
 	}
 
-	b.buff.write_rune(r)
+	_ = b.buff.write_rune(r)
+
+	return true
 }
 
 // Write is a private function that appends a rune to the buffer
@@ -105,7 +134,14 @@ func (b *Buffer) WriteRune(r rune) {
 //
 // Parameters:
 //   - char: The rune to append.
-func (b *Buffer) Write(char rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) Write(char rune) bool {
+	if b == nil {
+		return false
+	}
+
 	switch char {
 	case '\t':
 		// Tab : Add spaces until the next tab stop
@@ -113,7 +149,7 @@ func (b *Buffer) Write(char rune) {
 			b.buff = new_section_builder()
 		}
 
-		b.buff.write_rune(char) // deal with this in later stages
+		_ = b.buff.write_rune(char) // deal with this in later stages
 	case '\v':
 		// vertical tab : Add vertical tabulation
 
@@ -123,17 +159,17 @@ func (b *Buffer) Write(char rune) {
 		// or move to the start of the line and down (with line feed)
 		// line feed : Add a new line or move to the left edge and down
 
-		b.accept()
+		_ = b.accept()
 	case '\f':
 		// form feed : Go to the next page
-		b.accept()
+		_ = b.accept()
 
 		b.last_page++
 		b.pages = append(b.pages, []*sectionBuilder{})
 	case ' ':
 		// Space
 		if b.buff != nil {
-			b.buff.accept_word()
+			_ = b.buff.accept_word()
 		}
 	case '\u0000', '\a':
 		// null : Ignore this character
@@ -143,7 +179,7 @@ func (b *Buffer) Write(char rune) {
 		if b.buff != nil {
 			ok := b.buff.remove_one()
 			if ok {
-				return
+				return true
 			}
 		}
 
@@ -155,7 +191,7 @@ func (b *Buffer) Write(char rune) {
 
 				ok := section.remove_one()
 				if ok {
-					return
+					return true
 				}
 			}
 		}
@@ -174,11 +210,13 @@ func (b *Buffer) Write(char rune) {
 
 		if char == NBSP {
 			// Non-breaking space
-			b.buff.write_rune(' ')
+			_ = b.buff.write_rune(' ')
 		} else {
-			b.buff.write_rune(char)
+			_ = b.buff.write_rune(char)
 		}
 	}
+
+	return true
 }
 
 // AcceptLine is a function that accepts the current line of the formatted string.
@@ -186,10 +224,19 @@ func (b *Buffer) Write(char rune) {
 //
 // Parameters:
 //   - right_delim: The right delimiter to use for the line.
-func (b *Buffer) AcceptLine(right_delim string) {
-	if b.buff != nil {
-		b.buff.may_accept(right_delim)
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) AcceptLine(right_delim string) bool {
+	if b == nil {
+		return false
 	}
+
+	if b.buff != nil {
+		_ = b.buff.may_accept(right_delim)
+	}
+
+	return true
 }
 
 // AcceptLine is a function that accepts the current line of the formatted string.
@@ -197,12 +244,21 @@ func (b *Buffer) AcceptLine(right_delim string) {
 //
 // Parameters:
 //   - right_delim: The right delimiter to use for the line.
-func (b *Buffer) ForceAcceptLine(right_delim string) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) ForceAcceptLine(right_delim string) bool {
+	if b == nil {
+		return false
+	}
+
 	if b.buff == nil {
 		b.buff = new_section_builder()
 	}
 
-	b.buff.accept(right_delim)
+	_ = b.buff.accept(right_delim)
+
+	return true
 }
 
 // WriteEmptyLine is a function that accepts the current line
@@ -210,20 +266,38 @@ func (b *Buffer) ForceAcceptLine(right_delim string) {
 //
 // Parameters:
 //   - right_delim: The right delimiter to use for the line.
-func (b *Buffer) WriteEmptyLine(right_delim string) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) WriteEmptyLine(right_delim string) bool {
+	if b == nil {
+		return false
+	}
+
 	if b.buff == nil {
 		b.buff = new_section_builder()
 	}
 
-	b.buff.accept(right_delim)
+	_ = b.buff.accept(right_delim)
+
+	return true
 }
 
 // AcceptWord is a function that accepts the current word of the formatted string
 // when the word is not empty.
-func (b *Buffer) AcceptWord() {
-	if b.buff != nil {
-		b.buff.accept_word()
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (b *Buffer) AcceptWord() bool {
+	if b == nil {
+		return false
 	}
+
+	if b.buff != nil {
+		_ = b.buff.accept_word()
+	}
+
+	return true
 }
 
 // WriteBytes is a function that writes bytes to the formatted string.
@@ -234,7 +308,15 @@ func (b *Buffer) AcceptWord() {
 // Returns:
 //   - int: The number of bytes written.
 //   - error: An error if one occurred.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *ints.ErrAt if the data is not properly UTF-8 encoded.
 func (b *Buffer) WriteBytes(data []byte) (int, error) {
+	if b == nil {
+		return 0, gcers.NilReceiver
+	}
+
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -247,7 +329,7 @@ func (b *Buffer) WriteBytes(data []byte) (int, error) {
 			return count, gcint.NewErrAt(count+1, "byte", errors.New("invalid UTF-8 encoding"))
 		}
 
-		b.Write(r)
+		_ = b.Write(r)
 
 		data = data[size:]
 	}
@@ -264,6 +346,10 @@ func (b *Buffer) WriteBytes(data []byte) (int, error) {
 // Returns:
 //   - [][][][]string: The pages of the StdPrinter.
 func (b *Buffer) GetPages(tabSize int, fieldSpacing int) [][][][]string {
+	if b == nil {
+		return nil
+	}
+
 	b.finalize()
 	spacing := strings.Repeat(" ", fieldSpacing)
 
@@ -380,17 +466,26 @@ func fix_tab_stop(init, tab_size int, spacing, str string) (string, int) {
 // Parameters:
 //   - sectionType: The section type to convert the buffer to.
 //
+// Returns:
+//   - bool: True if the receiver is nil, false otherwise.
+//
 // Behaviors:
 //   - Even when the buffer is empty, the section is still added to the page.
 //     To avoid this, use the Finalize function.
-func (b *Buffer) accept() {
+func (b *Buffer) accept() bool {
+	if b == nil {
+		return false
+	}
+
 	if b.buff != nil {
-		b.buff.accept_word()
+		_ = b.buff.accept_word()
 	}
 
 	b.pages[b.last_page] = append(b.pages[b.last_page], b.buff)
 
 	b.buff = nil
+
+	return true
 }
 
 // finalize is a private function that finalizes the buffer.
@@ -399,7 +494,7 @@ func (b *Buffer) finalize() {
 		return
 	}
 
-	b.buff.accept_word()
+	_ = b.buff.accept_word()
 
 	b.pages[b.last_page] = append(b.pages[b.last_page], b.buff)
 

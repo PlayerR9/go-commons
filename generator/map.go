@@ -37,7 +37,13 @@ func new_ordered_map[K cmp.Ordered, V any]() *ordered_map[K, V] {
 //
 // Returns:
 //   - bool: True if the value was added to the map, false otherwise.
+//
+// If the receiver is nil, then this function returns nil.
 func (m *ordered_map[K, V]) add(key K, value V, force bool) bool {
+	if m == nil {
+		return false
+	}
+
 	pos, ok := slices.BinarySearch(m.keys, key)
 
 	if !ok {

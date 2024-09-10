@@ -26,7 +26,7 @@ type ErrOutOfBounds struct {
 // Error implements the error interface.
 //
 // Message: "value ( <value> ) not in range <lower_bound> , <upper_bound>"
-func (e *ErrOutOfBounds) Error() string {
+func (e ErrOutOfBounds) Error() string {
 	left_bound := strconv.Itoa(e.LowerBound)
 	right_bound := strconv.Itoa(e.UpperBound)
 
@@ -83,12 +83,18 @@ func NewErrOutOfBounds(value, lowerBound, upperBound int) *ErrOutOfBounds {
 // WithLowerBound sets the lower bound of the value.
 //
 // Parameters:
-//   - isInclusive: True if the lower bound is inclusive. False if the lower bound is exclusive.
+//   - is_inclusive: True if the lower bound is inclusive. False if the lower bound is exclusive.
 //
 // Returns:
-//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds. Never returns nil.
-func (e *ErrOutOfBounds) WithLowerBound(isInclusive bool) *ErrOutOfBounds {
-	e.LowerInclusive = isInclusive
+//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds.
+//
+// Only when the receiver is nil, this function returns nil.
+func (e *ErrOutOfBounds) WithLowerBound(is_inclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
+	e.LowerInclusive = is_inclusive
 
 	return e
 }
@@ -96,12 +102,18 @@ func (e *ErrOutOfBounds) WithLowerBound(isInclusive bool) *ErrOutOfBounds {
 // WithUpperBound sets the upper bound of the value.
 //
 // Parameters:
-//   - isInclusive: True if the upper bound is inclusive. False if the upper bound is exclusive.
+//   - is_inclusive: True if the upper bound is inclusive. False if the upper bound is exclusive.
 //
 // Returns:
-//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds. Never returns nil.
-func (e *ErrOutOfBounds) WithUpperBound(isInclusive bool) *ErrOutOfBounds {
-	e.UpperInclusive = isInclusive
+//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds.
+//
+// Only when the receiver is nil, this function returns nil.
+func (e *ErrOutOfBounds) WithUpperBound(is_inclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
+	e.UpperInclusive = is_inclusive
 
 	return e
 }
@@ -117,7 +129,7 @@ type ErrGT struct {
 // Message: "value must be greater than <value>"
 //
 // If the value is 0, the message is "value must be positive".
-func (e *ErrGT) Error() string {
+func (e ErrGT) Error() string {
 	if e.Value == 0 {
 		return "value must be positive"
 	}
@@ -159,7 +171,7 @@ type ErrLT struct {
 // Message: "value must be less than <value>"
 //
 // If the value is 0, the message is "value must be negative".
-func (e *ErrLT) Error() string {
+func (e ErrLT) Error() string {
 	if e.Value == 0 {
 		return "value must be negative"
 	}
@@ -200,7 +212,7 @@ type ErrGTE struct {
 // Message: "value must be greater than or equal to <value>"
 //
 // If the value is 0, the message is "value must be non-negative".
-func (e *ErrGTE) Error() string {
+func (e ErrGTE) Error() string {
 	if e.Value == 0 {
 		return "value must be non-negative"
 	}
@@ -241,7 +253,7 @@ type ErrLTE struct {
 // Message: "value must be less than or equal to <value>"
 //
 // If the value is 0, the message is "value must be non-positive".
-func (e *ErrLTE) Error() string {
+func (e ErrLTE) Error() string {
 	if e.Value == 0 {
 		return "value must be non-positive"
 	}

@@ -139,8 +139,10 @@ func NewLinearRegression() *LinearRegression {
 // Returns:
 //   - bool: False if there are less than 2 values to calculate the equation.
 //     True otherwise.
+//
+// If the receiver is nil, then false is returned.
 func (l *LinearRegression) FindEquation(values []*big.Float) bool {
-	if len(values) < 2 {
+	if l == nil || len(values) < 2 {
 		return false
 	}
 

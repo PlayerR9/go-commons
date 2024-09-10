@@ -7,14 +7,6 @@ import (
 
 // Set represents a set of elements.
 type Set[T interface {
-	// Equals checks whether the given element is equal to the current element.
-	// Nil elements are never equal.
-	//
-	// Parameters:
-	//   - other: The other element.
-	//
-	// Returns:
-	//   - bool: True if the given element is equal to the current element, false otherwise.
 	Equals(other T) bool
 }] struct {
 	// elems is the set of elements
@@ -26,14 +18,6 @@ type Set[T interface {
 // Returns:
 //   - *Set[T]: The created set. Never returns nil.
 func NewSet[T interface {
-	// Equals checks whether the given element is equal to the current element.
-	// Nil elements are never equal.
-	//
-	// Parameters:
-	//   - other: The other element.
-	//
-	// Returns:
-	//   - bool: True if the given element is equal to the current element, false otherwise.
 	Equals(other T) bool
 }]() *Set[T] {
 	return &Set[T]{
@@ -46,14 +30,6 @@ func NewSet[T interface {
 // Returns:
 //   - *Set[T]: The created set. Never returns nil.
 func NewSetWithItems[T interface {
-	// Equals checks whether the given element is equal to the current element.
-	// Nil elements are never equal.
-	//
-	// Parameters:
-	//   - other: The other element.
-	//
-	// Returns:
-	//   - bool: True if the given element is equal to the current element, false otherwise.
 	Equals(other T) bool
 }](items []T) *Set[T] {
 	unique := make([]T, 0, len(items))
@@ -73,7 +49,7 @@ func NewSetWithItems[T interface {
 //
 // Returns:
 //   - bool: True if the set is empty, false otherwise.
-func (s *Set[T]) IsEmpty() bool {
+func (s Set[T]) IsEmpty() bool {
 	return len(s.elems) == 0
 }
 
@@ -81,7 +57,7 @@ func (s *Set[T]) IsEmpty() bool {
 //
 // Returns:
 //   - int: The number of elements in the set.
-func (s *Set[T]) Size() int {
+func (s Set[T]) Size() int {
 	return len(s.elems)
 }
 
@@ -92,7 +68,13 @@ func (s *Set[T]) Size() int {
 //
 // Returns:
 //   - bool: True if the element was added, false otherwise.
+//
+// If the receiver is nil, this function returns false.
 func (s *Set[T]) Add(elem T) bool {
+	if s == nil {
+		return false
+	}
+
 	has_element := slices.ContainsFunc(s.elems, elem.Equals)
 
 	if !has_element {
@@ -109,8 +91,10 @@ func (s *Set[T]) Add(elem T) bool {
 //
 // Returns:
 //   - int: The number of elements added.
+//
+// If the receiver or 'other' is nil, then 0 is returned, always.
 func (s *Set[T]) Union(other *Set[T]) int {
-	if other == nil {
+	if s == nil || other == nil {
 		return 0
 	}
 
@@ -132,10 +116,12 @@ func (s *Set[T]) Clear() {
 		return
 	}
 
-	for i := 0; i < len(s.elems); i++ {
-		s.elems[i] = *new(T)
+	if len(s.elems) > 0 {
+		for i := 0; i < len(s.elems); i++ {
+			s.elems[i] = *new(T)
+		}
+		s.elems = s.elems[:0]
 	}
-	s.elems = s.elems[:0]
 }
 
 // All returns an iterator that iterates over all elements in the set.

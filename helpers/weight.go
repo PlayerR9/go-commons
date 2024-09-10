@@ -51,7 +51,7 @@ type WeightedElement[O any] struct {
 }
 
 // Data implements the Helperer interface.
-func (we *WeightedElement[O]) Data() (O, error) {
+func (we WeightedElement[O]) Data() (O, error) {
 	return we.elem, nil
 }
 
@@ -59,7 +59,7 @@ func (we *WeightedElement[O]) Data() (O, error) {
 //
 // Returns:
 //   - float64: The weight of the element.
-func (we *WeightedElement[O]) Weight() float64 {
+func (we WeightedElement[O]) Weight() float64 {
 	return we.weight
 }
 

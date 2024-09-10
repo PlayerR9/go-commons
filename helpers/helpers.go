@@ -111,14 +111,14 @@ type SimpleHelper[O any] struct {
 }
 
 // Data implements the Helperer interface.
-func (h *SimpleHelper[O]) Data() (O, error) {
+func (h SimpleHelper[O]) Data() (O, error) {
 	return h.result, h.reason
 }
 
 // Weight implements the Helperer interface.
 //
 // Always returns 0.0.
-func (h *SimpleHelper[O]) Weight() float64 {
+func (h SimpleHelper[O]) Weight() float64 {
 	return 0.0
 }
 
@@ -129,7 +129,7 @@ func (h *SimpleHelper[O]) Weight() float64 {
 //   - reason: The error that occurred during the function evaluation.
 //
 // Returns:
-//   - SimpleHelper: The new SimpleHelper.
+//   - *SimpleHelper[O]: A pointer to the new SimpleHelper. Never returns nil.
 func NewSimpleHelper[O any](result O, reason error) *SimpleHelper[O] {
 	sh := &SimpleHelper[O]{
 		result: result,
@@ -153,12 +153,12 @@ type WeightedHelper[O any] struct {
 }
 
 // Data implements the Helperer interface.
-func (h *WeightedHelper[O]) Data() (O, error) {
+func (h WeightedHelper[O]) Data() (O, error) {
 	return h.result, h.reason
 }
 
 // Weight implements the Helperer interface.
-func (h *WeightedHelper[O]) Weight() float64 {
+func (h WeightedHelper[O]) Weight() float64 {
 	return h.weight
 }
 
@@ -171,7 +171,7 @@ func (h *WeightedHelper[O]) Weight() float64 {
 //     is correct.
 //
 // Returns:
-//   - WeightedHelper: The new WeightedHelper.
+//   - *WeightedHelper[0]: A pointer to the new WeightedHelper. Never returns nil.
 func NewWeightedHelper[O any](result O, reason error, weight float64) *WeightedHelper[O] {
 	we := &WeightedHelper[O]{
 		result: result,

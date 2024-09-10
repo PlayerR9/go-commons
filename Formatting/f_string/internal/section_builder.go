@@ -24,16 +24,22 @@ type sectionBuilder struct {
 
 // Cleanup implements the object.Cleaner interface method.
 func (sb *sectionBuilder) Cleanup() {
+	if sb == nil {
+		return
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
-	for i := 0; i < len(sb.lines); i++ {
-		line := gcf.CleanSliceOf(sb.lines[i])
-		sb.lines[i] = line
-		sb.lines[i] = nil
-	}
+	if len(sb.lines) > 0 {
+		for i := 0; i < len(sb.lines); i++ {
+			line := gcf.CleanSliceOf(sb.lines[i])
+			sb.lines[i] = line
+			sb.lines[i] = nil
+		}
 
-	sb.lines = sb.lines[:0]
+		sb.lines = sb.lines[:0]
+	}
 
 	sb.buff.Reset()
 }
@@ -41,7 +47,7 @@ func (sb *sectionBuilder) Cleanup() {
 // new_section_builder creates a new section builder.
 //
 // Returns:
-//   - *sectionBuilder: The new section builder.
+//   - *sectionBuilder: The new section builder. Never returns nil.
 func new_section_builder() *sectionBuilder {
 	sb := &sectionBuilder{
 		lines:     [][]string{{}},
@@ -54,8 +60,14 @@ func new_section_builder() *sectionBuilder {
 // remove_one is a function that removes the last character from the section.
 //
 // Returns:
-//   - bool: True if a character was removed. False otherwise.
+//   - bool: True if a character was removed, false otherwise.
+//
+// If the receiver is nil, this function returns false.
 func (sb *sectionBuilder) remove_one() bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
@@ -92,6 +104,10 @@ func (sb *sectionBuilder) remove_one() bool {
 // Returns:
 //   - [][]string: The words of the section.
 func (sb *sectionBuilder) get_lines() [][]string {
+	if sb == nil {
+		return nil
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
@@ -103,17 +119,22 @@ func (sb *sectionBuilder) get_lines() [][]string {
 //
 // Returns:
 //   - bool: True if the current position is the first position of a line.
-func (sb *sectionBuilder) is_first_of_line() bool {
+//   - bool: True if the receiver is not nil, false otherwise.
+func (sb *sectionBuilder) is_first_of_line() (bool, bool) {
+	if sb == nil {
+		return false, false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
 	size := sb.buff.Len()
 	if size > 0 {
-		return false
+		return false, true
 	}
 
 	size = len(sb.lines[sb.last_line])
-	return size == 0
+	return size == 0, true
 }
 
 // accept is a function that accepts the current word and
@@ -121,7 +142,14 @@ func (sb *sectionBuilder) is_first_of_line() bool {
 //
 // Parameters:
 //   - right_delim: The right delimiter to use. If empty, it is not used.
-func (sb *sectionBuilder) accept(right_delim string) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (sb *sectionBuilder) accept(right_delim string) bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
@@ -139,6 +167,8 @@ func (sb *sectionBuilder) accept(right_delim string) {
 
 	sb.lines = append(sb.lines, []string{})
 	sb.last_line++
+
+	return true
 }
 
 // may_accept is a function that, like accept, accepts the current word and
@@ -146,13 +176,20 @@ func (sb *sectionBuilder) accept(right_delim string) {
 //
 // Parameters:
 //   - right_delim: The delimiter to use. If empty, it is not used.
-func (sb *sectionBuilder) may_accept(right_delim string) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (sb *sectionBuilder) may_accept(right_delim string) bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
 	size := sb.buff.Len()
 	if size == 0 {
-		return
+		return true
 	}
 
 	if right_delim != "" {
@@ -166,46 +203,75 @@ func (sb *sectionBuilder) may_accept(right_delim string) {
 
 	sb.lines = append(sb.lines, []string{})
 	sb.last_line++
+
+	return true
 }
 
 // accept_word is a function that accepts the current in-progress word
 // and resets the builder.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // Behaviors:
 //   - If the buffer is empty, nothing happens.
-func (sb *sectionBuilder) accept_word() {
+func (sb *sectionBuilder) accept_word() bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
 	size := sb.buff.Len()
 	if size == 0 {
-		return
+		return true
 	}
 
 	str := sb.buff.String()
 
 	sb.lines[sb.last_line] = append(sb.lines[sb.last_line], str)
 	sb.buff.Reset()
+
+	return false
 }
 
 // write_rune adds a rune to the current, in-progress word.
 //
 // Parameters:
 //   - r: The rune to write.
-func (sb *sectionBuilder) write_rune(r rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (sb *sectionBuilder) write_rune(r rune) bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
 	sb.buff.WriteRune(r)
+
+	return true
 }
 
 // write_string adds a string to the current, in-progress word.
 //
 // Parameters:
 //   - str: The string to write.
-func (sb *sectionBuilder) write_string(str string) {
+//
+// Returns:
+//   - bool: True if the receiver is nil, false otherwise.
+func (sb *sectionBuilder) write_string(str string) bool {
+	if sb == nil {
+		return false
+	}
+
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
 	sb.buff.WriteString(str)
+
+	return true
 }

@@ -23,7 +23,7 @@ type ErrAt struct {
 // Message:
 //   - "something went wrong at the <ordinal> <idx_type>" if Reason is nil
 //   - "<ordinal> <idx_type> is invalid: <reason>" if Reason is not nil
-func (e *ErrAt) Error() string {
+func (e ErrAt) Error() string {
 	var idx_type string
 
 	if e.IdxType != "" {
@@ -50,9 +50,20 @@ func (e *ErrAt) Error() string {
 	return builder.String()
 }
 
-// Unwrap implements the errors.Unwrap interface.
-func (e *ErrAt) Unwrap() error {
+// Unwrap implements the errors.Unwrapper interface.
+func (e ErrAt) Unwrap() error {
 	return e.Reason
+}
+
+// ChangeReason implements the errors.Unwrapper interface.
+func (e *ErrAt) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Reason = reason
+
+	return true
 }
 
 // NewErrAt creates a new ErrAt error.
@@ -72,14 +83,6 @@ func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
 		IdxType: idx_type,
 		Reason:  reason,
 	}
-}
-
-// ChangeReason changes the reason for the error.
-//
-// Parameters:
-//   - reason: The new reason for the error.
-func (e *ErrAt) ChangeReason(reason error) {
-	e.Reason = reason
 }
 
 // ErrWhileAt represents an error that occurs while doing something at a specific index.
@@ -102,7 +105,7 @@ type ErrWhileAt struct {
 // Message:
 // - "an error occurred while <operation> <ordinal> <idx_type>" if Reason is nil
 // - "while <operation> <ordinal> <idx_type>: <reason>" if Reason is not nil
-func (e *ErrWhileAt) Error() string {
+func (e ErrWhileAt) Error() string {
 	var idx_type string
 
 	if e.IdxType != "" {
@@ -142,9 +145,20 @@ func (e *ErrWhileAt) Error() string {
 	return builder.String()
 }
 
-// Unwrap implements the errors.Unwrap interface.
-func (e *ErrWhileAt) Unwrap() error {
+// Unwrap implements the errors.Unwrapper interface.
+func (e ErrWhileAt) Unwrap() error {
 	return e.Reason
+}
+
+// ChangeReason implements the errors.Unwrapper interface.
+func (e *ErrWhileAt) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Reason = reason
+
+	return true
 }
 
 // NewErrWhileAt creates a new ErrWhileAt error.
@@ -167,14 +181,6 @@ func NewErrWhileAt(operation string, idx int, idx_type string, reason error) *Er
 		Reason:    reason,
 	}
 	return e
-}
-
-// ChangeReason changes the reason for the error.
-//
-// Parameters:
-//   - reason: The new reason for the error.
-func (e *ErrWhileAt) ChangeReason(reason error) {
-	e.Reason = reason
 }
 
 // NewErrInvalidDigit is just a convenience function for creating an *ErrAt
@@ -217,7 +223,7 @@ type ErrTokenNotFound struct {
 // Error implements the error interface.
 //
 // Message: "{Type} token is not in the content"
-func (e *ErrTokenNotFound) Error() string {
+func (e ErrTokenNotFound) Error() string {
 	var builder strings.Builder
 
 	if e.IsOpening {

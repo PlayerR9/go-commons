@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"strings"
 
+	gcers "github.com/PlayerR9/go-commons/errors"
 	gcint "github.com/PlayerR9/go-commons/ints"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
@@ -25,24 +26,22 @@ func (rt RuneTable) String() string {
 	return strings.Join(lines, "\n")
 }
 
-// NewRuneTable creates a new RuneTable.
-//
-// Returns:
-//   - RuneTable: The new RuneTable.
-func NewRuneTable() RuneTable {
-	return RuneTable{
-		table: make([][]rune, 0),
-	}
-}
-
 // FromBytes initializes the RuneTable from a slice of slice of bytes.
 //
 // Parameters:
 //   - lines: The slice of slice of bytes.
 //
 // Returns:
-//   - error: An error of type *ints.ErrAt if the lines could not be processed.
+//   - error: An error if the table could not be initialized.
+//
+// Errors:
+//   - *ints.ErrAt if a line is not proper UTF-8 encoding.
+//   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromBytes(lines [][]byte) error {
+	if rt == nil {
+		return gcers.NilReceiver
+	}
+
 	table := make([][]rune, 0, len(lines))
 
 	for i, line := range lines {
@@ -63,8 +62,17 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 //
 // Parameters:
 //   - lines: The slice of slice of runes.
-func (rt *RuneTable) FromRunes(lines [][]rune) {
+//
+// Returns:
+//   - error: An error of type *errors.NilReceiver if the receiver is nil.
+func (rt *RuneTable) FromRunes(lines [][]rune) error {
+	if rt == nil {
+		return gcers.NilReceiver
+	}
+
 	rt.table = lines
+
+	return nil
 }
 
 // FromStrings initializes the RuneTable from a slice of strings.
@@ -73,8 +81,16 @@ func (rt *RuneTable) FromRunes(lines [][]rune) {
 //   - lines: The slice of strings.
 //
 // Returns:
-//   - error: An error of type *ints.ErrAt if the lines could not be processed.
+//   - error: An error if the table could not be initialized.
+//
+// Errors:
+//   - *errors.ErrAt if a string is not properly UTF-8 encoded.
+//   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromStrings(lines []string) error {
+	if rt == nil {
+		return gcers.NilReceiver
+	}
+
 	table := make([][]rune, 0, len(lines))
 
 	for i, line := range lines {
@@ -114,7 +130,12 @@ func (rt RuneTable) RightMostEdge() int {
 //
 // Returns:
 //   - int: The right most edge.
-func (rt *RuneTable) AlignRightEdge() int {
+//   - bool: True if the receiver is not nil, false otherwise.
+func (rt *RuneTable) AlignRightEdge() (int, bool) {
+	if rt == nil {
+		return 0, false
+	}
+
 	edge := rt.RightMostEdge()
 
 	for i := 0; i < len(rt.table); i++ {
@@ -130,45 +151,81 @@ func (rt *RuneTable) AlignRightEdge() int {
 		rt.table[i] = append(curr_row, padding_right...)
 	}
 
-	return edge
+	return edge, true
 }
 
 // PrependTopRow prepends a row to the top of the table.
 //
 // Parameters:
 //   - row: The row to prepend.
-func (rt *RuneTable) PrependTopRow(row []rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (rt *RuneTable) PrependTopRow(row []rune) bool {
+	if rt == nil {
+		return false
+	}
+
 	rt.table = append([][]rune{row}, rt.table...)
+
+	return true
 }
 
 // AppendBottomRow appends a row to the bottom of the table.
 //
 // Parameters:
 //   - row: The row to append.
-func (rt *RuneTable) AppendBottomRow(row []rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (rt *RuneTable) AppendBottomRow(row []rune) bool {
+	if rt == nil {
+		return false
+	}
+
 	rt.table = append(rt.table, row)
+
+	return true
 }
 
 // PrefixEachRow prefixes each row with the given prefix.
 //
 // Parameters:
 //   - prefix: The prefix to add to each row.
-func (rt *RuneTable) PrefixEachRow(prefix []rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (rt *RuneTable) PrefixEachRow(prefix []rune) bool {
+	if rt == nil {
+		return false
+	}
+
 	for i := 0; i < len(rt.table); i++ {
 		new_row := append(prefix, rt.table[i]...)
 		rt.table[i] = new_row
 	}
+
+	return true
 }
 
 // SuffixEachRow suffixes each row with the given suffix.
 //
 // Parameters:
 //   - suffix: The suffix to add to each row.
-func (rt *RuneTable) SuffixEachRow(suffix []rune) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (rt *RuneTable) SuffixEachRow(suffix []rune) bool {
+	if rt == nil {
+		return false
+	}
+
 	for i := 0; i < len(rt.table); i++ {
 		new_row := append(rt.table[i], suffix...)
 		rt.table[i] = new_row
 	}
+
+	return true
 }
 
 // Byte returns the byte representation of the table.

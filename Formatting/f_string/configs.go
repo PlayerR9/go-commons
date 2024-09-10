@@ -41,8 +41,8 @@ type IndentConfig struct {
 // Copy is a method that creates a copy of the indentation configuration.
 //
 // Returns:
-//   - *IndentConfig: A copy of the indentation configuration.
-func (c *IndentConfig) Copy() *IndentConfig {
+//   - *IndentConfig: A copy of the indentation configuration. Never returns nil.
+func (c IndentConfig) Copy() *IndentConfig {
 	return &IndentConfig{
 		str:   c.str,
 		level: c.level,
@@ -56,7 +56,7 @@ func (c *IndentConfig) Copy() *IndentConfig {
 //   - initialLevel: The initial indentation level.
 //
 // Returns:
-//   - *IndentConfig: A pointer to the new indentation configuration.
+//   - *IndentConfig: A pointer to the new indentation configuration. Never returns nil.
 //
 // Default values:
 //
@@ -88,7 +88,7 @@ func NewIndentConfig(str string, initialLevel int) *IndentConfig {
 //
 // Returns:
 //   - string: The applied indentation.
-func (c *IndentConfig) GetIndentation() string {
+func (c IndentConfig) GetIndentation() string {
 	return strings.Repeat(c.str, c.level)
 }
 
@@ -96,7 +96,7 @@ func (c *IndentConfig) GetIndentation() string {
 //
 // Returns:
 //   - string: The indentation string.
-func (c *IndentConfig) GetIndentStr() string {
+func (c IndentConfig) GetIndentStr() string {
 	return c.str
 }
 
@@ -112,8 +112,8 @@ type SeparatorConfig struct {
 // Copy is a method that creates a copy of the separator configuration.
 //
 // Returns:
-//   - *SeparatorConfig: A copy of the separator configuration.
-func (c *SeparatorConfig) Copy() *SeparatorConfig {
+//   - *SeparatorConfig: A copy of the separator configuration. Never returns nil.
+func (c SeparatorConfig) Copy() *SeparatorConfig {
 	return &SeparatorConfig{
 		str:          c.str,
 		includeFinal: c.includeFinal,
@@ -127,7 +127,7 @@ func (c *SeparatorConfig) Copy() *SeparatorConfig {
 //   - hasFinalSeparator: Whether the last element should have a separator.
 //
 // Returns:
-//   - *SeparatorConfig: A pointer to the new separator configuration.
+//   - *SeparatorConfig: A pointer to the new separator configuration. Never returns nil.
 //
 // Default values:
 //
@@ -163,8 +163,8 @@ type DelimiterConfig struct {
 // Copy is a method that creates a copy of the delimiter configuration.
 //
 // Returns:
-//   - *DelimiterConfig: A copy of the delimiter configuration.
-func (c *DelimiterConfig) Copy() *DelimiterConfig {
+//   - *DelimiterConfig: A copy of the delimiter configuration. Never returns nil.
+func (c DelimiterConfig) Copy() *DelimiterConfig {
 	return &DelimiterConfig{
 		str:      c.str,
 		isInline: c.isInline,
@@ -179,7 +179,7 @@ func (c *DelimiterConfig) Copy() *DelimiterConfig {
 //   - inline: Whether the delimiter should be inline.
 //
 // Returns:
-//   - *DelimiterConfig: A pointer to the new delimiter configuration.
+//   - *DelimiterConfig: A pointer to the new delimiter configuration. Never returns nil.
 //
 // Default values:
 //   - ==DelimiterConfig==
@@ -205,8 +205,8 @@ type FormatterConfig struct {
 // Copy is a method that creates a copy of the formatter configuration.
 //
 // Returns:
-//   - *FormatterConfig: A copy of the formatter configuration.
-func (c *FormatterConfig) Copy() *FormatterConfig {
+//   - *FormatterConfig: A copy of the formatter configuration. Never returns nil.
+func (c FormatterConfig) Copy() *FormatterConfig {
 	return &FormatterConfig{
 		tabSize:     c.tabSize,
 		spacingSize: c.spacingSize,

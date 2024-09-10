@@ -20,7 +20,7 @@ type ErrInvalidID struct {
 // Error implements the error interface.
 //
 // Message: "identifier <id> is invalid: <reason>"
-func (e *ErrInvalidID) Error() string {
+func (e ErrInvalidID) Error() string {
 	q_id := strconv.Quote(e.ID)
 
 	var reason string
@@ -71,7 +71,7 @@ type ErrNotGeneric struct {
 // Error implements the error interface.
 //
 // Message: "not a generic type"
-func (e *ErrNotGeneric) Error() string {
+func (e ErrNotGeneric) Error() string {
 	if e.Reason == nil {
 		return "not a generic type"
 	}

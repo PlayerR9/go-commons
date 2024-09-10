@@ -160,7 +160,7 @@ type SimplePrinter[T comparable] struct {
 //
 // Returns:
 //   - error: An error if the printing fails.
-func (sp *SimplePrinter[T]) FString(trav *Traversor) error {
+func (sp SimplePrinter[T]) FString(trav *Traversor) error {
 	str, err := sp.fn(sp.value)
 	if err != nil {
 		return err
@@ -182,7 +182,7 @@ func (sp *SimplePrinter[T]) FString(trav *Traversor) error {
 //   - fn: The function to use to convert the value to a string.
 //
 // Returns:
-//   - *SimplePrinter: The new SimplePrinter.
+//   - *SimplePrinter: The new SimplePrinter. Never returns nil.
 //
 // Behaviors:
 //   - If the function is nil, the function uses lustr.GoStringOf to convert the value to a string.

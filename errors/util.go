@@ -54,7 +54,10 @@ type Unwrapper interface {
 	//
 	// Parameters:
 	//   - reason: The new reason of the error.
-	ChangeReason(reason error)
+	//
+	// Returns:
+	// 	- bool: True if the receiver is not nil, false otherwise.
+	ChangeReason(reason error) bool
 }
 
 // LimitErrorMsg limits the error message to a certain number of unwraps.
@@ -79,12 +82,12 @@ func LimitErrorMsg(err error, limit int) error {
 	for i := 0; i < limit; i++ {
 		target, ok := currErr.(Unwrapper)
 		if !ok {
-			return err
+			return currErr
 		}
 
 		reason := target.Unwrap()
 		if reason == nil {
-			return err
+			return currErr
 		}
 
 		currErr = reason
@@ -93,12 +96,12 @@ func LimitErrorMsg(err error, limit int) error {
 	// Limit reached
 	target, ok := currErr.(Unwrapper)
 	if !ok {
-		return err
+		return currErr
 	}
 
-	target.ChangeReason(nil)
+	_ = target.ChangeReason(nil)
 
-	return err
+	return currErr
 }
 
 // GetOrdinalSuffix returns the ordinal suffix for a given integer.

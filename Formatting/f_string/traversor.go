@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/PlayerR9/go-commons/Formatting/f_string/internal"
+	gcers "github.com/PlayerR9/go-commons/errors"
 	gcint "github.com/PlayerR9/go-commons/ints"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
@@ -48,6 +49,10 @@ type Traversor struct {
 
 // Cleanup implements the Cleaner interface.
 func (trav *Traversor) Clean() {
+	if trav == nil {
+		return
+	}
+
 	trav.source = nil
 }
 
@@ -59,7 +64,14 @@ func (trav *Traversor) Clean() {
 //
 // Returns:
 //   - *Traversor: The new traversor.
-func newTraversor(config *FormatConfig, source *internal.Buffer) *Traversor {
+//   - errors: An error of type *errors.ErrInvalidParameter if 'config' or 'source' are nil.
+func newTraversor(config *FormatConfig, source *internal.Buffer) (*Traversor, error) {
+	if config == nil {
+		return nil, gcers.NewErrNilParameter("config")
+	} else if source == nil {
+		return nil, gcers.NewErrNilParameter("source")
+	}
+
 	trav := &Traversor{
 		config:      config,
 		source:      source, // shared source
@@ -85,39 +97,57 @@ func newTraversor(config *FormatConfig, source *internal.Buffer) *Traversor {
 		trav.rightDelim = rightConfig.str
 	}
 
-	return trav
+	return trav, nil
 }
 
 // writeIndent writes the indentation string to the traversor if
 // the traversor has indentation and the traversor is at the first
 // of the line.
-func (trav *Traversor) writeIndent() {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (trav *Traversor) writeIndent() bool {
+	if trav == nil {
+		return false
+	}
+
 	ok := trav.source.IsFirstOfLine()
 	if !ok {
-		return
+		return true
 	}
 
 	if trav.hasIndent {
-		trav.source.ForceWriteString(trav.indentation)
+		_ = trav.source.ForceWriteString(trav.indentation)
 	}
 
 	if trav.leftConfig != nil {
-		trav.source.ForceWriteString(trav.leftConfig.str)
+		_ = trav.source.ForceWriteString(trav.leftConfig.str)
 	}
+
+	return false
 }
 
 // writeRune appends a rune to the current, in-progress line of the traversor.
 //
 // Parameters:
 //   - r: The rune to append.
-func (trav *Traversor) writeRune(r rune) {
-	trav.writeIndent()
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (trav *Traversor) writeRune(r rune) bool {
+	if trav == nil {
+		return false
+	}
+
+	_ = trav.writeIndent()
 
 	if r == NBSP {
-		trav.source.WriteRune(r)
+		_ = trav.source.WriteRune(r)
 	} else {
-		trav.source.Write(r)
+		_ = trav.source.Write(r)
 	}
+
+	return true
 }
 
 // writeString appends a string to the current, in-progress line of the traversor.
@@ -126,10 +156,17 @@ func (trav *Traversor) writeRune(r rune) {
 //   - str: The string to append.
 //
 // Returns:
-//   - error: An error of type *runes.ErrInvalidUTF8Encoding if the string is not
-//     valid UTF-8.
+//   - error: An error of this function failed.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is not nil.
+//   - *runes.ErrInvalidUTF8Encoding if the string is not valid UTF-8.
 func (trav *Traversor) writeString(str string) error {
-	trav.writeIndent()
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
+	_ = trav.writeIndent()
 
 	if str == "" {
 		return nil
@@ -141,7 +178,7 @@ func (trav *Traversor) writeString(str string) error {
 	}
 
 	for _, r := range chars {
-		trav.source.Write(r)
+		_ = trav.source.Write(r)
 	}
 
 	return err
@@ -155,18 +192,25 @@ func (trav *Traversor) writeString(str string) error {
 //   - line: The line to write.
 //
 // Returns:
-//   - error: An error of type *runes.ErrInvalidUTF8Encoding if the string is not
-//     valid UTF-8.
+//   - error: An error if the function failed.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *runes.ErrInvalidUTF8Encoding if the string is not valid UTF-8.
 //
 // Behaviors:
 //   - If line is empty, then an empty line is added to the source.
 func (trav *Traversor) writeLine(line string) error {
-	trav.source.AcceptLine(trav.rightDelim) // Accept the current line if any.
+	if trav == nil {
+		return gcers.NilReceiver
+	}
 
-	trav.writeIndent()
+	_ = trav.source.AcceptLine(trav.rightDelim) // Accept the current line if any.
+
+	_ = trav.writeIndent()
 
 	if line == "" {
-		trav.source.WriteEmptyLine(trav.rightDelim)
+		_ = trav.source.WriteEmptyLine(trav.rightDelim)
 	} else {
 		chars, err := gcch.StringToUtf8(line)
 		if err != nil {
@@ -174,11 +218,11 @@ func (trav *Traversor) writeLine(line string) error {
 		}
 
 		for _, r := range chars {
-			trav.source.Write(r)
+			_ = trav.source.Write(r)
 		}
 	}
 
-	trav.source.AcceptLine(trav.rightDelim) // Accept the line.
+	_ = trav.source.AcceptLine(trav.rightDelim) // Accept the line.
 
 	return nil
 }
@@ -188,12 +232,21 @@ func (trav *Traversor) writeLine(line string) error {
 // Parameters:
 //   - r: The rune to append.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // Behaviors:
 //   - If the half-line is nil, then a new half-line is created.
-func (trav *Traversor) AppendRune(r rune) {
-	if trav.source != nil {
-		trav.writeRune(r)
+func (trav *Traversor) AppendRune(r rune) bool {
+	if trav == nil {
+		return false
 	}
+
+	if trav.source != nil {
+		_ = trav.writeRune(r)
+	}
+
+	return true
 }
 
 // AppendString appends a string to the half-line of the traversor.
@@ -202,12 +255,19 @@ func (trav *Traversor) AppendRune(r rune) {
 //   - str: The string to append.
 //
 // Returns:
-//   - error: An error of type *runes.ErrInvalidUTF8Encoding if the string is not
-//     valid UTF-8.
+//   - error: An error if this function fails.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *runes.ErrInvalidUTF8Encoding if the string is not valid UTF-8.
 //
 // Behaviors:
 //   - IF str is empty: nothing is done.
 func (trav *Traversor) AppendString(str string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return nil
 	}
@@ -226,11 +286,19 @@ func (trav *Traversor) AppendString(str string) error {
 //   - strs: The strings to append.
 //
 // Returns:
-//   - error: An error of type *common.ErrAt if there is an error appending a string.
+//   - error: An error if this function fails.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *ints.ErrAt if there is an error appending a string.
 //
 // Behaviors:
 //   - This is equivalent to calling AppendString for each string in strs but more efficient.
 func (trav *Traversor) AppendStrings(strs []string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil || len(strs) == 0 {
 		return nil
 	}
@@ -252,12 +320,19 @@ func (trav *Traversor) AppendStrings(strs []string) error {
 //   - fields: The fields to join.
 //
 // Returns:
-//   - error: An error of type *runes.ErrInvalidUTF8Encoding if some field or the separator is not
-//     valid UTF-8 encoding.
+//   - error: An error if this function fails.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *runes.ErrInvalidUTF8Encoding if some field or the separator is not valid UTF-8 encoding.
 //
 // Behaviors:
 //   - This is equivalent to calling AppendString(strings.Join(fields, sep)).
 func (trav *Traversor) AppendJoinedString(sep string, fields ...string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil || len(fields) == 0 {
 		return nil
 	}
@@ -274,24 +349,42 @@ func (trav *Traversor) AppendJoinedString(sep string, fields ...string) error {
 
 // AcceptWord is a function that, if there is any in-progress word, then said word is added
 // to the source.
-func (trav *Traversor) AcceptWord() {
-	if trav.source == nil {
-		return
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (trav *Traversor) AcceptWord() bool {
+	if trav == nil {
+		return false
 	}
 
-	trav.source.AcceptWord()
+	if trav.source == nil {
+		return true
+	}
+
+	_ = trav.source.AcceptWord()
+
+	return true
 }
 
 // AcceptLine is a function that accepts the current line of the traversor.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // Behaviors:
 //   - This also accepts the current word if any.
-func (trav *Traversor) AcceptLine() {
-	if trav.source == nil {
-		return
+func (trav *Traversor) AcceptLine() bool {
+	if trav == nil {
+		return false
 	}
 
-	trav.source.AcceptLine(trav.rightDelim)
+	if trav.source == nil {
+		return true
+	}
+
+	_ = trav.source.AcceptLine(trav.rightDelim)
+
+	return true
 }
 
 // AddLine adds a line to the traversor. If there is any in-progress line, then the line is
@@ -302,11 +395,19 @@ func (trav *Traversor) AcceptLine() {
 //   - line: The line to add.
 //
 // Returns:
-//   - error: An error of type *common.ErrAt if there is an error adding the line.
+//   - error: An error if this function fails.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *ints.ErrAt if there is an error adding the line.
 //
 // Behaviors:
 //   - If line is empty, then an empty line is added to the source.
 func (trav *Traversor) AddLine(line string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return nil
 	}
@@ -326,11 +427,19 @@ func (trav *Traversor) AddLine(line string) error {
 //   - lines: The lines to add.
 //
 // Returns:
-//   - error: An error of type *common.ErrAt if there is an error adding a line.
+//   - error: An error if this function fails.
+//
+// Errors:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *ints.ErrAt if there is an error adding a line.
 //
 // Behaviors:
 //   - If there are no lines, then nothing is done.
 func (trav *Traversor) AddLines(lines []string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil || len(lines) == 0 {
 		return nil
 	}
@@ -353,12 +462,19 @@ func (trav *Traversor) AddLines(lines []string) error {
 //   - fields: The fields to join.
 //
 // Returns:
-//   - error: An error of type *common.ErrInvalidRuneAt if there is an invalid rune
-//     in the line.
+//   - error: An error if this function fails.
+//
+// Error:
+//   - errors.NilReceiver if the receiver is nil.
+//   - *ints.ErrInvalidRuneAt if there is an invalid rune in the line.
 //
 // Behaviors:
 //   - If fields is empty, then nothing is done.
 func (trav *Traversor) AddJoinedLine(sep string, fields ...string) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil || len(fields) == 0 {
 		return nil
 	}
@@ -376,23 +492,36 @@ func (trav *Traversor) AddJoinedLine(sep string, fields ...string) error {
 // EmptyLine adds an empty line to the traversor. This is a more efficient way to do
 // the same as AddLine("") or AddLines([]string{""}).
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // Behaviors:
 //   - If the half-line is not empty, then the half-line is added to the source
 //     (half-line is reset) and an empty line is added to the source.
-func (trav *Traversor) EmptyLine() {
-	if trav.source == nil {
-		return
+func (trav *Traversor) EmptyLine() bool {
+	if trav == nil {
+		return false
 	}
 
-	trav.source.AcceptLine(trav.rightDelim) // Accept the current line if any.
+	if trav.source == nil {
+		return true
+	}
 
-	trav.writeIndent()
+	_ = trav.source.AcceptLine(trav.rightDelim) // Accept the current line if any.
 
-	trav.source.ForceAcceptLine(trav.rightDelim) // Accept the line.
+	_ = trav.writeIndent()
+
+	_ = trav.source.ForceAcceptLine(trav.rightDelim) // Accept the line.
+
+	return true
 }
 
 // Write implements the io.Writer interface for the traversor.
 func (trav *Traversor) Write(p []byte) (int, error) {
+	if trav == nil {
+		return 0, gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return 0, nil
 	}
@@ -409,7 +538,18 @@ func (trav *Traversor) Write(p []byte) (int, error) {
 //
 // Parameters:
 //   - a: The arguments to write.
+//
+// Returns:
+//   - error: An error if this function fails.
+//
+// Error:
+//   - errors.NilReceiver if the receiver is nil.
+//   - any other error returned by the fmt.Fprint function.
 func (trav *Traversor) Print(a ...interface{}) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return nil
 	}
@@ -423,7 +563,18 @@ func (trav *Traversor) Print(a ...interface{}) error {
 // Parameters:
 //   - format: The format string.
 //   - a: The arguments to write.
+//
+// Returns:
+//   - error: An error if this function fails.
+//
+// Error:
+//   - errors.NilReceiver if the receiver is nil.
+//   - any other error returned by the fmt.Fprintf function.
 func (trav *Traversor) Printf(format string, a ...interface{}) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return nil
 	}
@@ -436,7 +587,18 @@ func (trav *Traversor) Printf(format string, a ...interface{}) error {
 //
 // Parameters:
 //   - a: The arguments to write.
+//
+// Returns:
+//   - error: An error if this function fails.
+//
+// Error:
+//   - errors.NilReceiver if the receiver is nil.
+//   - any other error returned by the fmt.Fprintln function.
 func (trav *Traversor) Println(a ...interface{}) error {
+	if trav == nil {
+		return gcers.NilReceiver
+	}
+
 	if trav.source == nil {
 		return nil
 	}
@@ -451,25 +613,48 @@ func (trav *Traversor) Println(a ...interface{}) error {
 //   - options: The options to apply to the configuration.
 //
 // Returns:
-//   - FormatConfig: A copy of the configuration of the traversor.
-func (trav *Traversor) GetConfig(options ...ConfigOption) *FormatConfig {
+//   - *FormatConfig: A pointer to the copy of the configuration of the traversor.
+//   - error: An error of type errors.NilReceiver if the receiver is nil.
+func (trav *Traversor) GetConfig(options ...ConfigOption) (*FormatConfig, error) {
+	if trav == nil {
+		return nil, gcers.NilReceiver
+	}
+
 	configCopy := trav.config.Copy()
 
 	for _, option := range options {
 		option(configCopy)
 	}
 
-	return configCopy
+	return configCopy, nil
 }
 
 // Lock locks the traversor. Be aware of deadlocks.
-func (trav *Traversor) Lock() {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (trav *Traversor) Lock() bool {
+	if trav == nil {
+		return false
+	}
+
 	trav.mu.Lock()
+
+	return true
 }
 
 // Unlock unlocks the traversor. Be aware of deadlocks.
-func (trav *Traversor) Unlock() {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (trav *Traversor) Unlock() bool {
+	if trav == nil {
+		return false
+	}
+
 	trav.mu.Unlock()
+
+	return true
 }
 
 //////////////////////////////////////////////////////////////
