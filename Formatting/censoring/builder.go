@@ -35,7 +35,7 @@ type Builder struct {
 //
 // Returns:
 //   - string: The censored or uncensored content of the Builder.
-func (b *Builder) String() string {
+func (b Builder) String() string {
 	if !b.IsCensored() {
 		return filepath.Join(b.values...)
 	}
