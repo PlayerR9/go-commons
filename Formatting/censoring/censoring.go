@@ -33,7 +33,7 @@ type Context struct {
 // The default censorLabel is DefaultCensorLabel and the context is censored.
 //
 // Returns:
-//   - Context: A new Context with default values.
+//   - Context: A new Context with default values. Never returns nil.
 func NewContext() *Context {
 	return &Context{
 		censorLabel: DefaultCensorLabel,
@@ -48,8 +48,12 @@ func NewContext() *Context {
 //   - label: The label to be set.
 //
 // Returns:
-//   - *Context: A pointer to the Context itself.
+//   - *Context: A pointer to the Context itself. Nil only if the receiver is nil.
 func (ctx *Context) WithLabel(label string) *Context {
+	if ctx == nil {
+		return nil
+	}
+
 	if label != "" {
 		ctx.censorLabel = label
 	} else {
@@ -65,8 +69,12 @@ func (ctx *Context) WithLabel(label string) *Context {
 //   - mode: The mode to be set.
 //
 // Returns:
-//   - *Context: A pointer to the Context itself.
+//   - *Context: A pointer to the Context itself. Nil only if the receiver is nil.
 func (ctx *Context) WithMode(mode CensorValue) *Context {
+	if ctx == nil {
+		return nil
+	}
+
 	ctx.notCensored = !mode
 
 	return ctx

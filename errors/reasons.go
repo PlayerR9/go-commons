@@ -34,7 +34,7 @@ type ErrEmpty struct {
 // Error implements the error interface.
 //
 // Message: "{{ .Type }} must not be empty"
-func (e *ErrEmpty) Error() string {
+func (e ErrEmpty) Error() string {
 	var t_string string
 
 	if e.Type == nil {
@@ -69,7 +69,7 @@ type ErrGT[T cmp.Ordered] struct {
 // Error implements the error interface.
 //
 // Message: "value must be greater than <value>"
-func (e *ErrGT[T]) Error() string {
+func (e ErrGT[T]) Error() string {
 	return fmt.Sprintf("value must ge greater than %v", e.Value)
 }
 
@@ -79,7 +79,7 @@ func (e *ErrGT[T]) Error() string {
 //   - value: The minimum value that is not allowed.
 //
 // Returns:
-//   - *ErrGT: A pointer to the newly created ErrGT.
+//   - *ErrGT: A pointer to the newly created ErrGT. Never returns nil.
 func NewErrGT[T cmp.Ordered](value T) *ErrGT[T] {
 	e := &ErrGT[T]{
 		Value: value,
@@ -96,7 +96,7 @@ type ErrLT[T cmp.Ordered] struct {
 // Error implements the error interface.
 //
 // Message: "value must be less than <value>"
-func (e *ErrLT[T]) Error() string {
+func (e ErrLT[T]) Error() string {
 	return fmt.Sprintf("value must be less than %v", e.Value)
 }
 
@@ -106,7 +106,7 @@ func (e *ErrLT[T]) Error() string {
 //   - value: The maximum value that is not allowed.
 //
 // Returns:
-//   - *ErrLT: A pointer to the newly created ErrLT.
+//   - *ErrLT: A pointer to the newly created ErrLT. Never returns nil.
 func NewErrLT[T cmp.Ordered](value T) *ErrLT[T] {
 	e := &ErrLT[T]{
 		Value: value,
@@ -123,7 +123,7 @@ type ErrGTE[T cmp.Ordered] struct {
 // Error implements the error interface.
 //
 // Message: "value must be greater than or equal to <value>"
-func (e *ErrGTE[T]) Error() string {
+func (e ErrGTE[T]) Error() string {
 	return fmt.Sprintf("value must be greater than or equal to %v", e.Value)
 }
 
@@ -133,7 +133,7 @@ func (e *ErrGTE[T]) Error() string {
 //   - value: The minimum value that is allowed.
 //
 // Returns:
-//   - *ErrGTE: A pointer to the newly created ErrGTE.
+//   - *ErrGTE: A pointer to the newly created ErrGTE. Never returns nil.
 func NewErrGTE[T cmp.Ordered](value T) *ErrGTE[T] {
 	e := &ErrGTE[T]{
 		Value: value,
@@ -150,7 +150,7 @@ type ErrLTE[T cmp.Ordered] struct {
 // Error implements the error interface.
 //
 // Message: "value must be less than or equal to <value>"
-func (e *ErrLTE[T]) Error() string {
+func (e ErrLTE[T]) Error() string {
 	return fmt.Sprintf("value must be less than or equal to %v", e.Value)
 }
 
@@ -160,7 +160,7 @@ func (e *ErrLTE[T]) Error() string {
 //   - value: The maximum value that is allowed.
 //
 // Returns:
-//   - *ErrLTE: A pointer to the newly created ErrLTE.
+//   - *ErrLTE: A pointer to the newly created ErrLTE. Never returns nil.
 func NewErrLTE[T cmp.Ordered](value T) *ErrLTE[T] {
 	e := &ErrLTE[T]{
 		Value: value,
@@ -277,7 +277,7 @@ func (e ErrUnexpectedType[T]) Error() string {
 //   - elem: The element that caused the error.
 //
 // Returns:
-//   - *ErrUnexpectedType: A pointer to the newly created ErrUnexpectedType.
+//   - *ErrUnexpectedType: A pointer to the newly created ErrUnexpectedType. Never returns nil.
 func NewErrUnexpectedType[T any](kind string, elem T) *ErrUnexpectedType[T] {
 	e := &ErrUnexpectedType[T]{
 		Elem: elem,
@@ -341,68 +341,6 @@ func (e ErrPanic) Error() string {
 func NewErrPanic(value any) *ErrPanic {
 	return &ErrPanic{
 		Value: value,
-	}
-}
-
-// ErrInvalidCall represents an error that occurs when a function
-// is not called correctly.
-type ErrInvalidCall struct {
-	// FnName is the name of the function.
-	FnName string
-
-	// Signature is the Signature of the function.
-	Signature reflect.Type
-
-	// Reason is the Reason for the failure.
-	Reason error
-}
-
-// Error implements the Unwrapper interface.
-//
-// Message: "call to {function}({signature}) failed: {reason}".
-//
-// However, if the reason is nil, the message is "call to {function}({signature})
-// failed" instead.
-func (e *ErrInvalidCall) Error() string {
-	var builder strings.Builder
-
-	builder.WriteString("call to ")
-	builder.WriteString(e.FnName)
-	builder.WriteString(e.Signature.String())
-	builder.WriteString(" failed")
-
-	if e.Reason != nil {
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the Unwrapper interface.
-func (e *ErrInvalidCall) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the Unwrapper interface.
-func (e *ErrInvalidCall) ChangeReason(reason error) {
-	e.Reason = reason
-}
-
-// NewErrInvalidCall creates a new ErrInvalidCall.
-//
-// Parameters:
-//   - functionName: The name of the function.
-//   - function: The function that failed.
-//   - reason: The reason for the failure.
-//
-// Returns:
-//   - *ErrInvalidCall: A pointer to the new ErrInvalidCall.
-func NewErrInvalidCall(functionName string, function any, reason error) *ErrInvalidCall {
-	return &ErrInvalidCall{
-		FnName:    functionName,
-		Signature: reflect.ValueOf(function).Type(),
-		Reason:    reason,
 	}
 }
 

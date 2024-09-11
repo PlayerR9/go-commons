@@ -177,7 +177,7 @@ func (ctx *Context) Make(options ...BuilderOption) *Builder {
 //
 // Returns:
 //   - CensorValue: Censored if the Builder is censored, and NotCensored otherwise.
-func (b *Builder) IsCensored() CensorValue {
+func (b Builder) IsCensored() CensorValue {
 	if b.ctx == nil || !b.ctx.notCensored || !b.isNotCensored {
 		return Censored
 	}
@@ -193,7 +193,13 @@ func (b *Builder) IsCensored() CensorValue {
 //
 // Parameters:
 //   - f: The function to be applied to the non-censored string.
-func (b *Builder) Apply(f func(s string)) {
+//
+// Does nothing if 'f' is nil.
+func (b Builder) Apply(f func(s string)) {
+	if f == nil {
+		return
+	}
+
 	path := filepath.Join(b.values...)
 
 	f(path)

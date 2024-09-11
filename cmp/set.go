@@ -73,7 +73,13 @@ func NewSetFromSlice[T SetElem](elems []T) *Set[T] {
 //
 // Returns:
 //   - bool: True if the element was added to the set, false otherwise.
+//
+// if the receiver is nil, this method returns false.
 func (s *Set[T]) Add(elem T) bool {
+	if s == nil {
+		return false
+	}
+
 	pos, ok := slices.BinarySearch(s.elems, elem)
 	if ok {
 		return false
@@ -136,6 +142,10 @@ func (s Set[T]) IsEmpty() bool {
 // Returns:
 //   - int: The number of elements added.
 func (s *Set[T]) Union(other *Set[T]) int {
+	if s == nil {
+		return 0
+	}
+
 	if other == nil {
 		return 0
 	}

@@ -51,7 +51,7 @@ func (a GenericAssert[T]) Message(target Target, is_negative bool) string {
 //
 // Returns:
 //   - bool: true if the condition is met. False otherwise.
-func (a *GenericAssert[T]) Verify() bool {
+func (a GenericAssert[T]) Verify() bool {
 	if a.cond == nil {
 		return true
 	}
@@ -83,8 +83,12 @@ func NewGenericAssert[T any](name string, value T) *GenericAssert[T] {
 //   - cond: the condition to check.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *GenericAssert[T]) Satisfies(cond Conditioner[T]) *GenericAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	if cond == nil {
 		return a
 	}
@@ -105,8 +109,12 @@ func (a *GenericAssert[T]) Satisfies(cond Conditioner[T]) *GenericAssert[T] {
 //   - cond: the condition to check.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *GenericAssert[T]) Applies(msg func() string, cond func(value T) bool) *GenericAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &GenericCond[T]{
 		message: msg,
 		verify:  cond,

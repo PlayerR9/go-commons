@@ -50,8 +50,12 @@ func AssertThat[T Asserter](target Target, assert T) *Assertion[T] {
 // For example, doing .Not().Not().Not() is the same as .Not().
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *Assertion[T]) Not() *Assertion[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.negative = !a.negative
 	return a
 }
@@ -62,7 +66,7 @@ func (a *Assertion[T]) Not() *Assertion[T] {
 // <name> is the name of the assertion, <message> is the message of the condition
 // and <value> is the value of the assertion. Finally, this error message is used
 // within the *ErrAssertionFailed error.
-func (a *Assertion[T]) Panic() {
+func (a Assertion[T]) Panic() {
 	ok := a.assert.Verify()
 	if ok != a.negative {
 		return
@@ -75,7 +79,7 @@ func (a *Assertion[T]) Panic() {
 // This error message is overrides the default error message of the Assertion.
 //
 // Of course, the message is still used within the *ErrAssertionFailed error.
-func (a *Assertion[T]) PanicWithMessage(msg string) {
+func (a Assertion[T]) PanicWithMessage(msg string) {
 	ok := a.assert.Verify()
 	if ok != a.negative {
 		return
@@ -92,7 +96,7 @@ func (a *Assertion[T]) PanicWithMessage(msg string) {
 //
 // Returns:
 //   - error: the error. Nil iff the condition is met.
-func (a *Assertion[T]) Error() error {
+func (a Assertion[T]) Error() error {
 	ok := a.assert.Verify()
 	if ok != a.negative {
 		return nil
@@ -108,7 +112,7 @@ func (a *Assertion[T]) Error() error {
 //
 // Returns:
 //   - error: the error. Nil iff the condition is met.
-func (a *Assertion[T]) ErrorWithMessage(msg string) error {
+func (a Assertion[T]) ErrorWithMessage(msg string) error {
 	ok := a.assert.Verify()
 	if ok != a.negative {
 		return nil
@@ -121,7 +125,7 @@ func (a *Assertion[T]) ErrorWithMessage(msg string) error {
 //
 // Returns:
 //   - bool: true if the condition is met. false otherwise.
-func (a *Assertion[T]) Check() bool {
+func (a Assertion[T]) Check() bool {
 	ok := a.assert.Verify()
 	return ok != a.negative
 }

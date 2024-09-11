@@ -26,7 +26,7 @@ type ErrOutOfBounds struct {
 // Error implements the error float64erface.
 //
 // Message: "value ( <value> ) not in range <lower_bound> , <upper_bound>"
-func (e *ErrOutOfBounds) Error() string {
+func (e ErrOutOfBounds) Error() string {
 	left_bound := strconv.FormatFloat(e.LowerBound, 'f', -1, 64)
 	right_bound := strconv.FormatFloat(e.UpperBound, 'f', -1, 64)
 
@@ -86,8 +86,12 @@ func NewErrOutOfBounds(value, lowerBound, upperBound float64) *ErrOutOfBounds {
 //   - isInclusive: True if the lower bound is inclusive. False if the lower bound is exclusive.
 //
 // Returns:
-//   - *ErrOutOfBounds: A pofloat64er to the newly created ErrOutOfBounds. Never returns nil.
+//   - *ErrOutOfBounds: A pofloat64er to the newly created ErrOutOfBounds. Nil only if the receiver is nil.
 func (e *ErrOutOfBounds) WithLowerBound(isInclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
 	e.LowerInclusive = isInclusive
 
 	return e
@@ -99,8 +103,12 @@ func (e *ErrOutOfBounds) WithLowerBound(isInclusive bool) *ErrOutOfBounds {
 //   - isInclusive: True if the upper bound is inclusive. False if the upper bound is exclusive.
 //
 // Returns:
-//   - *ErrOutOfBounds: A pofloat64er to the newly created ErrOutOfBounds. Never returns nil.
+//   - *ErrOutOfBounds: A pofloat64er to the newly created ErrOutOfBounds. Nil only if the receiver is nil.
 func (e *ErrOutOfBounds) WithUpperBound(isInclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
 	e.UpperInclusive = isInclusive
 
 	return e
@@ -117,7 +125,7 @@ type ErrGT struct {
 // Message: "value must be greater than <value>"
 //
 // If the value is 0, the message is "value must be positive".
-func (e *ErrGT) Error() string {
+func (e ErrGT) Error() string {
 	if e.Value == 0 {
 		return "value must be positive"
 	}
@@ -140,7 +148,7 @@ func (e *ErrGT) Error() string {
 //   - value: The minimum value that is not allowed.
 //
 // Returns:
-//   - *ErrGT: A pofloat64er to the newly created ErrGT.
+//   - *ErrGT: A pofloat64er to the newly created ErrGT. Never returns nil.
 func NewErrGT(value float64) *ErrGT {
 	e := &ErrGT{
 		Value: value,
@@ -159,7 +167,7 @@ type ErrLT struct {
 // Message: "value must be less than <value>"
 //
 // If the value is 0, the message is "value must be negative".
-func (e *ErrLT) Error() string {
+func (e ErrLT) Error() string {
 	if e.Value == 0 {
 		return "value must be negative"
 	}
@@ -181,7 +189,7 @@ func (e *ErrLT) Error() string {
 //   - value: The maximum value that is not allowed.
 //
 // Returns:
-//   - *ErrLT: A pofloat64er to the newly created ErrLT.
+//   - *ErrLT: A pofloat64er to the newly created ErrLT. Never returns nil.
 func NewErrLT(value float64) *ErrLT {
 	e := &ErrLT{
 		Value: value,
@@ -200,7 +208,7 @@ type ErrGTE struct {
 // Message: "value must be greater than or equal to <value>"
 //
 // If the value is 0, the message is "value must be non-negative".
-func (e *ErrGTE) Error() string {
+func (e ErrGTE) Error() string {
 	if e.Value == 0 {
 		return "value must be non-negative"
 	}
@@ -222,7 +230,7 @@ func (e *ErrGTE) Error() string {
 //   - value: The minimum value that is allowed.
 //
 // Returns:
-//   - *ErrGTE: A pofloat64er to the newly created ErrGTE.
+//   - *ErrGTE: A pofloat64er to the newly created ErrGTE. Never returns nil.
 func NewErrGTE(value float64) *ErrGTE {
 	e := &ErrGTE{
 		Value: value,
@@ -241,7 +249,7 @@ type ErrLTE struct {
 // Message: "value must be less than or equal to <value>"
 //
 // If the value is 0, the message is "value must be non-positive".
-func (e *ErrLTE) Error() string {
+func (e ErrLTE) Error() string {
 	if e.Value == 0 {
 		return "value must be non-positive"
 	}
@@ -263,7 +271,7 @@ func (e *ErrLTE) Error() string {
 //   - value: The maximum value that is allowed.
 //
 // Returns:
-//   - *ErrLTE: A pofloat64er to the newly created ErrLTE.
+//   - *ErrLTE: A pofloat64er to the newly created ErrLTE. Never returns nil.
 func NewErrLTE(value float64) *ErrLTE {
 	e := &ErrLTE{
 		Value: value,

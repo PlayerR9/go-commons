@@ -77,8 +77,12 @@ func NewOrderedAssert[T cmp.Ordered](value T) *OrderedAssert[T] {
 //   - b: the other value to compare with.
 //
 // Returns:
-//   - *OrderedAssert[T]: the assertion for chaining. Never returns nil.
+//   - *OrderedAssert[T]: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) Equal(b T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &EqualCond[T]{other: b}
 
 	return a
@@ -93,8 +97,12 @@ func (a *OrderedAssert[T]) Equal(b T) *OrderedAssert[T] {
 //   - b: the other value to compare with.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) GreaterThan(b T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &GreaterThanCond[T]{other: b}
 	return a
 }
@@ -108,8 +116,12 @@ func (a *OrderedAssert[T]) GreaterThan(b T) *OrderedAssert[T] {
 //   - b: the other value to compare with.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) LessThan(b T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &LessThanCond[T]{other: b}
 
 	return a
@@ -124,8 +136,12 @@ func (a *OrderedAssert[T]) LessThan(b T) *OrderedAssert[T] {
 //   - b: the other value to compare with.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) GreaterOrEqualThan(b T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &GreaterOrEqualThanCond[T]{other: b}
 
 	return a
@@ -140,8 +156,12 @@ func (a *OrderedAssert[T]) GreaterOrEqualThan(b T) *OrderedAssert[T] {
 //   - b: the other value to compare with.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) LessOrEqualThan(b T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &LessOrEqualThanCond[T]{other: b}
 
 	return a
@@ -157,11 +177,15 @@ func (a *OrderedAssert[T]) LessOrEqualThan(b T) *OrderedAssert[T] {
 //   - max: the maximum value of the range.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 //
 // If min is greater than max, the min and max values will be swapped. Moreover, if
 // min is equal to max, the assertion will be equal to the EqualCond[T] with the min value.
 func (a *OrderedAssert[T]) InRange(min, max T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	if min > max {
 		min, max = max, min
 	}
@@ -181,8 +205,12 @@ func (a *OrderedAssert[T]) InRange(min, max T) *OrderedAssert[T] {
 // other condition.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 func (a *OrderedAssert[T]) Zero() *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	a.cond = &ZeroCond[T]{}
 
 	return a
@@ -197,12 +225,16 @@ func (a *OrderedAssert[T]) Zero() *OrderedAssert[T] {
 //   - values: the list of values to check against.
 //
 // Returns:
-//   - *Assertion: the assertion for chaining. Never returns nil.
+//   - *Assertion: the assertion for chaining. Nil only if the receiver is nil.
 //
 // The list is sorted in ascending order and duplicates are removed. As a special case,
 // if only one value is provided, the assertion will be equal to the EqualCond[T] with
 // that value.
 func (a *OrderedAssert[T]) In(values ...T) *OrderedAssert[T] {
+	if a == nil {
+		return nil
+	}
+
 	if len(values) > 2 {
 		sorted := make([]T, 0, len(values))
 

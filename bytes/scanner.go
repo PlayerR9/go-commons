@@ -3,6 +3,8 @@ package bytes
 import (
 	"errors"
 	"io"
+
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // Unread is the error returned when an attempt is made to unread a byte that was not read.
@@ -34,10 +36,15 @@ type ByteStream struct {
 // Errors:
 //   - io.EOF: When the stream is exhausted.
 //   - *ErrInvalidUTF8Encoding: When the stream has an invalid UTF-8 encoding.
+//   - errors.NilReceiver: When the receiver is nil.
 //
 // Do err == io.EOF to check if the stream is exhausted. As in Go specification, do not wrap this io.EOF error
 // if you want to propagate it as callers should also be able to do err == io.EOF to check the error.
 func (s *ByteStream) ReadByte() (byte, error) {
+	if s == nil {
+		return 0, gcers.NilReceiver
+	}
+
 	if s.get_prev {
 		if s.prev == nil {
 			panic(Unread.Error())
@@ -65,7 +72,12 @@ func (s *ByteStream) ReadByte() (byte, error) {
 //
 // Errors:
 //   - Unread: When no previous byte was read.
+//   - errors.NilReceiver: When the receiver is nil.
 func (s *ByteStream) UnreadByte() error {
+	if s == nil {
+		return gcers.NilReceiver
+	}
+
 	if s.prev == nil {
 		return Unread
 	}
@@ -79,11 +91,20 @@ func (s *ByteStream) UnreadByte() error {
 //
 // Parameters:
 //   - data: The content of the stream.
-func (s *ByteStream) Init(data []byte) {
+//
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+func (s *ByteStream) Init(data []byte) bool {
+	if s == nil {
+		return false
+	}
+
 	s.data = data
 	s.get_prev = false
 	s.prev = nil
 	s.pos = 0
+
+	return true
 }
 
 // Pos returns the current position in the stream.

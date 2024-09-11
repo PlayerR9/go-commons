@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
+	gcint "github.com/PlayerR9/go-commons/ints"
 )
 
 // PageInterval represents a collection of page intervals, where each
@@ -189,7 +190,11 @@ func (pi PageInterval) GetLastPage() (int, bool) {
 //   - page: The page number to add to the PageInterval.
 //
 // Returns:
-//   - error: An error of type *uc.ErrInvalidParameter if the page number is less than 1.
+//   - error: An error if the function fails to add the page, otherwise nil.
+//
+// Errors:
+//   - errors.NilReceiver: If the receiver is nil.
+//   - *errors.ErrInvalidParameter: If the page number is less than 1.
 //
 // Example:
 //
@@ -202,6 +207,10 @@ func (pi PageInterval) GetLastPage() (int, bool) {
 //	fmt.Println(pi.intervals) // Output: [[1 6] [10 15]]
 //	fmt.Println(pi.pageCount) // Output: 12
 func (pi *PageInterval) AddPage(page int) error {
+	if pi == nil {
+		return gcers.NilReceiver
+	}
+
 	if page < 1 {
 		return gcers.NewErrInvalidParameter(
 			"page",
@@ -248,7 +257,7 @@ func (pi *PageInterval) AddPage(page int) error {
 	}
 
 	pi.page_count++
-	pi.reduce()
+	_ = pi.reduce()
 
 	return nil
 }
@@ -261,6 +270,9 @@ func (pi *PageInterval) AddPage(page int) error {
 // Parameters:
 //   - page: The page number to remove from the PageInterval.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, otherwise false.
+//
 // Example:
 //
 //	pi := PageInterval{
@@ -271,14 +283,18 @@ func (pi *PageInterval) AddPage(page int) error {
 //	pi.RemovePage(5)
 //	fmt.Println(pi.intervals) // Output: [[1 4] [10 15]]
 //	fmt.Println(pi.pageCount) // Output: 10
-func (pi *PageInterval) RemovePage(page int) {
+func (pi *PageInterval) RemovePage(page int) bool {
+	if pi == nil {
+		return false
+	}
+
 	if page < 1 {
-		return // No-op
+		return true // No-op
 	}
 
 	index := pi.find_page_interval(page)
 	if index == -1 {
-		return
+		return true
 	}
 
 	if pi.intervals[index].first == pi.intervals[index].second {
@@ -307,7 +323,9 @@ func (pi *PageInterval) RemovePage(page int) {
 
 	pi.page_count--
 
-	pi.reduce()
+	_ = pi.reduce()
+
+	return true
 }
 
 // HasPage is a method of the PageInterval type that checks if the given page
@@ -345,6 +363,13 @@ func (pi PageInterval) HasPage(page int) bool {
 //   - first: The first page number to add to the PageInterval.
 //   - last: The last page number to add to the PageInterval.
 //
+// Returns:
+//   - error: An error if the function fails to add pages to the PageInterval.
+//
+// Errors:
+//   - gcers.NilReceiver: If the receiver is nil.
+//   - *gcint.ErrWhileAt: If an error occurs while adding a page.
+//
 // Example:
 //
 //	pi := PageInterval{
@@ -355,7 +380,11 @@ func (pi PageInterval) HasPage(page int) bool {
 //	pi.AddPagesBetween(6, 9)
 //	fmt.Println(pi.intervals) // Output: [[1 15]]
 //	fmt.Println(pi.pageCount) // Output: 15
-func (pi *PageInterval) AddPagesBetween(first, last int) {
+func (pi *PageInterval) AddPagesBetween(first, last int) error {
+	if pi == nil {
+		return gcers.NilReceiver
+	}
+
 	if first < 1 {
 		first = 1 // remove invalid pages
 	}
@@ -369,8 +398,13 @@ func (pi *PageInterval) AddPagesBetween(first, last int) {
 	}
 
 	for i := first; i <= last; i++ {
-		pi.AddPage(i)
+		err := pi.AddPage(i)
+		if err != nil {
+			return gcint.NewErrWhileAt("adding", i+1, "page", err)
+		}
 	}
+
+	return nil
 }
 
 // RemovePagesBetween is a method of the PageInterval type that removes pages
@@ -385,6 +419,9 @@ func (pi *PageInterval) AddPagesBetween(first, last int) {
 //   - first, last: The first and last page numbers to remove from the PageInterval,
 //     respectively.
 //
+// Returns:
+//   - bool: True if the receiver is not nil, false otherwise.
+//
 // Example:
 //
 //	pi := PageInterval{
@@ -395,7 +432,11 @@ func (pi *PageInterval) AddPagesBetween(first, last int) {
 //	pi.RemovePagesBetween(3, 4)
 //	fmt.Println(pi.intervals) // Output: [[1 2] [5 5] [10 15]]
 //	fmt.Println(pi.pageCount) // Output: 9
-func (pi *PageInterval) RemovePagesBetween(first, last int) {
+func (pi *PageInterval) RemovePagesBetween(first, last int) bool {
+	if pi == nil {
+		return false
+	}
+
 	if first < 1 {
 		first = 1 // remove invalid pages
 	}
@@ -409,8 +450,10 @@ func (pi *PageInterval) RemovePagesBetween(first, last int) {
 	}
 
 	for i := first; i <= last; i++ {
-		pi.RemovePage(i)
+		_ = pi.RemovePage(i)
 	}
+
+	return true
 }
 
 // reduce merges overlapping intervals in the PageInterval.
@@ -422,9 +465,13 @@ func (pi *PageInterval) RemovePagesBetween(first, last int) {
 //
 // Parameters:
 //   - pi: A pointer to the PageInterval to reduce.
-func (pi *PageInterval) reduce() {
+func (pi *PageInterval) reduce() bool {
+	if pi == nil {
+		return false
+	}
+
 	if len(pi.intervals) < 2 {
-		return
+		return true
 	}
 
 	criteria_sort := func(i, j int) bool {
@@ -450,6 +497,8 @@ func (pi *PageInterval) reduce() {
 
 	merged_intervals = append(merged_intervals, current_interval)
 	pi.intervals = merged_intervals
+
+	return true
 }
 
 // find_page_interval searches for the interval that contains the given page

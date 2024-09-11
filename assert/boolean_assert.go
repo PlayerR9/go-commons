@@ -21,7 +21,7 @@ type BoolAssert struct {
 // <name> is the name of the assertion, <message> is the message of the condition
 // and <value> is the value of the assertion. Finally, this error message is used
 // within the *ErrAssertionFailed error.
-func (a *BoolAssert) Message(target Target, is_negative bool) string {
+func (a BoolAssert) Message(target Target, is_negative bool) string {
 	var builder strings.Builder
 
 	builder.WriteString("expected ")
@@ -50,7 +50,7 @@ func (a *BoolAssert) Message(target Target, is_negative bool) string {
 //
 // Returns:
 //   - bool: true if the condition is met. False otherwise.
-func (a *BoolAssert) Verify() bool {
+func (a BoolAssert) Verify() bool {
 	return a.is_true != a.value
 }
 
@@ -74,8 +74,12 @@ func NewBoolAssert(value bool) *BoolAssert {
 // other condition.
 //
 // Returns:
-//   - *BoolAssert: the assertion for chaining. Never returns nil.
+//   - *BoolAssert: the assertion for chaining. Nil only if the receiver is nil.
 func (a *BoolAssert) IsTrue() *BoolAssert {
+	if a == nil {
+		return nil
+	}
+
 	a.is_true = true
 
 	return a
@@ -87,8 +91,12 @@ func (a *BoolAssert) IsTrue() *BoolAssert {
 // other condition.
 //
 // Returns:
-//   - *BoolAssert: the assertion for chaining. Never returns nil.
+//   - *BoolAssert: the assertion for chaining. Nil only if the receiver is nil.
 func (a *BoolAssert) IsFalse() *BoolAssert {
+	if a == nil {
+		return nil
+	}
+
 	a.is_true = false
 
 	return a

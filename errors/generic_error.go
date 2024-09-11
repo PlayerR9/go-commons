@@ -40,6 +40,17 @@ func (e Err[T]) Unwrap() error {
 	return e.Message
 }
 
+// ChangeReason implements the Unwrapper interface.
+func (e *Err[T]) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Message = reason
+
+	return true
+}
+
 // NewErr creates a new error.
 //
 // Parameters:
@@ -70,12 +81,4 @@ func (e *Err[T]) AddSuggestion(suggestions ...string) *Err[T] {
 	e.Suggestions = append(e.Suggestions, strings.Join(suggestions, " "))
 
 	return e
-}
-
-// ChangeReason changes the reason of the error.
-//
-// Parameters:
-//   - reason: The new reason of the error.
-func (e *Err[T]) ChangeReason(reason error) {
-	e.Message = reason
 }

@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -19,7 +20,7 @@ type ErrInvalidParameter struct {
 // Message:
 // - "parameter (<parameter>) is invalid" if Reason is nil
 // - "parameter (<parameter>) is invalid: <reason>" if Reason is not nil
-func (e *ErrInvalidParameter) Error() string {
+func (e ErrInvalidParameter) Error() string {
 	var parameter string
 
 	if e.Parameter != "" {
@@ -41,8 +42,19 @@ func (e *ErrInvalidParameter) Error() string {
 }
 
 // Unwrap implements the errors.Unwrap interface.
-func (e *ErrInvalidParameter) Unwrap() error {
+func (e ErrInvalidParameter) Unwrap() error {
 	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrInvalidParameter) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Reason = reason
+
+	return true
 }
 
 // NewErrInvalidParameter creates a new ErrInvalidParameter error.
@@ -58,17 +70,6 @@ func NewErrInvalidParameter(parameter string, reason error) *ErrInvalidParameter
 		Parameter: parameter,
 		Reason:    reason,
 	}
-}
-
-// ChangeReason is a method that changes the reason for the error.
-//
-// Parameters:
-//   - reason: The new reason for the error.
-//
-// Returns:
-//   - error: The new reason for the error.
-func (e *ErrInvalidParameter) ChangeReason(reason error) {
-	e.Reason = reason
 }
 
 // NewErrNilParameter is a convenience method that creates a new *ErrInvalidParameter error
@@ -102,7 +103,7 @@ type ErrInvalidUsage struct {
 // However, if the reason is nil, the message is "invalid usage. {usage}" instead.
 //
 // If the usage is empty, no usage is added to the message.
-func (e *ErrInvalidUsage) Error() string {
+func (e ErrInvalidUsage) Error() string {
 	var builder strings.Builder
 
 	if e.Reason == nil {
@@ -120,8 +121,19 @@ func (e *ErrInvalidUsage) Error() string {
 }
 
 // Unwrap implements the errors.Unwrap interface.
-func (e *ErrInvalidUsage) Unwrap() error {
+func (e ErrInvalidUsage) Unwrap() error {
 	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrInvalidUsage) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Reason = reason
+
+	return true
 }
 
 // NewErrInvalidUsage creates a new ErrInvalidUsage error.
@@ -139,14 +151,6 @@ func NewErrInvalidUsage(reason error, usage string) *ErrInvalidUsage {
 	}
 }
 
-// ChangeReason is a method that changes the reason for the error.
-//
-// Parameters:
-//   - reason: The new reason for the error.
-func (e *ErrInvalidUsage) ChangeReason(reason error) {
-	e.Reason = reason
-}
-
 // ErrWhile represents an error that occurs while performing an operation.
 type ErrWhile struct {
 	// Operation is the operation that was being performed.
@@ -162,7 +166,7 @@ type ErrWhile struct {
 //
 // However, if the reason is nil, the message is "an error occurred while {operation}"
 // instead.
-func (e *ErrWhile) Error() string {
+func (e ErrWhile) Error() string {
 	var builder strings.Builder
 
 	if e.Reason == nil {
@@ -179,13 +183,19 @@ func (e *ErrWhile) Error() string {
 }
 
 // Unwrap implements the Unwrapper interface.
-func (e *ErrWhile) Unwrap() error {
+func (e ErrWhile) Unwrap() error {
 	return e.Reason
 }
 
 // ChangeReason implements the Unwrapper interface.
-func (e *ErrWhile) ChangeReason(reason error) {
+func (e *ErrWhile) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
 	e.Reason = reason
+
+	return true
 }
 
 // NewErrWhile creates a new ErrWhile error.
@@ -221,7 +231,7 @@ type ErrAfter struct {
 //
 // However, if the reason is nil, the message is "something went wrong after {after}"
 // instead.
-func (e *ErrAfter) Error() string {
+func (e ErrAfter) Error() string {
 	var builder strings.Builder
 
 	if e.Reason == nil {
@@ -238,13 +248,19 @@ func (e *ErrAfter) Error() string {
 }
 
 // Unwrap implements the Unwrapper interface.
-func (e *ErrAfter) Unwrap() error {
+func (e ErrAfter) Unwrap() error {
 	return e.Reason
 }
 
 // ChangeReason implements the Unwrapper interface.
-func (e *ErrAfter) ChangeReason(reason error) {
+func (e *ErrAfter) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
 	e.Reason = reason
+
+	return true
 }
 
 // NewErrAfter creates a new ErrAfter error.
@@ -254,7 +270,7 @@ func (e *ErrAfter) ChangeReason(reason error) {
 //   - reason: The reason for the error.
 //
 // Returns:
-//   - *ErrAfter: A pointer to the new ErrAfter error.
+//   - *ErrAfter: A pointer to the new ErrAfter error. Never returns nil.
 func NewErrAfter(after string, reason error) *ErrAfter {
 	return &ErrAfter{
 		After:  after,
@@ -278,7 +294,7 @@ type ErrBefore struct {
 //
 // However, if the reason is nil, the message is "something went wrong before {before}"
 // instead.
-func (e *ErrBefore) Error() string {
+func (e ErrBefore) Error() string {
 	var builder strings.Builder
 
 	if e.Reason == nil {
@@ -300,8 +316,14 @@ func (e *ErrBefore) Unwrap() error {
 }
 
 // ChangeReason implements the Unwrapper interface.
-func (e *ErrBefore) ChangeReason(reason error) {
+func (e *ErrBefore) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
 	e.Reason = reason
+
+	return true
 }
 
 // NewErrBefore creates a new ErrBefore error.
@@ -311,10 +333,78 @@ func (e *ErrBefore) ChangeReason(reason error) {
 //   - reason: The reason for the error.
 //
 // Returns:
-//   - *ErrBefore: A pointer to the new ErrBefore error.
+//   - *ErrBefore: A pointer to the new ErrBefore error. Never returns nil.
 func NewErrBefore(before string, reason error) *ErrBefore {
 	return &ErrBefore{
 		Before: before,
 		Reason: reason,
+	}
+}
+
+// ErrInvalidCall represents an error that occurs when a function
+// is not called correctly.
+type ErrInvalidCall struct {
+	// FnName is the name of the function.
+	FnName string
+
+	// Signature is the Signature of the function.
+	Signature reflect.Type
+
+	// Reason is the Reason for the failure.
+	Reason error
+}
+
+// Error implements the Unwrapper interface.
+//
+// Message: "call to {function}({signature}) failed: {reason}".
+//
+// However, if the reason is nil, the message is "call to {function}({signature})
+// failed" instead.
+func (e ErrInvalidCall) Error() string {
+	var builder strings.Builder
+
+	builder.WriteString("call to ")
+	builder.WriteString(e.FnName)
+	builder.WriteString(e.Signature.String())
+	builder.WriteString(" failed")
+
+	if e.Reason != nil {
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the Unwrapper interface.
+func (e *ErrInvalidCall) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrInvalidCall) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
+	e.Reason = reason
+
+	return true
+}
+
+// NewErrInvalidCall creates a new ErrInvalidCall.
+//
+// Parameters:
+//   - functionName: The name of the function.
+//   - function: The function that failed.
+//   - reason: The reason for the failure.
+//
+// Returns:
+//   - *ErrInvalidCall: A pointer to the new ErrInvalidCall. Never returns nil.
+func NewErrInvalidCall(functionName string, function any, reason error) *ErrInvalidCall {
+	return &ErrInvalidCall{
+		FnName:    functionName,
+		Signature: reflect.ValueOf(function).Type(),
+		Reason:    reason,
 	}
 }

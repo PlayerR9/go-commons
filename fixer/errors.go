@@ -19,7 +19,7 @@ type ErrFix struct {
 // Message:
 //   - "failed to fix field <field>" if the reason is nil.
 //   - "field <field> failed to fix: <reason>" if the reason is not nil.
-func (e *ErrFix) Error() string {
+func (e ErrFix) Error() string {
 	var values []string
 
 	if e.Reason == nil {
@@ -42,13 +42,19 @@ func (e *ErrFix) Error() string {
 }
 
 // Unwrap implements the errors.Unwrapper interface.
-func (e *ErrFix) Unwrap() error {
+func (e ErrFix) Unwrap() error {
 	return e.Reason
 }
 
 // ChangeReason implements the errors.Unwrapper interface.
-func (e *ErrFix) ChangeReason(reason error) {
+func (e *ErrFix) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
 	e.Reason = reason
+
+	return true
 }
 
 // NewErrFix creates a new ErrFix error.
@@ -58,7 +64,7 @@ func (e *ErrFix) ChangeReason(reason error) {
 //   - reason: The reason the field could not be fixed.
 //
 // Returns:
-//   - *ErrFix: The new error.
+//   - *ErrFix: The new error. Never returns nil.
 func NewErrFix(field string, reason error) *ErrFix {
 	e := &ErrFix{
 		Field:  field,
@@ -84,7 +90,7 @@ type ErrFixAt struct {
 // Message:
 //   - "failed to fix field <field> at index <idx>" if the reason is nil.
 //   - "field <field> at index <idx> failed to fix: <reason>" if the reason is not nil.
-func (e *ErrFixAt) Error() string {
+func (e ErrFixAt) Error() string {
 	var values []string
 
 	if e.Reason == nil {
@@ -120,8 +126,14 @@ func (e *ErrFixAt) Unwrap() error {
 }
 
 // ChangeReason implements the errors.Unwrapper interface.
-func (e *ErrFixAt) ChangeReason(reason error) {
+func (e *ErrFixAt) ChangeReason(reason error) bool {
+	if e == nil {
+		return false
+	}
+
 	e.Reason = reason
+
+	return true
 }
 
 // NewErrFixAt creates a new ErrFixAt error.
@@ -132,7 +144,7 @@ func (e *ErrFixAt) ChangeReason(reason error) {
 //   - reason: The reason the field could not be fixed.
 //
 // Returns:
-//   - *ErrFixAt: The new error.
+//   - *ErrFixAt: The new error. Never returns nil.
 func NewErrFixAt(field string, idx int, reason error) *ErrFixAt {
 	e := &ErrFixAt{
 		Field:  field,

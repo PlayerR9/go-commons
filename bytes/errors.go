@@ -48,7 +48,7 @@ func (e ErrTokenNotFound) Error() string {
 //   - is_opening: The type of the token (opening or closing).
 //
 // Returns:
-//   - *ErrTokenNotFound: A pointer to the newly created error.
+//   - *ErrTokenNotFound: A pointer to the newly created error. Never returns nil.
 func NewErrTokenNotFound(token []byte, is_opening bool) *ErrTokenNotFound {
 	e := &ErrTokenNotFound{
 		Token:     token,
@@ -72,7 +72,7 @@ type ErrNeverOpened struct {
 //
 // Message:
 //   - "closing token {ClosingToken} found without a corresponding opening token {OpeningToken}".
-func (e *ErrNeverOpened) Error() string {
+func (e ErrNeverOpened) Error() string {
 	values := []string{
 		"closing token",
 		"(",
@@ -96,7 +96,7 @@ func (e *ErrNeverOpened) Error() string {
 //   - closingToken: The closing token that was found without a corresponding opening token.
 //
 // Returns:
-//   - *ErrNeverOpened: A pointer to the newly created error.
+//   - *ErrNeverOpened: A pointer to the newly created error. Never returns nil.
 func NewErrNeverOpened(openingToken, closingToken []byte) *ErrNeverOpened {
 	if openingToken == nil {
 		openingToken = []byte{}
