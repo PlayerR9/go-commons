@@ -4,7 +4,7 @@ import (
 	"slices"
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/go-commons/OLD/errors"
 )
 
 // TableAligner is a struct to help align tables.

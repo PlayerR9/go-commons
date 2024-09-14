@@ -3,7 +3,7 @@ package ints
 import (
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/go-commons/OLD/errors"
 )
 
 // ErrAt represents an error that occurs at a specific index.

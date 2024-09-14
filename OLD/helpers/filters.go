@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	lus "github.com/PlayerR9/go-commons/slices"
+	lus "github.com/PlayerR9/go-commons/OLD/slices"
 )
 
 // EvalOneFunc is a function that evaluates one element.

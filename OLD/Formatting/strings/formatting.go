@@ -9,10 +9,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
-	hlp "github.com/PlayerR9/go-commons/helpers"
-	gcint "github.com/PlayerR9/go-commons/ints"
-	mext "github.com/PlayerR9/go-commons/math"
+	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	mext "github.com/PlayerR9/go-commons/OLD/math"
 )
 
 var (

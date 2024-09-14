@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
-	gcint "github.com/PlayerR9/go-commons/ints"
+	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 )
 
 // Serieser is an interface for series.
