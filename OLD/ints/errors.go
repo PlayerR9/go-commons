@@ -3,7 +3,8 @@ package ints
 import (
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	olers "github.com/PlayerR9/go-commons/OLD/errors"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // ErrAt represents an error that occurs at a specific index.
@@ -210,7 +211,7 @@ func NewErrInvalidBase(param_name string) *gcers.ErrInvalidParameter {
 		param_name = "base"
 	}
 
-	return gcers.NewErrInvalidParameter(param_name, gcers.NewErrGT(0))
+	return gcers.NewErrInvalidParameter(param_name, olers.NewErrGT(0))
 }
 
 // ErrTokenNotFound is a struct that represents an error when a token is not

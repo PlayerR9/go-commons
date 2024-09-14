@@ -2,28 +2,11 @@ package errors
 
 import (
 	"cmp"
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 )
-
-var (
-	// NilValue is the error returned when a pointer is nil. Readers are expected to return this error
-	// as is and not wrap it as callers are expected to check for this error using ==.
-	NilValue error
-
-	// NilReceiver is the error returned when the receiver is nil. Readers are expected to return this error
-	// as is and not wrap it as callers are expected to check for this error using ==.
-	NilReceiver error
-)
-
-func init() {
-	NilValue = errors.New("pointer must not be nil")
-
-	NilReceiver = errors.New("found receiver to be nil")
-}
 
 // ErrEmpty represents an error when a value is empty.
 type ErrEmpty struct {

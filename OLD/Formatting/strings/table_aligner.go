@@ -4,7 +4,8 @@ import (
 	"slices"
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	olers "github.com/PlayerR9/go-commons/OLD/errors"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // TableAligner is a struct to help align tables.
@@ -129,7 +130,7 @@ func (ta *TableAligner) Reset() {
 //     tabSize is less than 1.
 func (ta TableAligner) Build(tabSize int, tableIndent bool) ([]string, error) {
 	if tabSize < 1 {
-		return nil, gcers.NewErrInvalidParameter("tabSize", gcers.NewErrGT(0))
+		return nil, gcers.NewErrInvalidParameter("tabSize", olers.NewErrGT(0))
 	}
 
 	// Add the table indent if needed.

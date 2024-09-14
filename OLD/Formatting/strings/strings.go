@@ -7,8 +7,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	olers "github.com/PlayerR9/go-commons/OLD/errors"
 	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // DateStringer prints the date in the format "1st January, 2006".
@@ -216,9 +217,9 @@ func padRight(s string, length int) string {
 //   - If the column is not found in the table, the table is returned as is.
 func TabAlign(table [][]string, column int, tabSize int) ([][]string, error) {
 	if tabSize < 1 {
-		return nil, gcers.NewErrInvalidParameter("tabSize", gcers.NewErrGT(0))
+		return nil, gcers.NewErrInvalidParameter("tabSize", olers.NewErrGT(0))
 	} else if column < 0 {
-		return nil, gcers.NewErrInvalidParameter("column", gcers.NewErrGTE(0))
+		return nil, gcers.NewErrInvalidParameter("column", olers.NewErrGTE(0))
 	}
 
 	seen := make(map[int]bool)
@@ -271,7 +272,7 @@ func TabAlign(table [][]string, column int, tabSize int) ([][]string, error) {
 //   - *errors.ErrInvalidParameter: If the tabSize is less than 1.
 func TableEntriesAlign(table [][]string, tabSize int) ([][]string, error) {
 	if tabSize < 1 {
-		return nil, gcers.NewErrInvalidParameter("tabSize", gcers.NewErrGT(0))
+		return nil, gcers.NewErrInvalidParameter("tabSize", olers.NewErrGT(0))
 	}
 
 	width := LongestLine(table)

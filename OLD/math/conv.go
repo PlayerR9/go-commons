@@ -4,8 +4,8 @@ import (
 	"errors"
 	"math/big"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
 	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 var (

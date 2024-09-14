@@ -4,7 +4,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	olers "github.com/PlayerR9/go-commons/OLD/errors"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // TextSplit represents a split text with a maximum width and height.
@@ -73,14 +74,14 @@ func NewTextSplit(max_width, max_height int) (*TextSplit, error) {
 	if max_width < 0 {
 		return nil, gcers.NewErrInvalidParameter(
 			"max_width",
-			gcers.NewErrGTE(0),
+			olers.NewErrGTE(0),
 		)
 	}
 
 	if max_height < 0 {
 		return nil, gcers.NewErrInvalidParameter(
 			"max_height",
-			gcers.NewErrGTE(0),
+			olers.NewErrGTE(0),
 		)
 	}
 

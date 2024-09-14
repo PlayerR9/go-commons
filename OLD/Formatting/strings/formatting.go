@@ -9,10 +9,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	olers "github.com/PlayerR9/go-commons/OLD/errors"
 	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
 	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	mext "github.com/PlayerR9/go-commons/OLD/math"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 var (
@@ -127,7 +128,7 @@ func ReplaceSuffix(str, suffix string) (string, bool) {
 //   - The ID is returned as a hexadecimal string.
 func GenerateID(size int) (string, error) {
 	if size < 1 {
-		return "", gcers.NewErrInvalidParameter("size", gcers.NewErrGT(0))
+		return "", gcers.NewErrInvalidParameter("size", olers.NewErrGT(0))
 	}
 
 	b := make([]byte, size) // 128 bits
@@ -216,7 +217,7 @@ func CalculateNumberOfLines(text []string, width int) (int, error) {
 	if width <= 0 {
 		return 0, gcers.NewErrInvalidParameter(
 			"width",
-			gcers.NewErrGT(0),
+			olers.NewErrGT(0),
 		)
 	} else if len(text) == 0 {
 		return 0, nil
@@ -328,7 +329,7 @@ func CalculateNumberOfLines(text []string, width int) (int, error) {
 // the text within the width using the CalculateNumberOfLines function.
 func SplitInEqualSizedLines(text []string, width, height int) (*TextSplit, error) {
 	if len(text) == 0 {
-		err := gcers.NewErrInvalidParameter("text", gcers.NewErrEmpty(text))
+		err := gcers.NewErrInvalidParameter("text", olers.NewErrEmpty(text))
 		return nil, err
 	}
 
@@ -548,7 +549,7 @@ func FirstInstanceOfWS(chars []rune, from_idx, to_idx int) int {
 //   - error: An error if the input string is empty or has invalid UTF-8 encoding.
 func Title(str string) (string, error) {
 	if str == "" {
-		return str, gcers.NewErrInvalidParameter("str", gcers.NewErrEmpty(str))
+		return str, gcers.NewErrInvalidParameter("str", olers.NewErrEmpty(str))
 	}
 
 	r, size := utf8.DecodeRuneInString(str)
