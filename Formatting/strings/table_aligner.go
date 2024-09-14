@@ -4,7 +4,6 @@ import (
 	"slices"
 	"strings"
 
-	olers "github.com/PlayerR9/go-commons/OLD/errors"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
@@ -122,19 +121,19 @@ func (ta *TableAligner) Reset() {
 // Accept accepts the table aligner.
 //
 // Parameters:
-//   - tabSize: The size of the tab.
-//   - tableIndent: Whether to indent the table.
+//   - tab_size: The size of the tab.
+//   - table_indent: Whether to indent the table.
 //
 // Returns:
 //   - error: An error of type *errors.ErrInvalidParameter if the
 //     tabSize is less than 1.
-func (ta TableAligner) Build(tabSize int, tableIndent bool) ([]string, error) {
-	if tabSize < 1 {
-		return nil, gcers.NewErrInvalidParameter("tabSize", olers.NewErrGT(0))
+func (ta TableAligner) Build(tab_size int, table_indent bool) ([]string, error) {
+	if tab_size < 1 {
+		return nil, gcers.NewErrInvalidParameter("tab_size", gcers.NewErrGT(0))
 	}
 
 	// Add the table indent if needed.
-	if tableIndent {
+	if table_indent {
 		var builder strings.Builder
 
 		for i := 0; i < len(ta.table); i++ {
@@ -152,7 +151,7 @@ func (ta TableAligner) Build(tabSize int, tableIndent bool) ([]string, error) {
 
 	// Align the table.
 	for _, idx := range ta.idxs {
-		ta.table, _ = TabAlign(ta.table, idx, tabSize)
+		ta.table, _ = TabAlign(ta.table, idx, tab_size)
 	}
 
 	// Transform the table into a slice of strings.

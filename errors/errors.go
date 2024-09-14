@@ -147,3 +147,80 @@ func (e *ErrFix) ChangeReason(new_reason error) {
 
 	e.Reason = new_reason
 }
+
+// ErrAt represents an error that occurs at a specific index.
+type ErrAt struct {
+	// Idx is the index of the error.
+	Idx int
+
+	// IdxType is the type of the index.
+	IdxType string
+
+	// Reason is the reason for the error.
+	Reason error
+}
+
+// Error implements the error interface.
+//
+// Message:
+//   - "something went wrong at the <ordinal> <idx_type>" if Reason is nil
+//   - "<ordinal> <idx_type> is invalid: <reason>" if Reason is not nil
+func (e ErrAt) Error() string {
+	var idx_type string
+
+	if e.IdxType != "" {
+		idx_type = e.IdxType
+	} else {
+		idx_type = "index"
+	}
+
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("something went wrong at the ")
+		builder.WriteString(GetOrdinalSuffix(e.Idx))
+		builder.WriteRune(' ')
+		builder.WriteString(idx_type)
+	} else {
+		builder.WriteString(GetOrdinalSuffix(e.Idx))
+		builder.WriteRune(' ')
+		builder.WriteString(idx_type)
+		builder.WriteString(" is invalid: ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the errors.Unwrapper interface.
+func (e ErrAt) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the errors.Unwrapper interface.
+func (e *ErrAt) ChangeReason(reason error) {
+	if e == nil {
+		return
+	}
+
+	e.Reason = reason
+}
+
+// NewErrAt creates a new ErrAt error.
+//
+// Parameters:
+//   - idx: The index of the error.
+//   - idx_type: The type of the index.
+//   - reason: The reason for the error.
+//
+// Returns:
+//   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
+//
+// Empty name will default to "index".
+func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
+	return &ErrAt{
+		Idx:     idx,
+		IdxType: idx_type,
+		Reason:  reason,
+	}
+}
