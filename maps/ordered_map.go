@@ -1,4 +1,4 @@
-package generator
+package maps
 
 import (
 	"cmp"
@@ -6,8 +6,8 @@ import (
 	"slices"
 )
 
-// ordered_map is a map that is ordered by the keys.
-type ordered_map[K cmp.Ordered, V any] struct {
+// OrderedMap is a map that is ordered by the keys.
+type OrderedMap[K cmp.Ordered, V any] struct {
 	// values is a map of the values in the map.
 	values map[K]V
 
@@ -15,19 +15,19 @@ type ordered_map[K cmp.Ordered, V any] struct {
 	keys []K
 }
 
-// new_ordered_map creates a new OrderedMap.
+// NewOrderedMap creates a new OrderedMap.
 //
 // Returns:
 //   - *OrderedMap: A pointer to the newly created OrderedMap.
 //     Never returns nil.
-func new_ordered_map[K cmp.Ordered, V any]() *ordered_map[K, V] {
-	return &ordered_map[K, V]{
+func NewOrderedMap[K cmp.Ordered, V any]() *OrderedMap[K, V] {
+	return &OrderedMap[K, V]{
 		values: make(map[K]V),
 		keys:   make([]K, 0),
 	}
 }
 
-// add adds a key-value pair to the map.
+// Add adds a key-value pair to the map.
 //
 // Parameters:
 //   - key: The key to add.
@@ -39,7 +39,7 @@ func new_ordered_map[K cmp.Ordered, V any]() *ordered_map[K, V] {
 //   - bool: True if the value was added to the map, false otherwise.
 //
 // If the receiver is nil, then this function returns nil.
-func (m *ordered_map[K, V]) add(key K, value V, force bool) bool {
+func (m *OrderedMap[K, V]) Add(key K, value V, force bool) bool {
 	if m == nil {
 		return false
 	}
@@ -59,11 +59,11 @@ func (m *ordered_map[K, V]) add(key K, value V, force bool) bool {
 	return true
 }
 
-// size is a method that returns the number of keys in the map.
+// Size is a method that returns the number of keys in the map.
 //
 // Returns:
 //   - int: The number of keys in the map.
-func (m ordered_map[K, V]) size() int {
+func (m OrderedMap[K, V]) Size() int {
 	return len(m.keys)
 }
 
@@ -71,7 +71,7 @@ func (m ordered_map[K, V]) size() int {
 //
 // Returns:
 //   - map[K]V: The map of the values in the map. Never returns nil.
-func (m ordered_map[K, V]) Map() map[K]V {
+func (m OrderedMap[K, V]) Map() map[K]V {
 	return m.values
 }
 
@@ -79,7 +79,7 @@ func (m ordered_map[K, V]) Map() map[K]V {
 //
 // Returns:
 //   - []K: The keys in the map.
-func (m ordered_map[K, V]) Keys() []K {
+func (m OrderedMap[K, V]) Keys() []K {
 	return m.keys
 }
 
@@ -88,7 +88,7 @@ func (m ordered_map[K, V]) Keys() []K {
 //
 // Returns:
 //   - iter.Seq2[K, V]: The iterator. Never returns nil.
-func (m ordered_map[K, V]) Entry() iter.Seq2[K, V] {
+func (m OrderedMap[K, V]) Entry() iter.Seq2[K, V] {
 	return func(yield func(key K, value V) bool) {
 		for _, key := range m.keys {
 			if !yield(key, m.values[key]) {

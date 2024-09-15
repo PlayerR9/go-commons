@@ -8,8 +8,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	oldslc "github.com/PlayerR9/go-commons/OLD/slices"
 	gcers "github.com/PlayerR9/go-commons/errors"
+	gcslc "github.com/PlayerR9/go-commons/slices"
 )
 
 // PrintFlags prints the default values of the flags.
@@ -57,7 +57,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 		switch value := value.(type) {
 		case interface{ Generics() []rune }:
 			for _, key := range value.Generics() {
-				all_generics = oldslc.TryInsert(all_generics, key)
+				all_generics = gcslc.TryInsert(all_generics, key)
 			}
 		}
 	}

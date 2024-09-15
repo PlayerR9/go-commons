@@ -12,6 +12,7 @@ import (
 	"unicode/utf8"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
+	gcmap "github.com/PlayerR9/go-commons/maps"
 )
 
 // OutputLocVal is the value of the output_flag flag.
@@ -178,10 +179,10 @@ func (o OutputLocVal) Loc() string {
 // struct_fields_vaò is a struct that represents the fields value.
 type StructFieldsVal struct {
 	// fields is a map of the fields and their types.
-	fields *ordered_map[string, string]
+	fields *gcmap.OrderedMap[string, string]
 
 	// generics is a map of the generics and their types.
-	generics *ordered_map[rune, string]
+	generics *gcmap.OrderedMap[rune, string]
 
 	// is_required is a flag that specifies whether the fields value is required or not.
 	is_required bool
@@ -196,7 +197,7 @@ type StructFieldsVal struct {
 //
 //	"<value1> <type1>, <value2> <type2>, ..."
 func (s StructFieldsVal) String() string {
-	if s.fields.size() == 0 {
+	if s.fields.Size() == 0 {
 		return ""
 	}
 
@@ -232,7 +233,7 @@ func (s *StructFieldsVal) Set(value string) error {
 
 	fields := strings.Split(value, ",")
 
-	s.fields = new_ordered_map[string, string]()
+	s.fields = gcmap.NewOrderedMap[string, string]()
 
 	for i, field := range fields {
 		if field == "" {
@@ -249,19 +250,19 @@ func (s *StructFieldsVal) Set(value string) error {
 			return gcers.NewErrAt(i+1, "field", reason)
 		}
 
-		ok := s.fields.add(sub_fields[0], sub_fields[1], false)
+		ok := s.fields.Add(sub_fields[0], sub_fields[1], false)
 		if !ok {
 			return fmt.Errorf("field %q already exists", sub_fields[0])
 		}
 	}
 
-	size := s.fields.size()
+	size := s.fields.Size()
 
 	if s.count != -1 && size != s.count {
 		return fmt.Errorf("wrong number of fields: expected %d, got %d", s.count, size)
 	}
 
-	s.generics = new_ordered_map[rune, string]()
+	s.generics = gcmap.NewOrderedMap[rune, string]()
 
 	for _, field_type := range fields {
 		chars, err := parse_generics(field_type)
@@ -274,7 +275,7 @@ func (s *StructFieldsVal) Set(value string) error {
 		}
 
 		for _, char := range chars {
-			_ = s.generics.add(char, "", false)
+			_ = s.generics.Add(char, "", false)
 			// dbg.AssertOk(ok, "s.generics.Add(%s, %q, false)", strconv.QuoteRune(char), "")
 		}
 	}
@@ -337,8 +338,8 @@ func NewStructFieldsFlag(flag_name string, is_required bool, count int, brief st
 	}
 
 	value := &StructFieldsVal{
-		fields:      new_ordered_map[string, string](),
-		generics:    new_ordered_map[rune, string](),
+		fields:      gcmap.NewOrderedMap[string, string](),
+		generics:    gcmap.NewOrderedMap[rune, string](),
 		is_required: is_required,
 		count:       count,
 	}
@@ -737,7 +738,7 @@ type TypeListVal struct {
 	types []string
 
 	// generics is a map of the generics and their types.
-	generics *ordered_map[rune, string]
+	generics *gcmap.OrderedMap[rune, string]
 
 	// is_required is a flag that specifies whether the fields value is required or not.
 	is_required bool
@@ -797,7 +798,7 @@ func (s *TypeListVal) Set(value string) error {
 
 	// Find generics
 
-	s.generics = new_ordered_map[rune, string]()
+	s.generics = gcmap.NewOrderedMap[rune, string]()
 
 	for _, field_type := range s.types {
 		chars, err := parse_generics(field_type)
@@ -810,7 +811,7 @@ func (s *TypeListVal) Set(value string) error {
 		}
 
 		for _, char := range chars {
-			_ = s.generics.add(char, "", true)
+			_ = s.generics.Add(char, "", true)
 			// dbg.AssertOk(ok, "s.generics.Add(%s, %q, true)", strconv.QuoteRune(char), "")
 		}
 	}
@@ -871,7 +872,7 @@ func NewTypeListFlag(flag_name string, is_required bool, count int, brief string
 
 	value := &TypeListVal{
 		types:       make([]string, 0),
-		generics:    new_ordered_map[rune, string](),
+		generics:    gcmap.NewOrderedMap[rune, string](),
 		is_required: is_required,
 		count:       count,
 	}
