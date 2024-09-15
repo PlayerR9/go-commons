@@ -434,6 +434,11 @@ func (s StructFieldsVal) MakeParameterList() (string, error) {
 	for i := 0; i < len(field_list); i++ {
 		param := strings.ToLower(field_list[i])
 
+		_, ok := slices.BinarySearch(go_reserved_keywords, param)
+		if ok {
+			param += "_"
+		}
+
 		builder.WriteString(param)
 		builder.WriteRune(' ')
 		builder.WriteString(type_list[i])

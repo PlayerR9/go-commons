@@ -18,10 +18,7 @@ type PackageNameSetter interface {
 	//
 	// Parameters:
 	//   - pkg_name: The package name to use for the generated code.
-	//
-	// Returns:
-	// 	- bool: True if the receiver is not nil, false otherwise.
-	SetPackageName(pkg_name string) bool
+	SetPackageName(pkg_name string)
 }
 
 // DoFunc is the type of the function to perform on the data before generating the code.
@@ -225,10 +222,7 @@ func (cg CodeGenerator[T]) GenerateWithLoc(loc string, data T) (*Generated, erro
 		return g, fmt.Errorf("failed to fix import path: %w", err)
 	}
 
-	ok := data.SetPackageName(pkg_name)
-	if !ok {
-		return nil, gcers.NewErrNilParameter("data")
-	}
+	data.SetPackageName(pkg_name)
 
 	for _, f := range cg.do_funcs {
 		err := f(data)
@@ -303,10 +297,7 @@ func (cg CodeGenerator[T]) Generate(o *OutputLocVal, default_file_name string, d
 		return g, fmt.Errorf("failed to fix import path: %w", err)
 	}
 
-	ok := data.SetPackageName(pkg_name)
-	if !ok {
-		return nil, gcers.NewErrNilParameter("data")
-	}
+	data.SetPackageName(pkg_name)
 
 	for _, f := range cg.do_funcs {
 		err := f(data)
