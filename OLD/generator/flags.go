@@ -11,8 +11,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcint "github.com/PlayerR9/go-commons/ints"
 )
 
 // OutputLocVal is the value of the output_flag flag.

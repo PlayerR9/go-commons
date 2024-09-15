@@ -4,7 +4,7 @@ import (
 	"strings"
 	"sync"
 
-	gcf "github.com/PlayerR9/go-commons/fixer"
+	gcf "github.com/PlayerR9/go-commons/OLD/fixer"
 )
 
 // sectionBuilder is a type that represents a section of a page.

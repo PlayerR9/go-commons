@@ -3,8 +3,8 @@ package f_string
 import (
 	"fmt"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
-	gcint "github.com/PlayerR9/go-commons/ints"
+	gcers "github.com/PlayerR9/go-commons/OLD/errors"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 )
 
 var (

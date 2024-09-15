@@ -3,7 +3,7 @@ package common
 import (
 	"strings"
 
-	gcstr "github.com/PlayerR9/go-commons/strings"
+	gcstr "github.com/PlayerR9/go-commons/OLD/strings"
 )
 
 // Pair is a pair of values.

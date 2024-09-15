@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PlayerR9/go-commons/Formatting/f_string/internal"
-	gcint "github.com/PlayerR9/go-commons/ints"
+	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 )
 
 // ApplyMany applies a format to a stringer.

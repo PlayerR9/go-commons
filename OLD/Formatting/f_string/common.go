@@ -3,8 +3,8 @@ package f_string
 import (
 	"strings"
 
-	gcint "github.com/PlayerR9/go-commons/ints"
-	gcstr "github.com/PlayerR9/go-commons/strings"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	gcstr "github.com/PlayerR9/go-commons/OLD/strings"
 )
 
 // Stringify converts a formatted string to a string.

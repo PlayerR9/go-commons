@@ -8,9 +8,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	olders "github.com/PlayerR9/go-commons/OLD/errors"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	oldslc "github.com/PlayerR9/go-commons/OLD/slices"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcint "github.com/PlayerR9/go-commons/ints"
-	gcslc "github.com/PlayerR9/go-commons/slices"
 )
 
 // PrintFlags prints the default values of the flags.
@@ -46,7 +47,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 	values = values[:top]
 
 	if g != nil && len(values) == 0 {
-		return gcers.NewErrInvalidUsage(
+		return olders.NewErrInvalidUsage(
 			errors.New("not specified any values that have generics, yet *GenericsSignVal is specified"),
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)
@@ -58,13 +59,13 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 		switch value := value.(type) {
 		case interface{ Generics() []rune }:
 			for _, key := range value.Generics() {
-				all_generics = gcslc.TryInsert(all_generics, key)
+				all_generics = oldslc.TryInsert(all_generics, key)
 			}
 		}
 	}
 
 	if len(all_generics) > 0 && g == nil {
-		return gcers.NewErrInvalidUsage(
+		return olders.NewErrInvalidUsage(
 			errors.New("specified at least one value that has generics but not specified the *GenericsSignVal"),
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)

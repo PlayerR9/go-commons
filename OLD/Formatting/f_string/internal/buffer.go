@@ -5,9 +5,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	gcf "github.com/PlayerR9/go-commons/OLD/fixer"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcf "github.com/PlayerR9/go-commons/fixer"
-	gcint "github.com/PlayerR9/go-commons/ints"
 )
 
 const (

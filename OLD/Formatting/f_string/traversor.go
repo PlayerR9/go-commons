@@ -5,9 +5,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/PlayerR9/go-commons/Formatting/f_string/internal"
+	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
+	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcint "github.com/PlayerR9/go-commons/ints"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
 

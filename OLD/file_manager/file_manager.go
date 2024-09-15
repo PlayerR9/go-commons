@@ -8,8 +8,8 @@ import (
 	"slices"
 	"strings"
 
+	gcstr "github.com/PlayerR9/go-commons/OLD/strings"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcstr "github.com/PlayerR9/go-commons/strings"
 )
 
 // FileExists checks if a file exists.

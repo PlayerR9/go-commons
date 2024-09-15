@@ -1,8 +1,8 @@
 package runes
 
 import (
+	gcch "github.com/PlayerR9/go-commons/OLD/runes"
 	gcers "github.com/PlayerR9/go-commons/errors"
-	gcch "github.com/PlayerR9/go-commons/runes"
 )
 
 var (
