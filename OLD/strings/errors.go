@@ -3,6 +3,8 @@ package strings
 import (
 	"strconv"
 	"strings"
+
+	gcstr "github.com/PlayerR9/go-commons/strings"
 )
 
 // ErrTokenNotFound is a struct that represents an error when a token is not
@@ -131,10 +133,10 @@ func (e ErrUnexpectedRune) Error() string {
 	if len(e.Expecteds) == 0 {
 		builder.WriteString("nothing")
 	} else {
-		elems := SliceOfRunes(e.Expecteds)
-		QuoteStrings(elems)
+		elems := gcstr.SliceOfRunes(e.Expecteds)
+		gcstr.QuoteStrings(elems)
 
-		builder.WriteString(EitherOrString(elems))
+		builder.WriteString(gcstr.EitherOrString(elems))
 	}
 
 	builder.WriteString(" ")
