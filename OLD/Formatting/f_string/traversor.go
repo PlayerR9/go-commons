@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
@@ -306,7 +305,7 @@ func (trav *Traversor) AppendStrings(strs []string) error {
 	for i, str := range strs {
 		err := trav.writeString(str)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "string", err)
+			return gcers.NewErrAt(i+1, "string", err)
 		}
 	}
 
@@ -447,7 +446,7 @@ func (trav *Traversor) AddLines(lines []string) error {
 	for i, line := range lines {
 		err := trav.writeLine(line)
 		if err != nil {
-			return gcint.NewErrAt(i, "line", err)
+			return gcers.NewErrAt(i, "line", err)
 		}
 	}
 

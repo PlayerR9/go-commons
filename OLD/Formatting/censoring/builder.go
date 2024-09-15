@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	gcslc "github.com/PlayerR9/go-commons/OLD/slices"
 	gcstr "github.com/PlayerR9/go-commons/OLD/strings"
+	gcslc "github.com/PlayerR9/go-commons/slices"
 )
 
 // Builder is a type that provides a fluent interface for constructing a

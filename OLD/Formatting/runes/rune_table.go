@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"strings"
 
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	olch "github.com/PlayerR9/go-commons/OLD/runes"
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
@@ -48,7 +47,7 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	for i, line := range lines {
 		row, err := gcch.BytesToUtf8(line)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "line", err)
+			return gcers.NewErrAt(i+1, "line", err)
 		}
 
 		table = append(table, row)
@@ -97,7 +96,7 @@ func (rt *RuneTable) FromStrings(lines []string) error {
 	for i, line := range lines {
 		row, err := gcch.StringToUtf8(line)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "line", err)
+			return gcers.NewErrAt(i+1, "line", err)
 		}
 
 		table = append(table, row)

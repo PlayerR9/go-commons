@@ -6,7 +6,6 @@ import (
 	"unicode/utf8"
 
 	gcf "github.com/PlayerR9/go-commons/OLD/fixer"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
@@ -326,7 +325,7 @@ func (b *Buffer) WriteBytes(data []byte) (int, error) {
 	for count = 0; len(data) > 0; count++ {
 		r, size := utf8.DecodeRune(data)
 		if r == utf8.RuneError {
-			return count, gcint.NewErrAt(count+1, "byte", errors.New("invalid UTF-8 encoding"))
+			return count, gcers.NewErrAt(count+1, "byte", errors.New("invalid UTF-8 encoding"))
 		}
 
 		_ = b.Write(r)

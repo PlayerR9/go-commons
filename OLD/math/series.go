@@ -40,7 +40,7 @@ func ApproximateConvergence(values []*big.Float, n int) (*big.Float, error) {
 	} else if len(values) < n {
 		return nil, gcers.NewErrInvalidParameter(
 			"n",
-			gcint.NewErrOutOfBounds(n, 0, len(values)),
+			gcers.NewErrOutOfBounds(n, 0, len(values)),
 		)
 	}
 
@@ -72,13 +72,13 @@ func CalculateConvergence(series Serieser, upperLimit int, delta int) (values []
 	for i := 0; i < upperLimit-delta; i++ {
 		ithTerm, reason := series.Term(i)
 		if reason != nil {
-			err = gcint.NewErrAt(i+1, "term", reason)
+			err = gcers.NewErrAt(i+1, "term", reason)
 			return
 		}
 
 		ithPlusDeltaTerm, reason := series.Term(i + delta)
 		if reason != nil {
-			err = gcint.NewErrAt(i+delta+1, "term", reason)
+			err = gcers.NewErrAt(i+delta+1, "term", reason)
 			return
 		}
 

@@ -198,12 +198,12 @@ func (e ErrAt) Unwrap() error {
 }
 
 // ChangeReason implements the errors.Unwrapper interface.
-func (e *ErrAt) ChangeReason(reason error) {
+func (e *ErrAt) ChangeReason(new_reason error) {
 	if e == nil {
 		return
 	}
 
-	e.Reason = reason
+	e.Reason = new_reason
 }
 
 // NewErrAt creates a new ErrAt error.
@@ -222,5 +222,69 @@ func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
 		Idx:     idx,
 		IdxType: idx_type,
 		Reason:  reason,
+	}
+}
+
+// ErrInvalidUsage represents an error that occurs when a function is used incorrectly.
+type ErrInvalidUsage struct {
+	// Reason is the reason for the invalid usage.
+	Reason error
+
+	// Usage is the usage of the function.
+	Usage string
+}
+
+// Error is a method of the Unwrapper interface.
+//
+// Message:
+//
+//	"{reason}. {usage}"
+//
+// However, if the reason is nil, the message is "invalid usage. {usage}" instead.
+//
+// If the usage is empty, no usage is added to the message.
+func (e ErrInvalidUsage) Error() string {
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("invalid usage")
+	} else {
+		builder.WriteString(e.Reason.Error())
+	}
+
+	if e.Usage != "" {
+		builder.WriteString(". ")
+		builder.WriteString(e.Usage)
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the errors.Unwrap interface.
+func (e ErrInvalidUsage) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the Unwrapper interface.
+func (e *ErrInvalidUsage) ChangeReason(new_reason error) {
+	if e == nil {
+		return
+	}
+
+	e.Reason = new_reason
+}
+
+// NewErrInvalidUsage creates a new ErrInvalidUsage error.
+//
+// Parameters:
+//   - reason: The reason for the invalid usage.
+//   - usage: The usage of the function.
+//
+// Returns:
+//   - *ErrInvalidUsage: A pointer to the new ErrInvalidUsage error.
+func NewErrInvalidUsage(reason error, usage string) *ErrInvalidUsage {
+	return &ErrInvalidUsage{
+		Reason: reason,
+		Usage:  usage,
 	}
 }

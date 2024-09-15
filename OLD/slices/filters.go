@@ -1,13 +1,8 @@
 package slices
 
-// PredicateFilter is a type that defines a slice filter function.
-//
-// Parameters:
-//   - T: The type of the elements in the slice.
-//
-// Returns:
-//   - bool: True if the element satisfies the filter function, otherwise false.
-type PredicateFilter[T any] func(T) bool
+import (
+	gcslc "github.com/PlayerR9/go-commons/slices"
+)
 
 // Intersect returns a PredicateFilter function that checks if an element
 // satisfies all the PredicateFilter functions in funcs.
@@ -24,7 +19,7 @@ type PredicateFilter[T any] func(T) bool
 //     the filter function.
 //   - It returns false as soon as it finds a function in funcs that the element
 //     does not satisfy.
-func Intersect[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
+func Intersect[T any](funcs ...gcslc.PredicateFilter[T]) gcslc.PredicateFilter[T] {
 	if len(funcs) == 0 {
 		return func(elem T) bool { return true }
 	}
@@ -56,7 +51,7 @@ func Intersect[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 //     the filter function.
 //   - It returns false as soon as it finds a function in funcs that the element
 //     does not satisfy.
-func ParallelIntersect[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
+func ParallelIntersect[T any](funcs ...gcslc.PredicateFilter[T]) gcslc.PredicateFilter[T] {
 	if len(funcs) == 0 {
 		return func(elem T) bool { return true }
 	}
@@ -65,7 +60,7 @@ func ParallelIntersect[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 		resultChan := make(chan bool, len(funcs))
 
 		for _, f := range funcs {
-			go func(f PredicateFilter[T]) {
+			go func(f gcslc.PredicateFilter[T]) {
 				resultChan <- f(elem)
 			}(f)
 		}
@@ -95,7 +90,7 @@ func ParallelIntersect[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 //     the filter function.
 //   - It returns true as soon as it finds a function in funcs that the element
 //     satisfies.
-func Union[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
+func Union[T any](funcs ...gcslc.PredicateFilter[T]) gcslc.PredicateFilter[T] {
 	if len(funcs) == 0 {
 		return func(elem T) bool { return false }
 	}
@@ -127,7 +122,7 @@ func Union[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 //     the filter function.
 //   - It returns true as soon as it finds a function in funcs that the element
 //     satisfies.
-func ParallelUnion[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
+func ParallelUnion[T any](funcs ...gcslc.PredicateFilter[T]) gcslc.PredicateFilter[T] {
 	if len(funcs) == 0 {
 		return func(elem T) bool { return false }
 	}
@@ -136,7 +131,7 @@ func ParallelUnion[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 		resultChan := make(chan bool, len(funcs))
 
 		for _, f := range funcs {
-			go func(f PredicateFilter[T]) {
+			go func(f gcslc.PredicateFilter[T]) {
 				resultChan <- f(elem)
 			}(f)
 		}
@@ -151,71 +146,6 @@ func ParallelUnion[T any](funcs ...PredicateFilter[T]) PredicateFilter[T] {
 	}
 }
 
-// SliceFilter is a function that iterates over the slice and applies the filter
-// function to each element.
-//
-// Parameters:
-//   - S: slice of elements.
-//   - filter: function that takes an element and returns a bool.
-//
-// Returns:
-//   - []T: slice of elements that satisfy the filter function.
-//
-// Behavior:
-//   - If S is empty, the function returns a nil slice.
-//   - If S has only one element and it satisfies the filter function, the function
-//     returns a slice with that element. Otherwise, it returns a nil slice.
-//   - An element is said to satisfy the filter function if the function returns true
-//     when applied to the element.
-//   - If the filter function is nil, the function returns the original slice.
-func SliceFilter[T any](S []T, filter PredicateFilter[T]) []T {
-	if len(S) == 0 {
-		return nil
-	} else if filter == nil {
-		return S
-	}
-
-	var top int
-
-	for i := 0; i < len(S); i++ {
-		ok := filter(S[i])
-		if ok {
-			S[top] = S[i]
-			top++
-		}
-	}
-
-	return S[:top:top]
-}
-
-// FilterNilValues is a function that iterates over the slice and removes the
-// nil elements.
-//
-// Parameters:
-//   - S: slice of elements.
-//
-// Returns:
-//   - []*T: slice of elements that satisfy the filter function.
-//
-// Behavior:
-//   - If S is empty, the function returns a nil slice.
-func FilterNilValues[T any](S []*T) []*T {
-	if len(S) == 0 {
-		return nil
-	}
-
-	var top int
-
-	for i := 0; i < len(S); i++ {
-		if S[i] != nil {
-			S[top] = S[i]
-			top++
-		}
-	}
-
-	return S[:top:top]
-}
-
 // FilterNilPredicates is a function that iterates over the slice and removes the
 // nil predicate functions.
 //
@@ -227,7 +157,7 @@ func FilterNilValues[T any](S []*T) []*T {
 //
 // Behavior:
 //   - If S is empty, the function returns a nil slice.
-func FilterNilPredicates[T any](S []PredicateFilter[T]) []PredicateFilter[T] {
+func FilterNilPredicates[T any](S []gcslc.PredicateFilter[T]) []gcslc.PredicateFilter[T] {
 	if len(S) == 0 {
 		return nil
 	}
@@ -258,7 +188,7 @@ func FilterNilPredicates[T any](S []PredicateFilter[T]) []PredicateFilter[T] {
 //
 // Behavior:
 //   - If S is empty, the function returns two empty slices.
-func SFSeparate[T any](S []T, filter PredicateFilter[T]) ([]T, []T) {
+func SFSeparate[T any](S []T, filter gcslc.PredicateFilter[T]) ([]T, []T) {
 	if len(S) == 0 {
 		return nil, nil
 	}
@@ -292,7 +222,7 @@ func SFSeparate[T any](S []T, filter PredicateFilter[T]) ([]T, []T) {
 //
 // Behavior:
 //   - If S is empty, the function returns an empty slice and true.
-func SFSeparateEarly[T any](S []T, filter PredicateFilter[T]) ([]T, bool) {
+func SFSeparateEarly[T any](S []T, filter gcslc.PredicateFilter[T]) ([]T, bool) {
 	if len(S) == 0 {
 		return nil, true
 	}

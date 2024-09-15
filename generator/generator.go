@@ -9,7 +9,6 @@ import (
 	"strings"
 	"text/template"
 
-	olders "github.com/PlayerR9/go-commons/OLD/errors"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
@@ -270,7 +269,7 @@ func (cg CodeGenerator[T]) GenerateWithLoc(loc string, data T) (*Generated, erro
 //   - error: Any other type of error that may have occurred.
 func (cg CodeGenerator[T]) Generate(o *OutputLocVal, default_file_name string, data T) (*Generated, error) {
 	if o == nil {
-		return nil, olders.NewErrInvalidUsage(
+		return nil, gcers.NewErrInvalidUsage(
 			errors.New("output location was not defined"),
 			"Please call the go-generator.NewOutputFlag() function before calling this function.",
 		)

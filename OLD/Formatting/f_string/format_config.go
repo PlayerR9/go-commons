@@ -3,8 +3,7 @@ package f_string
 import (
 	"fmt"
 
-	gcers "github.com/PlayerR9/go-commons/OLD/errors"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 var (
@@ -165,12 +164,9 @@ func ApplyForm[T FStringer](form *FormatConfig, trav *Traversor, elem T) error {
 		form = DefaultFormatter.Copy()
 	}
 
-	otherTrav, err := newTraversor(form, trav.source)
-	if err != nil {
-		panic(gcers.NewErrAssertFailed(err.Error()))
-	}
+	otherTrav, _ := newTraversor(form, trav.source)
 
-	err = elem.FString(otherTrav)
+	err := elem.FString(otherTrav)
 	if err != nil {
 		return err
 	}
@@ -201,15 +197,12 @@ func ApplyFormMany[T FStringer](form *FormatConfig, trav *Traversor, elems []T) 
 		form = DefaultFormatter.Copy()
 	}
 
-	otherTrav, err := newTraversor(form, trav.source)
-	if err != nil {
-		panic(gcers.NewErrAssertFailed(err.Error()))
-	}
+	otherTrav, _ := newTraversor(form, trav.source)
 
 	for i, elem := range elems {
 		err := elem.FString(otherTrav)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "FStringer element", err)
+			return gcers.NewErrAt(i+1, "FStringer element", err)
 		}
 	}
 
@@ -238,12 +231,9 @@ func ApplyFormFunc[T any](form *FormatConfig, trav *Traversor, elem T, f FString
 		form = DefaultFormatter.Copy()
 	}
 
-	otherTrav, err := newTraversor(form, trav.source)
-	if err != nil {
-		panic(gcers.NewErrAssertFailed(err.Error()))
-	}
+	otherTrav, _ := newTraversor(form, trav.source)
 
-	err = f(otherTrav, elem)
+	err := f(otherTrav, elem)
 	if err != nil {
 		return err
 	}
@@ -274,15 +264,12 @@ func ApplyFormManyFunc[T any](form *FormatConfig, trav *Traversor, elems []T, f 
 		form = DefaultFormatter.Copy()
 	}
 
-	otherTrav, err := newTraversor(form, trav.source)
-	if err != nil {
-		panic(gcers.NewErrAssertFailed(err.Error()))
-	}
+	otherTrav, _ := newTraversor(form, trav.source)
 
 	for i, elem := range elems {
 		err := f(otherTrav, elem)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "FStringer element", err)
+			return gcers.NewErrAt(i+1, "FStringer element", err)
 		}
 	}
 

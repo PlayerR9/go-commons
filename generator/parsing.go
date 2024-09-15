@@ -8,8 +8,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	olders "github.com/PlayerR9/go-commons/OLD/errors"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	oldslc "github.com/PlayerR9/go-commons/OLD/slices"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
@@ -47,7 +45,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 	values = values[:top]
 
 	if g != nil && len(values) == 0 {
-		return olders.NewErrInvalidUsage(
+		return gcers.NewErrInvalidUsage(
 			errors.New("not specified any values that have generics, yet *GenericsSignVal is specified"),
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)
@@ -65,7 +63,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 	}
 
 	if len(all_generics) > 0 && g == nil {
-		return olders.NewErrInvalidUsage(
+		return gcers.NewErrInvalidUsage(
 			errors.New("specified at least one value that has generics but not specified the *GenericsSignVal"),
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)
@@ -206,7 +204,7 @@ func parse_generics(str string) ([]rune, error) {
 		for i, field := range fields {
 			letter, err := is_generics_id(field)
 			if err != nil {
-				return nil, gcint.NewErrAt(i+1, "field", err)
+				return nil, gcers.NewErrAt(i+1, "field", err)
 			}
 
 			letters = append(letters, letter)

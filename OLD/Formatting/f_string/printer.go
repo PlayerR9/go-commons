@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // ApplyMany applies a format to a stringer.
@@ -34,7 +34,7 @@ func ApplyMany[T FStringer](trav *Traversor, elems []T) error {
 	for i, elem := range elems {
 		err := elem.FString(trav)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "FStringer element", err)
+			return gcers.NewErrAt(i+1, "FStringer element", err)
 		}
 	}
 
@@ -63,7 +63,7 @@ func ApplyFuncMany[T any](trav *Traversor, f FStringFunc[T], elems []T) error {
 	for i, elem := range elems {
 		err := f(trav, elem)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "element", err)
+			return gcers.NewErrAt(i+1, "element", err)
 		}
 	}
 
@@ -218,7 +218,7 @@ func Sprint(form *FormatConfig, strs ...string) ([][][][]string, error) {
 	for i, str := range strs {
 		err := trav.writeString(str)
 		if err != nil {
-			return nil, gcint.NewErrAt(i, "string", err)
+			return nil, gcers.NewErrAt(i, "string", err)
 		}
 	}
 
@@ -368,7 +368,7 @@ func Sprintln(form *FormatConfig, lines ...string) ([][][][]string, error) {
 	for i, line := range lines {
 		err := trav.writeLine(line)
 		if err != nil {
-			return nil, gcint.NewErrAt(i, "line", err)
+			return nil, gcers.NewErrAt(i, "line", err)
 		}
 	}
 

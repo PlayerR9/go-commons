@@ -10,7 +10,6 @@ import (
 	"unicode/utf8"
 
 	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	mext "github.com/PlayerR9/go-commons/OLD/math"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
@@ -553,7 +552,7 @@ func Title(str string) (string, error) {
 
 	r, size := utf8.DecodeRuneInString(str)
 	if r == utf8.RuneError {
-		return "", gcint.NewErrAt(1, "character", errors.New("first rune in str is invalid UTF-8 encoding"))
+		return "", gcers.NewErrAt(1, "character", errors.New("first rune in str is invalid UTF-8 encoding"))
 	}
 
 	remaining := str[size:]

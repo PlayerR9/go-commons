@@ -3,8 +3,8 @@ package f_string
 import (
 	"strings"
 
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcstr "github.com/PlayerR9/go-commons/OLD/strings"
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // Stringify converts a formatted string to a string.
@@ -246,7 +246,7 @@ func ApplyTravFuncMany[T any](trav *Traversor, f FStringFunc[T], elems []T) erro
 	for i, elem := range elems {
 		err := f(trav, elem)
 		if err != nil {
-			return gcint.NewErrAt(i+1, "element", err)
+			return gcers.NewErrAt(i+1, "element", err)
 		}
 	}
 

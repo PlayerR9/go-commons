@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -106,4 +108,116 @@ func NewErrGTE[T cmp.Ordered](value T) *ErrGTE[T] {
 	return &ErrGTE[T]{
 		Value: value,
 	}
+}
+
+// ErrOutOfBounds represents an error when a value is out of bounds.
+type ErrOutOfBounds struct {
+	// LowerBound is the lower bound of the value.
+	LowerBound int
+
+	// UpperBound is the upper bound of the value.
+	UpperBound int
+
+	// LowerInclusive is true if the lower bound is inclusive.
+	LowerInclusive bool
+
+	// UpperInclusive is true if the upper bound is inclusive.
+	UpperInclusive bool
+
+	// Value is the value that is out of bounds.
+	Value int
+}
+
+// Error implements the error interface.
+//
+// Message: "value ( <value> ) not in range <lower_bound> , <upper_bound>"
+func (e ErrOutOfBounds) Error() string {
+	left_bound := strconv.Itoa(e.LowerBound)
+	right_bound := strconv.Itoa(e.UpperBound)
+
+	var open, close string
+
+	if e.LowerInclusive {
+		open = "[ "
+	} else {
+		open = "( "
+	}
+
+	if e.UpperInclusive {
+		close = " ]"
+	} else {
+		close = " )"
+	}
+
+	var builder strings.Builder
+
+	builder.WriteString("value ( ")
+	builder.WriteString(strconv.Itoa(e.Value))
+	builder.WriteString(" ) not in range ")
+	builder.WriteString(open)
+	builder.WriteString(left_bound)
+	builder.WriteString(" , ")
+	builder.WriteString(right_bound)
+	builder.WriteString(close)
+
+	return builder.String()
+}
+
+// NewErrOutOfBounds creates a new ErrOutOfBounds error.
+//
+// Parameters:
+//   - value: The value that is out of bounds.
+//   - lowerBound: The lower bound of the value.
+//   - upperBound: The upper bound of the value.
+//
+// Returns:
+//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds. Never returns nil.
+//
+// By default, the lower bound is inclusive and the upper bound is exclusive.
+func NewErrOutOfBounds(value, lowerBound, upperBound int) *ErrOutOfBounds {
+	return &ErrOutOfBounds{
+		LowerBound:     lowerBound,
+		UpperBound:     upperBound,
+		LowerInclusive: true,
+		UpperInclusive: false,
+		Value:          value,
+	}
+}
+
+// WithLowerBound sets the lower bound of the value.
+//
+// Parameters:
+//   - is_inclusive: True if the lower bound is inclusive. False if the lower bound is exclusive.
+//
+// Returns:
+//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds.
+//
+// Only when the receiver is nil, this function returns nil.
+func (e *ErrOutOfBounds) WithLowerBound(is_inclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
+	e.LowerInclusive = is_inclusive
+
+	return e
+}
+
+// WithUpperBound sets the upper bound of the value.
+//
+// Parameters:
+//   - is_inclusive: True if the upper bound is inclusive. False if the upper bound is exclusive.
+//
+// Returns:
+//   - *ErrOutOfBounds: A pointer to the newly created ErrOutOfBounds.
+//
+// Only when the receiver is nil, this function returns nil.
+func (e *ErrOutOfBounds) WithUpperBound(is_inclusive bool) *ErrOutOfBounds {
+	if e == nil {
+		return nil
+	}
+
+	e.UpperInclusive = is_inclusive
+
+	return e
 }
