@@ -49,6 +49,11 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 			return gcers.NewErrAt(i+1, "line", err)
 		}
 
+		row, err = gcch.NormalizeRunes(row)
+		if err != nil {
+			return err
+		}
+
 		table = append(table, row)
 	}
 
