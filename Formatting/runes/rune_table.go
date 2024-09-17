@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"strings"
 
-	olch "github.com/PlayerR9/go-commons/OLD/runes"
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
@@ -239,7 +238,7 @@ func (rt RuneTable) Byte() []byte {
 
 	var buffer bytes.Buffer
 
-	buffer.Grow(olch.JoinSize(rt.table))
+	buffer.Grow(gcch.JoinSize(rt.table))
 
 	for _, r := range rt.table[0] {
 		buffer.WriteRune(r)
@@ -261,5 +260,5 @@ func (rt RuneTable) Byte() []byte {
 // Returns:
 //   - []rune: The rune representation of the table.
 func (rt RuneTable) Rune() []rune {
-	return olch.Join(rt.table, '\n')
+	return gcch.Join(rt.table, '\n')
 }
