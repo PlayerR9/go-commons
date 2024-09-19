@@ -3,6 +3,7 @@ package strings
 import (
 	"slices"
 	"strings"
+	"text/tabwriter"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
@@ -149,21 +150,24 @@ func (ta TableAligner) Build(tab_size int, table_indent bool) ([]string, error) 
 		}
 	}
 
-	// Align the table.
-	for _, idx := range ta.idxs {
-		ta.table, _ = TabAlign(ta.table, idx, tab_size)
-	}
+	var builder strings.Builder
 
-	// Transform the table into a slice of strings.
-	var lines []string
-
-	if ta.head != "" {
-		lines = append(lines, ta.head)
-	}
+	w := tabwriter.NewWriter(&builder, tab_size+1, tab_size, 1, ' ', 0)
 
 	for _, row := range ta.table {
-		lines = append(lines, strings.Join(row, ""))
+		str := strings.Join(row, "\t")
+
+		_, err := w.Write([]byte(str))
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	err := w.Flush()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(builder.String(), "\n")
 	return lines, nil
 }
