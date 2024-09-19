@@ -1,5 +1,7 @@
 package strings
 
+import "io"
+
 // filter_equals returns the indices of the other in the data.
 //
 // Parameters:
@@ -71,4 +73,35 @@ func IndicesOf(data []string, sep []string, exclude_sep bool) []int {
 	}
 
 	return indices
+}
+
+// Write writes the string to the writer.
+//
+// Parameters:
+//   - w: the writer.
+//   - str: the string.
+//
+// Returns:
+//   - error: if an error occurred.
+//
+// Errors:
+//   - io.ErrShortWrite if the string is not fully written or the writer is nil.
+//   - any other error returned by the writer.
+func Write(w io.Writer, str string) error {
+	if str == "" {
+		return nil
+	} else if w == nil {
+		return io.ErrShortWrite
+	}
+
+	data := []byte(str)
+
+	n, err := w.Write(data)
+	if err != nil {
+		return err
+	} else if n != len(data) {
+		return io.ErrShortWrite
+	}
+
+	return nil
 }
