@@ -1,6 +1,8 @@
 package strings
 
-import "io"
+import (
+	"io"
+)
 
 // filter_equals returns the indices of the other in the data.
 //

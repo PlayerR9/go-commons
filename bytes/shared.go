@@ -1,6 +1,9 @@
 package bytes
 
-import "io"
+import (
+	"index/suffixarray"
+	"io"
+)
 
 // filter_equals returns the indices of the other in the data.
 //
@@ -44,35 +47,24 @@ func IndicesOf(data []byte, sep []byte, exclude_sep bool) []int {
 		return nil
 	}
 
-	var indices []int
+	idx := suffixarray.New(data)
 
-	for i := 0; i < len(data)-len(sep); i++ {
-		if data[i] == sep[0] {
-			indices = append(indices, i)
-		}
-	}
-
-	if len(indices) == 0 {
+	offsets := idx.Lookup(sep, -1)
+	if len(offsets) == 0 {
 		return nil
 	}
 
-	for i := 1; i < len(sep); i++ {
-		other := sep[i]
-
-		indices = filter_equals(indices, data, other, i)
-
-		if len(indices) == 0 {
-			return nil
-		}
+	if !exclude_sep {
+		return offsets
 	}
 
-	if exclude_sep {
-		for i := 0; i < len(indices); i++ {
-			indices[i] += len(sep)
-		}
+	sep_len := len(sep)
+
+	for i := 0; i < len(offsets); i++ {
+		offsets[i] += sep_len
 	}
 
-	return indices
+	return offsets
 }
 
 // Write writes the data to the writer.
