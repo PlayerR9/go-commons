@@ -1,8 +1,17 @@
 package backup
 
 import (
+	"errors"
 	"iter"
 )
+
+var (
+	InvalidHistory error
+)
+
+func init() {
+	InvalidHistory = errors.New("subject is done before history")
+}
 
 // History is a history of items.
 type History[T any] struct {
@@ -77,7 +86,7 @@ func Align[T any, S interface {
 		}
 
 		if done {
-			panic("somehow the subject was done before the end of the history")
+			panic(InvalidHistory)
 		}
 	}
 }
