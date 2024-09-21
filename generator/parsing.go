@@ -46,7 +46,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 
 	if g != nil && len(values) == 0 {
 		return gcers.NewErrInvalidUsage(
-			errors.New("not specified any values that have generics, yet *GenericsSignVal is specified"),
+			"not specified any values that have generics, yet *GenericsSignVal is specified",
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)
 	}
@@ -64,7 +64,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 
 	if len(all_generics) > 0 && g == nil {
 		return gcers.NewErrInvalidUsage(
-			errors.New("specified at least one value that has generics but not specified the *GenericsSignVal"),
+			"specified at least one value that has generics but not specified the *GenericsSignVal",
 			"Make sure to call a flag that sets the *GenericsSignVal such as go-generator.NewTypeListFlag()",
 		)
 	}
@@ -95,7 +95,7 @@ func AlignGenerics(g *GenericsSignVal, values ...flag.Value) error {
 //   - error: An error if the type signature cannot be created. (i.e., the type name is empty)
 func MakeTypeSign(g *GenericsSignVal, type_name string, suffix string) (string, error) {
 	if type_name == "" {
-		return "", gcers.NewErrInvalidParameter("type_name", gcers.NewErrEmpty(type_name))
+		return "", gcers.NewErrInvalidParameter("type_name must not be an empty string")
 	}
 
 	var builder strings.Builder

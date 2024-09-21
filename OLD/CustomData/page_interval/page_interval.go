@@ -214,7 +214,7 @@ func (pi *PageInterval) AddPage(page int) error {
 	if page < 1 {
 		return gcers.NewErrInvalidParameter(
 			"page",
-			gcers.NewErrGT(0),
+			gcers.ValueGT(0),
 		)
 	}
 

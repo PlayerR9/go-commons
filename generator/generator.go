@@ -195,7 +195,7 @@ func fix_loc(loc string) (string, error) {
 //   - error: Any other type of error that may have occurred.
 func (cg CodeGenerator[T]) GenerateWithLoc(loc string, data T) (*Generated, error) {
 	if loc == "" {
-		return nil, gcers.NewErrInvalidParameter("loc", gcers.NewErrEmpty(loc))
+		return nil, gcers.NewErrInvalidParameter("loc must not be an empty string")
 	}
 
 	if cg.templ == nil {
@@ -264,7 +264,7 @@ func (cg CodeGenerator[T]) GenerateWithLoc(loc string, data T) (*Generated, erro
 func (cg CodeGenerator[T]) Generate(o *OutputLocVal, default_file_name string, data T) (*Generated, error) {
 	if o == nil {
 		return nil, gcers.NewErrInvalidUsage(
-			errors.New("output location was not defined"),
+			"output location was not defined",
 			"Please call the go-generator.NewOutputFlag() function before calling this function.",
 		)
 	}
@@ -274,7 +274,7 @@ func (cg CodeGenerator[T]) Generate(o *OutputLocVal, default_file_name string, d
 	}
 
 	if default_file_name == "" {
-		return nil, gcers.NewErrInvalidParameter("file_name", gcers.NewErrEmpty(default_file_name))
+		return nil, gcers.NewErrInvalidParameter("file_name must not be an empty string")
 	}
 
 	// dbg.AssertNil(cg.templ, "cg.templ")

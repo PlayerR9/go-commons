@@ -3,6 +3,8 @@ package errors
 import (
 	"fmt"
 	"strings"
+
+	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // Enumer is an enum type.
@@ -32,7 +34,7 @@ type Err[T Enumer] struct {
 //
 // Message: "{code}: {message}"
 func (e Err[T]) Error() string {
-	return fmt.Sprintf("%s: %s", e.Code.String(), Error(e.Message))
+	return fmt.Sprintf("%s: %s", e.Code.String(), gcers.Reason(e.Message))
 }
 
 // Unwrap implements errors.Unwrap interface.

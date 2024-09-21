@@ -126,7 +126,7 @@ func ReplaceSuffix(str, suffix string) (string, bool) {
 //   - The ID is returned as a hexadecimal string.
 func GenerateID(size int) (string, error) {
 	if size < 1 {
-		return "", gcers.NewErrInvalidParameter("size", gcers.NewErrGT(0))
+		return "", gcers.NewErrInvalidParameter("size", gcers.ValueGT(0))
 	}
 
 	b := make([]byte, size) // 128 bits
@@ -215,7 +215,7 @@ func CalculateNumberOfLines(text []string, width int) (int, error) {
 	if width <= 0 {
 		return 0, gcers.NewErrInvalidParameter(
 			"width",
-			gcers.NewErrGT(0),
+			gcers.ValueGT(0),
 		)
 	} else if len(text) == 0 {
 		return 0, nil

@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -105,4 +106,38 @@ func GetOrdinalSuffix(number int) string {
 	}
 
 	return builder.String()
+}
+
+// Error returns the error message for an error.
+//
+// Parameters:
+//   - err: The error to get the message for.
+//
+// Returns:
+//   - string: The error message.
+//
+// If the error is nil, the function returns "something went wrong".
+func Reason(err error) string {
+	if err == nil {
+		return "something went wrong"
+	}
+
+	return err.Error()
+}
+
+// Is is function that checks if an error is of type T.
+//
+// Parameters:
+//   - err: The error to check.
+//
+// Returns:
+//   - bool: true if the error is of type T, false otherwise (including if the error is nil).
+func Is[T any](err error) bool {
+	if err == nil {
+		return false
+	}
+
+	var target T
+
+	return errors.As(err, &target)
 }

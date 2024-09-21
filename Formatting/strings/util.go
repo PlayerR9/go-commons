@@ -46,7 +46,7 @@ func LongestLine[T any](table [][]T) int {
 //   - *errors.ErrInvalidParameter: If the tabSize is less than 1.
 func TableEntriesAlign(table [][]string, tab_size int) ([]string, error) {
 	if tab_size < 1 {
-		return nil, gcers.NewErrInvalidParameter("tabSize", gcers.NewErrGT(0))
+		return nil, gcers.NewErrInvalidParameter("tabsize must be %s", gcers.ValueGT(0))
 	}
 
 	var lb gcstr.LineBuffer

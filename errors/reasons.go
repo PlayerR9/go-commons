@@ -58,30 +58,15 @@ func NewErrEmpty(var_type any) *ErrEmpty {
 	}
 }
 
-// ErrGT represents an error when a value is less than or equal to a specified value.
-type ErrGT[T cmp.Ordered] struct {
-	// Value is the value that caused the error.
-	Value T
-}
-
-// Error implements the error interface.
-//
-// Message: "value must be greater than <value>"
-func (e ErrGT[T]) Error() string {
-	return fmt.Sprintf("value must ge greater than %v", e.Value)
-}
-
-// NewErrGT creates a new ErrGT error with the specified value.
+// ValueGT creates a new ErrGT error with the specified value.
 //
 // Parameters:
 //   - value: The minimum value that is not allowed.
 //
 // Returns:
 //   - *ErrGT: A pointer to the newly created ErrGT. Never returns nil.
-func NewErrGT[T cmp.Ordered](value T) *ErrGT[T] {
-	return &ErrGT[T]{
-		Value: value,
-	}
+func ValueGT[T cmp.Ordered](value T) string {
+	return fmt.Sprintf("value must ge greater than %v", value)
 }
 
 // ErrGTE represents an error when a value is less than a specified value.

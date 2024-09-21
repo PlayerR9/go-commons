@@ -5,39 +5,14 @@ import (
 	"strings"
 )
 
-// ErrInvalidParameter is an error that is returned when a parameter is invalid.
-type ErrInvalidParameter struct {
-	// Parameter is the name of the invalid parameter.
-	Parameter string
+//go:generate stringer -type=ErrorCode
 
-	// Reason is the reason for the error.
-	Reason error
-}
+type ErrorCode int
 
-// Error implements the error interface.
-//
-// Message:
-//
-//	"parameter <parameter> is invalid: <reason>"
-func (e ErrInvalidParameter) Error() string {
-	var builder strings.Builder
-
-	builder.WriteString("parameter ")
-	builder.WriteString(strconv.Quote(e.Parameter))
-	builder.WriteString(" is invalid")
-
-	if e.Reason != nil {
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the errors.Unwrap interface.
-func (e ErrInvalidParameter) Unwrap() error {
-	return e.Reason
-}
+const (
+	BadParameter ErrorCode = iota
+	InvalidUsage
+)
 
 // NewErrInvalidParameter creates a new ErrInvalidParameter error.
 //
@@ -47,11 +22,11 @@ func (e ErrInvalidParameter) Unwrap() error {
 //
 // Returns:
 //   - *ErrInvalidParameter: the new error. Never returns nil.
-func NewErrInvalidParameter(parameter string, reason error) *ErrInvalidParameter {
-	return &ErrInvalidParameter{
-		Parameter: parameter,
-		Reason:    reason,
-	}
+func NewErrInvalidParameter(format string, args ...any) *Err[ErrorCode] {
+	err := NewErrF(BadParameter, format, args...)
+	err.ChangeSeverity(FATAL)
+
+	return err
 }
 
 // NewErrNilParameter creates a new ErrInvalidParameter error.
@@ -61,23 +36,11 @@ func NewErrInvalidParameter(parameter string, reason error) *ErrInvalidParameter
 //
 // Returns:
 //   - *ErrInvalidParameter: the new error. Never returns nil.
-func NewErrNilParameter(parameter string) *ErrInvalidParameter {
-	return &ErrInvalidParameter{
-		Parameter: parameter,
-		Reason:    NilValue,
-	}
-}
+func NewErrNilParameter(parameter string) *Err[ErrorCode] {
+	err := NewErrF(BadParameter, "parameter %s cannot be nil", parameter)
+	err.ChangeSeverity(FATAL)
 
-// ChangeReason changes the reason for the error.
-//
-// Parameters:
-//   - new_reason: the new reason for the error.
-func (e *ErrInvalidParameter) ChangeReason(new_reason error) {
-	if e == nil {
-		return
-	}
-
-	e.Reason = new_reason
+	return err
 }
 
 // ErrFix is an error that is returned when an object cannot be fixed.
@@ -225,6 +188,81 @@ func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
 	}
 }
 
+// ErrAfter represents an error that occurs after something.
+type ErrAfter struct {
+	// After is the element that was processed before the error occurred.
+	After string
+
+	// Reason is the reason for the error.
+	Reason error
+
+	// ShoulQuote is whether the error should be quoted.
+	ShouldQuote bool
+}
+
+// Error implements the error interface.
+//
+// Message: "after {after}: {reason}".
+//
+// However, if the reason is nil, the message is "something went wrong after {after}"
+// instead.
+func (e ErrAfter) Error() string {
+	var after string
+
+	if e.After == "" {
+		after = "something"
+	} else if e.ShouldQuote {
+		after = strconv.Quote(e.After)
+	} else {
+		after = e.After
+	}
+
+	var builder strings.Builder
+
+	if e.Reason == nil {
+		builder.WriteString("something went wrong after ")
+		builder.WriteString(after)
+	} else {
+		builder.WriteString("after ")
+		builder.WriteString(after)
+		builder.WriteString(": ")
+		builder.WriteString(e.Reason.Error())
+	}
+
+	return builder.String()
+}
+
+// Unwrap implements the errors.Unwrapper interface.
+func (e ErrAfter) Unwrap() error {
+	return e.Reason
+}
+
+// ChangeReason implements the errors.Unwrapper interface.
+func (e *ErrAfter) ChangeReason(reason error) {
+	if e == nil {
+		return
+	}
+
+	e.Reason = reason
+}
+
+// NewErrAfter creates a new ErrAfter error.
+//
+// Parameters:
+//   - after: The element that was processed before the error occurred.
+//   - reason: The reason for the error.
+//   - should_quote: Whether the error should be quoted.
+//
+// Returns:
+//   - *ErrAfter: A pointer to the new ErrAfter error. Never returns nil.
+func NewErrAfter(after string, reason error, should_quote bool) *ErrAfter {
+	return &ErrAfter{
+		After:       after,
+		Reason:      reason,
+		ShouldQuote: should_quote,
+	}
+}
+
 // ErrInvalidUsage represents an error that occurs when a function is used incorrectly.
 type ErrInvalidUsage struct {
 	// Reason is the reason for the invalid usage.
@@ -282,9 +320,11 @@ func (e *ErrInvalidUsage) ChangeReason(new_reason error) {
 //
 // Returns:
 //   - *ErrInvalidUsage: A pointer to the new ErrInvalidUsage error.
-func NewErrInvalidUsage(reason error, usage string) *ErrInvalidUsage {
-	return &ErrInvalidUsage{
-		Reason: reason,
-		Usage:  usage,
-	}
+func NewErrInvalidUsage(message string, usage string) *Err[ErrorCode] {
+	err := NewErr(InvalidUsage, message)
+	err.ChangeSeverity(FATAL)
+
+	err.AddSuggestion(usage)
+
+	return err
 }

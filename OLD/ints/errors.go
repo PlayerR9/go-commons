@@ -126,12 +126,14 @@ func NewErrInvalidDigit(idx, digit, base int) *gcers.ErrAt {
 //
 // Returns:
 //   - *errors.ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
-func NewErrInvalidBase(param_name string) *gcers.ErrInvalidParameter {
+func NewErrInvalidBase(param_name string) *gcers.Err[gcers.ErrorCode] {
 	if param_name == "" {
 		param_name = "base"
 	}
 
-	return gcers.NewErrInvalidParameter(param_name, gcers.NewErrGT(0))
+	err := gcers.NewErrInvalidParameter("param_name must be %s", gcers.ValueGT(0))
+
+	return err
 }
 
 // ErrTokenNotFound is a struct that represents an error when a token is not

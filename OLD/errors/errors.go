@@ -69,69 +69,6 @@ func NewErrWhile(operation string, reason error) *ErrWhile {
 	return e
 }
 
-// ErrAfter is an error that is returned when something goes wrong after a certain
-// element in a stream of data.
-type ErrAfter struct {
-	// After is the element that was processed before the error occurred.
-	After string
-
-	// Reason is the reason for the error.
-	Reason error
-}
-
-// Error implements the Unwrapper interface.
-//
-// Message: "after {after}: {reason}".
-//
-// However, if the reason is nil, the message is "something went wrong after {after}"
-// instead.
-func (e ErrAfter) Error() string {
-	var builder strings.Builder
-
-	if e.Reason == nil {
-		builder.WriteString("something went wrong after ")
-		builder.WriteString(e.After)
-	} else {
-		builder.WriteString("after ")
-		builder.WriteString(e.After)
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the Unwrapper interface.
-func (e ErrAfter) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the Unwrapper interface.
-func (e *ErrAfter) ChangeReason(reason error) bool {
-	if e == nil {
-		return false
-	}
-
-	e.Reason = reason
-
-	return true
-}
-
-// NewErrAfter creates a new ErrAfter error.
-//
-// Parameters:
-//   - after: The element that was processed before the error occurred.
-//   - reason: The reason for the error.
-//
-// Returns:
-//   - *ErrAfter: A pointer to the new ErrAfter error. Never returns nil.
-func NewErrAfter(after string, reason error) *ErrAfter {
-	return &ErrAfter{
-		After:  after,
-		Reason: reason,
-	}
-}
-
 // ErrBefore is an error that is returned when something goes wrong before
 // a certain element in a stream of data.
 type ErrBefore struct {
