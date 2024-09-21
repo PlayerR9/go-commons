@@ -917,7 +917,10 @@ func NewTypeListFlag(flag_name string, is_required bool, count int, brief string
 //   - error: An error of type *luc.ErrInvalidParameter if the index is out of bounds.
 func (s TypeListVal) Type(idx int) (string, error) {
 	if idx < 0 || idx >= len(s.types) {
-		return "", gcers.NewErrInvalidParameter("idx must be %s", gcers.NewErrOutOfBounds(idx, 0, len(s.types)).Error())
+		err := gcers.NewErrInvalidParameter(fmt.Sprintf("idx must be in the range [0, %d]", len(s.types)))
+		err.AddFrame("TypeListVal", "Type()")
+
+		return "", err
 	}
 
 	return s.types[idx], nil

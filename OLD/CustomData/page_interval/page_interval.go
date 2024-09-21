@@ -212,10 +212,10 @@ func (pi *PageInterval) AddPage(page int) error {
 	}
 
 	if page < 1 {
-		return gcers.NewErrInvalidParameter(
-			"page",
-			gcers.ValueGT(0),
-		)
+		err := gcers.NewErrInvalidParameter("page must be positive")
+		err.AddFrame("*PageInterval", "AddPage()")
+
+		return err
 	}
 
 	criteria_page_gte := func(i int) bool {

@@ -3,7 +3,8 @@ package ints
 import (
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcerr "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/go-commons/errors/error"
 )
 
 // ErrWhileAt represents an error that occurs while doing something at a specific index.
@@ -114,8 +115,8 @@ func NewErrWhileAt(operation string, idx int, idx_type string, reason error) *Er
 //
 // Returns:
 //   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
-func NewErrInvalidDigit(idx, digit, base int) *gcers.ErrAt {
-	return gcers.NewErrAt(idx+1, "digit", gcers.NewErrOutOfBounds(digit, 0, base))
+func NewErrInvalidDigit(idx, digit, base int) *gcerr.ErrAt {
+	return gcerr.NewErrAt(idx+1, "digit", gcerr.NewErrOutOfBounds(digit, 0, base))
 }
 
 // NewErrInvalidBase is a convenience function for creating an *errors.ErrInvalidParameter
@@ -126,12 +127,12 @@ func NewErrInvalidDigit(idx, digit, base int) *gcers.ErrAt {
 //
 // Returns:
 //   - *errors.ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
-func NewErrInvalidBase(param_name string) *gcers.Err[gcers.ErrorCode] {
+func NewErrInvalidBase(param_name string) *gcers.Err[gcerr.ErrorCode] {
 	if param_name == "" {
 		param_name = "base"
 	}
 
-	err := gcers.NewErrInvalidParameter("param_name must be %s", gcers.ValueGT(0))
+	err := gcerr.NewErrInvalidParameter("param_name must be positive")
 
 	return err
 }

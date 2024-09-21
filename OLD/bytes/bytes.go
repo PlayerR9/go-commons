@@ -120,8 +120,10 @@ func FindContentIndexes(op_token, cl_token []byte, tokens [][]byte) (result [2]i
 	result[1] = -1
 
 	if len(cl_token) == 0 {
-		err = gcers.NewErrInvalidParameter("cl_token", gcers.NewErrEmpty(cl_token))
-		return
+		err := gcers.NewErrInvalidParameter("cl_token must not be empty")
+		err.AddFrame("bytes", "FindContentIndexes()")
+
+		return result, err
 	}
 
 	op_tok_idx := FirstIndex(tokens, op_token)

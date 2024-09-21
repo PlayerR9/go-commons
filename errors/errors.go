@@ -1,8 +1,11 @@
 package errors
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+
+	gcers "github.com/PlayerR9/go-commons/errors/error"
 )
 
 //go:generate stringer -type=ErrorCode
@@ -10,106 +13,76 @@ import (
 type ErrorCode int
 
 const (
+	// BadParameter occurs when a parameter is invalid or is not
+	// valid for some reason. For example, a nil pointer when nil
+	// pointers are not allowed.
 	BadParameter ErrorCode = iota
+
+	// InvalidUsage occurs when users call a function without
+	// proper setups or preconditions.
 	InvalidUsage
+
+	// FailFix occurs when a struct cannot be fixed or resolved
+	// due to an invalid internal state.
+	FailFix
 )
 
-// NewErrInvalidParameter creates a new ErrInvalidParameter error.
+// NewErrInvalidParameter creates a new error.Err[ErrorCode] error.
 //
 // Parameters:
-//   - parameter: the name of the invalid parameter.
-//   - reason: the reason for the error.
+//   - message: The message of the error.
 //
 // Returns:
-//   - *ErrInvalidParameter: the new error. Never returns nil.
-func NewErrInvalidParameter(format string, args ...any) *Err[ErrorCode] {
-	err := NewErrF(BadParameter, format, args...)
-	err.ChangeSeverity(FATAL)
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrInvalidParameter(message string) *gcers.Err[ErrorCode] {
+	err := gcers.NewErr(gcers.FATAL, BadParameter, message)
 
 	return err
 }
 
-// NewErrNilParameter creates a new ErrInvalidParameter error.
+// NewErrNilParameter creates a new error.Err[ErrorCode] error.
 //
 // Parameters:
 //   - parameter: the name of the invalid parameter.
 //
 // Returns:
-//   - *ErrInvalidParameter: the new error. Never returns nil.
-func NewErrNilParameter(parameter string) *Err[ErrorCode] {
-	err := NewErrF(BadParameter, "parameter %s cannot be nil", parameter)
-	err.ChangeSeverity(FATAL)
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrNilParameter(parameter string) *gcers.Err[ErrorCode] {
+	err := gcers.NewErr(gcers.FATAL, BadParameter, fmt.Sprintf("parameter (%q) cannot be nil", parameter))
 
 	return err
 }
 
-// ErrFix is an error that is returned when an object cannot be fixed.
-type ErrFix struct {
-	// Name is the name of the object.
-	Name string
-
-	// Reason is the reason for the error.
-	Reason error
-}
-
-// Error implements the error interface.
-//
-// Message:
-//
-//	"failed to fix <name>: <reason>"
-func (e ErrFix) Error() string {
-	var name string
-
-	if e.Name == "" {
-		name = "object"
-	} else {
-		name = strconv.Quote(e.Name)
-	}
-
-	var builder strings.Builder
-
-	builder.WriteString("failed to fix ")
-	builder.WriteString(name)
-
-	if e.Reason != nil {
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the errors.Unwrap interface.
-func (e ErrFix) Unwrap() error {
-	return e.Reason
-}
-
-// NewErrFix creates a new ErrFix error.
+// NewErrInvalidUsage creates a new error.Err[ErrorCode] error.
 //
 // Parameters:
-//   - name: the name of the object.
-//   - reason: the reason for the error.
+//   - message: The message of the error.
+//   - usage: The usage/suggestion to solve the problem.
 //
 // Returns:
-//   - *ErrFix: the new error. Never returns nil.
-func NewErrFix(name string, reason error) *ErrFix {
-	return &ErrFix{
-		Name:   name,
-		Reason: reason,
-	}
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrInvalidUsage(message string, usage string) *gcers.Err[ErrorCode] {
+	err := gcers.NewErr(gcers.FATAL, InvalidUsage, message)
+
+	err.AddSuggestion(usage)
+
+	return err
 }
 
-// ChangeReason changes the reason for the error.
+// NewErrFix creates a new error.Err[ErrorCode] error.
 //
 // Parameters:
-//   - new_reason: the new reason for the error.
-func (e *ErrFix) ChangeReason(new_reason error) {
-	if e == nil {
-		return
-	}
+//   - message: The message of the error.
+//
+// Returns:
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrFix(message string) *gcers.Err[ErrorCode] {
+	err := gcers.NewErr(gcers.FATAL, FailFix, message)
 
-	e.Reason = new_reason
+	return err
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 // ErrAt represents an error that occurs at a specific index.
 type ErrAt struct {
@@ -261,70 +234,4 @@ func NewErrAfter(after string, reason error, should_quote bool) *ErrAfter {
 		Reason:      reason,
 		ShouldQuote: should_quote,
 	}
-}
-
-// ErrInvalidUsage represents an error that occurs when a function is used incorrectly.
-type ErrInvalidUsage struct {
-	// Reason is the reason for the invalid usage.
-	Reason error
-
-	// Usage is the usage of the function.
-	Usage string
-}
-
-// Error is a method of the Unwrapper interface.
-//
-// Message:
-//
-//	"{reason}. {usage}"
-//
-// However, if the reason is nil, the message is "invalid usage. {usage}" instead.
-//
-// If the usage is empty, no usage is added to the message.
-func (e ErrInvalidUsage) Error() string {
-	var builder strings.Builder
-
-	if e.Reason == nil {
-		builder.WriteString("invalid usage")
-	} else {
-		builder.WriteString(e.Reason.Error())
-	}
-
-	if e.Usage != "" {
-		builder.WriteString(". ")
-		builder.WriteString(e.Usage)
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the errors.Unwrap interface.
-func (e ErrInvalidUsage) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the Unwrapper interface.
-func (e *ErrInvalidUsage) ChangeReason(new_reason error) {
-	if e == nil {
-		return
-	}
-
-	e.Reason = new_reason
-}
-
-// NewErrInvalidUsage creates a new ErrInvalidUsage error.
-//
-// Parameters:
-//   - reason: The reason for the invalid usage.
-//   - usage: The usage of the function.
-//
-// Returns:
-//   - *ErrInvalidUsage: A pointer to the new ErrInvalidUsage error.
-func NewErrInvalidUsage(message string, usage string) *Err[ErrorCode] {
-	err := NewErr(InvalidUsage, message)
-	err.ChangeSeverity(FATAL)
-
-	err.AddSuggestion(usage)
-
-	return err
 }

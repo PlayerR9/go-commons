@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"strings"
 
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
@@ -36,12 +35,18 @@ type Serieser interface {
 //     there are not enough values to calculate the average.
 func ApproximateConvergence(values []*big.Float, n int) (*big.Float, error) {
 	if n <= 0 {
-		return nil, gcers.NewErrInvalidParameter("n", gcint.NewErrGT(0))
+		err := gcers.NewErrInvalidParameter("n must be positive")
+		err.AddFrame("math", "ApproximateConvergence()")
+
+		return nil, err
 	} else if len(values) < n {
-		return nil, gcers.NewErrInvalidParameter(
-			"n",
-			gcers.NewErrOutOfBounds(n, 0, len(values)),
+		err := gcers.NewErrInvalidUsage(
+			"not enough values to calculate the average",
+			"make sure that the number of values is at least n",
 		)
+		err.AddFrame("math", "ApproximateConvergence()")
+
+		return nil, err
 	}
 
 	sum := new(big.Float)

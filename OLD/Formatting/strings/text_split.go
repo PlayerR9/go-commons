@@ -71,17 +71,17 @@ func (ts TextSplit) Runes() [][]rune {
 //     maxHeight is less than 0.
 func NewTextSplit(max_width, max_height int) (*TextSplit, error) {
 	if max_width < 0 {
-		return nil, gcers.NewErrInvalidParameter(
-			"max_width",
-			gcers.NewErrGTE(0),
-		)
+		err := gcers.NewErrInvalidParameter("max_width must be non-negative")
+		err.AddFrame("strings", "NewTextSplit()")
+
+		return nil, err
 	}
 
 	if max_height < 0 {
-		return nil, gcers.NewErrInvalidParameter(
-			"max_height",
-			gcers.NewErrGTE(0),
-		)
+		err := gcers.NewErrInvalidParameter("max_height must be non-negative")
+		err.AddFrame("strings", "NewTextSplit()")
+
+		return nil, err
 	}
 
 	return &TextSplit{

@@ -107,9 +107,15 @@ func AddSuffixToFileName(filename, new_suffix string, ext string) string {
 //   - error: An error if the file name does not have one of the given extensions.
 func ErrIfInvalidExt(file_name string, exts ...string) error {
 	if file_name == "" {
-		return gcers.NewErrInvalidParameter("file_name", errors.New("no file name provided"))
+		err := gcers.NewErrInvalidParameter("no file name was provided")
+		err.AddFrame("file_manager", "ErrIfInvalidExt()")
+
+		return err
 	} else if len(exts) == 0 {
-		return gcers.NewErrInvalidParameter("exts", errors.New("no extensions provided"))
+		err := gcers.NewErrInvalidParameter("no extensions were provided")
+		err.AddFrame("file_manager", "ErrIfInvalidExt()")
+
+		return err
 	}
 
 	ext := filepath.Ext(file_name)
@@ -176,7 +182,10 @@ func ModifyPath(path, suffix string, sub_directories ...string) (string, error) 
 //   - error: An error if the directory could not be read.
 func ReadDir(loc string) ([]string, error) {
 	if loc == "" {
-		return nil, gcers.NewErrInvalidParameter("loc", gcers.NewErrEmpty(loc))
+		err := gcers.NewErrInvalidParameter("no location was provided")
+		err.AddFrame("file_manager", "ReadDir()")
+
+		return nil, err
 	}
 
 	var sols []string

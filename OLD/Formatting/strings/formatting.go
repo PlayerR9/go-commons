@@ -126,7 +126,10 @@ func ReplaceSuffix(str, suffix string) (string, bool) {
 //   - The ID is returned as a hexadecimal string.
 func GenerateID(size int) (string, error) {
 	if size < 1 {
-		return "", gcers.NewErrInvalidParameter("size", gcers.ValueGT(0))
+		err := gcers.NewErrInvalidParameter("size must be positive")
+		err.AddFrame("strings", "GenerateID()")
+
+		return "", err
 	}
 
 	b := make([]byte, size) // 128 bits
@@ -213,10 +216,10 @@ func FitString(s string, width int) string {
 // It also returns the calculated number of lines when it errors out
 func CalculateNumberOfLines(text []string, width int) (int, error) {
 	if width <= 0 {
-		return 0, gcers.NewErrInvalidParameter(
-			"width",
-			gcers.ValueGT(0),
-		)
+		err := gcers.NewErrInvalidParameter("width must be positive")
+		err.AddFrame("strings", "CalculateNumberOfLines()")
+
+		return 0, err
 	} else if len(text) == 0 {
 		return 0, nil
 	}
@@ -327,7 +330,9 @@ func CalculateNumberOfLines(text []string, width int) (int, error) {
 // the text within the width using the CalculateNumberOfLines function.
 func SplitInEqualSizedLines(text []string, width, height int) (*TextSplit, error) {
 	if len(text) == 0 {
-		err := gcers.NewErrInvalidParameter("text", gcers.NewErrEmpty(text))
+		err := gcers.NewErrInvalidParameter("text must not be empty")
+		err.AddFrame("strings", "SplitInEqualSizedLines()")
+
 		return nil, err
 	}
 
@@ -547,7 +552,10 @@ func FirstInstanceOfWS(chars []rune, from_idx, to_idx int) int {
 //   - error: An error if the input string is empty or has invalid UTF-8 encoding.
 func Title(str string) (string, error) {
 	if str == "" {
-		return str, gcers.NewErrInvalidParameter("str", gcers.NewErrEmpty(str))
+		err := gcers.NewErrInvalidParameter("str must not be empty")
+		err.AddFrame("strings", "Title()")
+
+		return str, err
 	}
 
 	r, size := utf8.DecodeRuneInString(str)

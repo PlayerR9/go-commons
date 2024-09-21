@@ -90,8 +90,10 @@ func FindContentIndexes(op_token, cl_token string, tokens []string) (result [2]i
 	result[1] = -1
 
 	if cl_token == "" {
-		err = gcers.NewErrInvalidParameter("cl_token", gcers.NewErrEmpty(cl_token))
-		return
+		err := gcers.NewErrInvalidParameter("cl_token must not be empty")
+		err.AddFrame("strings", "FindContentIndexes()")
+
+		return result, err
 	}
 
 	op_tok_idx := slices.Index(tokens, op_token)

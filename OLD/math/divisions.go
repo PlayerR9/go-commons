@@ -3,7 +3,6 @@ package MathExt
 import (
 	"math/big"
 
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
 	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
@@ -119,17 +118,17 @@ func GreatestCommonDivisor(a, b int) int {
 //     the denominator is less than or equal to 0.
 func BigFloatDivision(numerator, denominator int) (*big.Float, error) {
 	if numerator < 0 {
-		return new(big.Float), gcers.NewErrInvalidParameter(
-			"numerator",
-			gcint.NewErrGTE(0),
-		)
+		err := gcers.NewErrInvalidParameter("numerator must be non-negative")
+		err.AddFrame("math", "BigFloatDivision()")
+
+		return new(big.Float), err
 	}
 
 	if denominator <= 0 {
-		return new(big.Float), gcers.NewErrInvalidParameter(
-			"denominator",
-			gcint.NewErrGT(0),
-		)
+		err := gcers.NewErrInvalidParameter("denominator must be positive")
+		err.AddFrame("math", "BigFloatDivision()")
+
+		return new(big.Float), err
 	}
 
 	// return R(n1) / R(n2)
