@@ -69,69 +69,6 @@ func NewErrWhile(operation string, reason error) *ErrWhile {
 	return e
 }
 
-// ErrBefore is an error that is returned when something goes wrong before
-// a certain element in a stream of data.
-type ErrBefore struct {
-	// Before is the element that was processed before the error occurred.
-	Before string
-
-	// Reason is the reason for the error.
-	Reason error
-}
-
-// Error implements the Unwrapper interface.
-//
-// Message: "before {before}: {reason}".
-//
-// However, if the reason is nil, the message is "something went wrong before {before}"
-// instead.
-func (e ErrBefore) Error() string {
-	var builder strings.Builder
-
-	if e.Reason == nil {
-		builder.WriteString("something went wrong before ")
-		builder.WriteString(e.Before)
-	} else {
-		builder.WriteString("before ")
-		builder.WriteString(e.Before)
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the Unwrapper interface.
-func (e *ErrBefore) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the Unwrapper interface.
-func (e *ErrBefore) ChangeReason(reason error) bool {
-	if e == nil {
-		return false
-	}
-
-	e.Reason = reason
-
-	return true
-}
-
-// NewErrBefore creates a new ErrBefore error.
-//
-// Parameters:
-//   - before: The element that was processed before the error occurred.
-//   - reason: The reason for the error.
-//
-// Returns:
-//   - *ErrBefore: A pointer to the new ErrBefore error. Never returns nil.
-func NewErrBefore(before string, reason error) *ErrBefore {
-	return &ErrBefore{
-		Before: before,
-		Reason: reason,
-	}
-}
-
 // ErrInvalidCall represents an error that occurs when a function
 // is not called correctly.
 type ErrInvalidCall struct {

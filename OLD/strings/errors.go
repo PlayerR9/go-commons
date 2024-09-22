@@ -136,7 +136,7 @@ func (e ErrUnexpectedRune) Error() string {
 		elems := gcstr.SliceOfRunes(e.Expecteds)
 		gcstr.QuoteStrings(elems)
 
-		builder.WriteString(gcstr.EitherOrString(elems))
+		builder.WriteString(gcstr.EitherOr(elems))
 	}
 
 	builder.WriteString(" ")

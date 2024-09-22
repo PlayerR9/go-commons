@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"fmt"
 	"strconv"
 
 	gcers "github.com/PlayerR9/go-commons/errors/error"
@@ -51,7 +50,9 @@ func NewErrInvalidParameter(message string) *gcers.Err[ErrorCode] {
 // Returns:
 //   - *error.Err[ErrorCode]: The new error. Never returns nil.
 func NewErrNilParameter(parameter string) *gcers.Err[ErrorCode] {
-	err := gcers.NewErr(gcers.FATAL, BadParameter, fmt.Sprintf("parameter (%q) cannot be nil", parameter))
+	msg := "parameter (" + strconv.Quote(parameter) + ") must not be nil"
+
+	err := gcers.NewErr(gcers.FATAL, BadParameter, msg)
 
 	return err
 }
@@ -99,7 +100,7 @@ func NewErrAt(at string, reason error) *gcers.Err[ErrorCode] {
 	if at == "" {
 		msg = "an error occurred somewhere"
 	} else {
-		msg = fmt.Sprintf("an error occurred at %s", at)
+		msg = "an error occurred at " + at
 	}
 
 	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
@@ -113,18 +114,17 @@ func NewErrAt(at string, reason error) *gcers.Err[ErrorCode] {
 // Parameters:
 //   - before: The operation after which the error occurred.
 //   - reason: The reason for the error.
-//   - should_quote: Whether the `before` should be quoted.
 //
 // Returns:
 //   - *error.Err[ErrorCode]: The new error. Never returns nil.
-func NewErrAfter(before string, reason error, should_quote bool) *gcers.Err[ErrorCode] {
-	if before == "" {
-		before = "something"
-	} else if should_quote {
-		before = strconv.Quote(before)
-	}
+func NewErrAfter(before string, reason error) *gcers.Err[ErrorCode] {
+	var msg string
 
-	msg := fmt.Sprintf("an error occurred after %s", before)
+	if before == "" {
+		msg = "an error occurred after something"
+	} else {
+		msg = "an error occurred after " + before
+	}
 
 	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
 	err.SetInner(reason)
@@ -137,18 +137,17 @@ func NewErrAfter(before string, reason error, should_quote bool) *gcers.Err[Erro
 // Parameters:
 //   - after: The operation before which the error occurred.
 //   - reason: The reason for the error.
-//   - should_quote: Whether the `before` should be quoted.
 //
 // Returns:
 //   - *error.Err[ErrorCode]: The new error. Never returns nil.
-func NewErrBefore(after string, reason error, should_quote bool) *gcers.Err[ErrorCode] {
-	if after == "" {
-		after = "something"
-	} else if should_quote {
-		after = strconv.Quote(after)
-	}
+func NewErrBefore(after string, reason error) *gcers.Err[ErrorCode] {
+	var msg string
 
-	msg := fmt.Sprintf("an error occurred before %s", after)
+	if after == "" {
+		msg = "an error occurred before something"
+	} else {
+		msg = "an error occurred before " + after
+	}
 
 	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
 	err.SetInner(reason)

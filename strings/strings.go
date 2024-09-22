@@ -70,7 +70,7 @@ func TrimEmpty(values []string) []string {
 	return res[:len(res):len(res)]
 }
 
-// EitherOrString is a function that returns a string representation of a slice
+// EitherOr is a function that returns a string representation of a slice
 // of strings. Empty strings are ignored.
 //
 // Parameters:
@@ -81,33 +81,18 @@ func TrimEmpty(values []string) []string {
 //
 // Example:
 //
-//	EitherOrString([]string{"a", "b", "c"}, false) // "a, b or c"
-func EitherOrString(values []string) string {
-	values = TrimEmpty(values)
-
-	if len(values) == 0 {
+//	EitherOr([]string{"a", "b", "c"}, false) // "a, b or c"
+func EitherOr(values []string) string {
+	switch len(values) {
+	case 0:
 		return ""
-	}
-
-	if len(values) == 1 {
+	case 1:
 		return values[0]
+	case 2:
+		return values[0] + " or " + values[1]
+	default:
+		return "either " + strings.Join(values[:len(values)-1], ", ") + ", or " + values[len(values)-1]
 	}
-
-	var builder strings.Builder
-
-	builder.WriteString("either ")
-
-	if len(values) > 2 {
-		builder.WriteString(strings.Join(values[:len(values)-1], ", "))
-		builder.WriteRune(',')
-	} else {
-		builder.WriteString(values[0])
-	}
-
-	builder.WriteString(" or ")
-	builder.WriteString(values[len(values)-1])
-
-	return builder.String()
 }
 
 // OrString is a function that returns a string representation of a slice of
