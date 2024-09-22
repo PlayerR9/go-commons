@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 	gcstr "github.com/PlayerR9/go-commons/strings"
 )
 

@@ -3,7 +3,7 @@ package MathExt
 import (
 	"math/big"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 )
 
 // PrimeFactorization is a function that performs prime factorization on an

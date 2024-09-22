@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 )
 
 // PackageNameSetter is the interface that all generators must implement.

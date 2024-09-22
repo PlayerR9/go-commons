@@ -1,7 +1,7 @@
 package runes
 
 import (
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
 )
 

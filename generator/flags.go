@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 	gcmap "github.com/PlayerR9/go-commons/maps"
 	"github.com/dustin/go-humanize"
 )

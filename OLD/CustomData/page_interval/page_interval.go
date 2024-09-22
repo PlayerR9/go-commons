@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
+	gcers "github.com/PlayerR9/errors"
 	gcint "github.com/PlayerR9/go-commons/OLD/ints"
-	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // PageInterval represents a collection of page intervals, where each

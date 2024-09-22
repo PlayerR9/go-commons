@@ -3,7 +3,7 @@ package bytes
 import (
 	"bytes"
 
-	gcers "github.com/PlayerR9/go-commons/errors"
+	gcers "github.com/PlayerR9/errors"
 )
 
 var (
