@@ -1,10 +1,12 @@
 package ints
 
 import (
+	"fmt"
 	"strings"
 
 	gcerr "github.com/PlayerR9/go-commons/errors"
 	gcers "github.com/PlayerR9/go-commons/errors/error"
+	"github.com/dustin/go-humanize"
 )
 
 // ErrWhileAt represents an error that occurs while doing something at a specific index.
@@ -115,8 +117,8 @@ func NewErrWhileAt(operation string, idx int, idx_type string, reason error) *Er
 //
 // Returns:
 //   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
-func NewErrInvalidDigit(idx, digit, base int) *gcerr.ErrAt {
-	return gcerr.NewErrAt(idx+1, "digit", gcerr.NewErrOutOfBounds(digit, 0, base))
+func NewErrInvalidDigit(idx, digit, base int) *gcers.Err[gcerr.ErrorCode] {
+	return gcerr.NewErrAt(humanize.Ordinal(idx+1)+" digit", fmt.Errorf("value of %d is not in the range [0, %d)", digit, base))
 }
 
 // NewErrInvalidBase is a convenience function for creating an *errors.ErrInvalidParameter

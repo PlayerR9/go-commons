@@ -10,8 +10,6 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
-
-	gcers "github.com/PlayerR9/go-commons/errors"
 )
 
 // GoExport is an enum that represents whether a variable is exported or not.
@@ -40,7 +38,7 @@ const (
 //   - error: An error if the variable name is invalid.
 func FixVariableName(variable_name string, keywords []string, exported GoExport) (string, error) {
 	if variable_name == "" {
-		return "", gcers.NewErrEmpty(variable_name)
+		return "", errors.New("variable name cannot be empty")
 	}
 
 	switch exported {
@@ -127,7 +125,7 @@ func FixVariableName(variable_name string, keywords []string, exported GoExport)
 // function does not perform any checks.
 func IsValidVariableName(variable_name string, keywords []string, exported GoExport) error {
 	if variable_name == "" {
-		return gcers.NewErrEmpty(variable_name)
+		return errors.New("variable name cannot be empty")
 	}
 
 	switch exported {

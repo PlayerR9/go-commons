@@ -2,11 +2,13 @@ package internal
 
 import (
 	"errors"
+	"io"
 	"strings"
 	"unicode/utf8"
 
 	gcf "github.com/PlayerR9/go-commons/OLD/fixer"
 	gcers "github.com/PlayerR9/go-commons/errors"
+	"github.com/dustin/go-humanize"
 )
 
 const (
@@ -312,12 +314,10 @@ func (b *Buffer) AcceptWord() bool {
 //   - errors.NilReceiver if the receiver is nil.
 //   - *ints.ErrAt if the data is not properly UTF-8 encoded.
 func (b *Buffer) WriteBytes(data []byte) (int, error) {
-	if b == nil {
-		return 0, gcers.NilReceiver
-	}
-
 	if len(data) == 0 {
 		return 0, nil
+	} else if b == nil {
+		return 0, io.ErrShortWrite
 	}
 
 	var count int
@@ -325,7 +325,7 @@ func (b *Buffer) WriteBytes(data []byte) (int, error) {
 	for count = 0; len(data) > 0; count++ {
 		r, size := utf8.DecodeRune(data)
 		if r == utf8.RuneError {
-			return count, gcers.NewErrAt(count+1, "byte", errors.New("invalid UTF-8 encoding"))
+			return count, gcers.NewErrAt(humanize.Ordinal(count+1)+" byte", errors.New("invalid UTF-8 encoding"))
 		}
 
 		_ = b.Write(r)

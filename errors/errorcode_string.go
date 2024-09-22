@@ -10,11 +10,13 @@ func _() {
 	var x [1]struct{}
 	_ = x[BadParameter-0]
 	_ = x[InvalidUsage-1]
+	_ = x[FailFix-2]
+	_ = x[OperationFail-3]
 }
 
-const _ErrorCode_name = "BadParameterInvalidUsage"
+const _ErrorCode_name = "BadParameterInvalidUsageFailFixOperationFail"
 
-var _ErrorCode_index = [...]uint8{0, 12, 24}
+var _ErrorCode_index = [...]uint8{0, 12, 24, 31, 44}
 
 func (i ErrorCode) String() string {
 	if i < 0 || i >= ErrorCode(len(_ErrorCode_index)-1) {

@@ -6,6 +6,7 @@ import (
 
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
+	"github.com/dustin/go-humanize"
 )
 
 // RuneTable is a table of runes.
@@ -38,7 +39,7 @@ func (rt RuneTable) String() string {
 //   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	if rt == nil {
-		return gcers.NilReceiver
+		return gcers.NewErrNilParameter("RuneTable")
 	}
 
 	table := make([][]rune, 0, len(lines))
@@ -46,7 +47,7 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	for i, line := range lines {
 		row, err := gcch.BytesToUtf8(line)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "line", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" line", err)
 		}
 
 		row, err = gcch.NormalizeRunes(row)
@@ -71,7 +72,7 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 //   - error: An error of type *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromRunes(lines [][]rune) error {
 	if rt == nil {
-		return gcers.NilReceiver
+		return gcers.NewErrNilParameter("RuneTable")
 	}
 
 	rt.table = lines
@@ -92,7 +93,7 @@ func (rt *RuneTable) FromRunes(lines [][]rune) error {
 //   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromStrings(lines []string) error {
 	if rt == nil {
-		return gcers.NilReceiver
+		return gcers.NewErrNilParameter("RuneTable")
 	}
 
 	table := make([][]rune, 0, len(lines))
@@ -100,7 +101,7 @@ func (rt *RuneTable) FromStrings(lines []string) error {
 	for i, line := range lines {
 		row, err := gcch.StringToUtf8(line)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "line", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" line", err)
 		}
 
 		table = append(table, row)

@@ -5,6 +5,7 @@ import (
 
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcstr "github.com/PlayerR9/go-commons/strings"
+	"github.com/dustin/go-humanize"
 )
 
 // Stringify converts a formatted string to a string.
@@ -246,7 +247,7 @@ func ApplyTravFuncMany[T any](trav *Traversor, f FStringFunc[T], elems []T) erro
 	for i, elem := range elems {
 		err := f(trav, elem)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "element", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" element", err)
 		}
 	}
 

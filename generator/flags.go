@@ -13,6 +13,7 @@ import (
 
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcmap "github.com/PlayerR9/go-commons/maps"
+	"github.com/dustin/go-humanize"
 )
 
 // OutputLocVal is the value of the output_flag flag.
@@ -35,7 +36,7 @@ func (v OutputLocVal) String() string {
 // Set implements the flag.Value interface.
 func (v *OutputLocVal) Set(loc string) error {
 	if v == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	v.loc = loc
@@ -140,10 +141,6 @@ func NewOutputFlag(def_value string, required bool) *OutputLocVal {
 //
 //	fmt.Println(loc) // test.go
 func (o *OutputLocVal) fix(default_file_name string) (string, error) {
-	if o == nil {
-		return "", gcers.NilReceiver
-	}
-
 	if o.loc == "" {
 		if o.is_required {
 			return "", errors.New("flag must be set")
@@ -224,7 +221,7 @@ func (s StructFieldsVal) String() string {
 // Set implements the flag.Value interface.
 func (s *StructFieldsVal) Set(value string) error {
 	if s == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if value == "" && s.is_required {
@@ -243,11 +240,9 @@ func (s *StructFieldsVal) Set(value string) error {
 		sub_fields := strings.Split(field, "/")
 
 		if len(sub_fields) == 1 {
-			reason := errors.New("missing type")
-			return gcers.NewErrAt(i+1, "field", reason)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" field", errors.New("missing type"))
 		} else if len(sub_fields) > 2 {
-			reason := errors.New("too many fields")
-			return gcers.NewErrAt(i+1, "field", reason)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" field", errors.New("too many fields"))
 		}
 
 		ok := s.fields.Add(sub_fields[0], sub_fields[1], false)
@@ -265,6 +260,10 @@ func (s *StructFieldsVal) Set(value string) error {
 	s.generics = gcmap.NewOrderedMap[rune, string]()
 
 	for _, field_type := range fields {
+		if field_type == "" {
+			continue
+		}
+
 		chars, err := parse_generics(field_type)
 		ok := IsErrNotGeneric(err)
 
@@ -565,7 +564,7 @@ func (s GenericsSignVal) String() string {
 // Set implements the flag.Value interface.
 func (s *GenericsSignVal) Set(value string) error {
 	if s == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if value == "" {
@@ -581,12 +580,12 @@ func (s *GenericsSignVal) Set(value string) error {
 
 		letter, g_type, err := parse_generics_value(field)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "field", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" field", err)
 		}
 
 		err = s.add(letter, g_type)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "field", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" field", err)
 		}
 	}
 
@@ -681,10 +680,6 @@ func NewGenericsSignFlag(flag_name string, is_required bool, count int) *Generic
 //   - letter is an upper case letter.
 //   - g_type != ""
 func (gv *GenericsSignVal) add(letter rune, g_type string) error {
-	if gv == nil {
-		panic(gcers.NilReceiver)
-	}
-
 	// dbg.AssertParam("letter", unicode.IsUpper(letter), errors.New("letter must be an upper case letter"))
 	// dbg.AssertParam("g_type", g_type != "", errors.New("type must be set"))
 
@@ -771,7 +766,7 @@ func (s TypeListVal) String() string {
 // Set implements the flag.Value interface.
 func (s *TypeListVal) Set(value string) error {
 	if s == nil {
-		return gcers.NilReceiver
+		return gcers.NewErrNilParameter("TypeListVal")
 	}
 
 	if value == "" && s.is_required {
@@ -806,6 +801,10 @@ func (s *TypeListVal) Set(value string) error {
 	s.generics = gcmap.NewOrderedMap[rune, string]()
 
 	for _, field_type := range s.types {
+		if field_type == "" {
+			continue
+		}
+
 		chars, err := parse_generics(field_type)
 		ok := IsErrNotGeneric(err)
 

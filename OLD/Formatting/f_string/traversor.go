@@ -2,12 +2,14 @@ package f_string
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 
 	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -162,7 +164,7 @@ func (trav *Traversor) writeRune(r rune) bool {
 //   - *runes.ErrInvalidUTF8Encoding if the string is not valid UTF-8.
 func (trav *Traversor) writeString(str string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	_ = trav.writeIndent()
@@ -201,7 +203,7 @@ func (trav *Traversor) writeString(str string) error {
 //   - If line is empty, then an empty line is added to the source.
 func (trav *Traversor) writeLine(line string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	_ = trav.source.AcceptLine(trav.rightDelim) // Accept the current line if any.
@@ -264,7 +266,7 @@ func (trav *Traversor) AppendRune(r rune) bool {
 //   - IF str is empty: nothing is done.
 func (trav *Traversor) AppendString(str string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil {
@@ -295,7 +297,7 @@ func (trav *Traversor) AppendString(str string) error {
 //   - This is equivalent to calling AppendString for each string in strs but more efficient.
 func (trav *Traversor) AppendStrings(strs []string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil || len(strs) == 0 {
@@ -305,7 +307,7 @@ func (trav *Traversor) AppendStrings(strs []string) error {
 	for i, str := range strs {
 		err := trav.writeString(str)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "string", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" string", err)
 		}
 	}
 
@@ -329,7 +331,7 @@ func (trav *Traversor) AppendStrings(strs []string) error {
 //   - This is equivalent to calling AppendString(strings.Join(fields, sep)).
 func (trav *Traversor) AppendJoinedString(sep string, fields ...string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil || len(fields) == 0 {
@@ -404,7 +406,7 @@ func (trav *Traversor) AcceptLine() bool {
 //   - If line is empty, then an empty line is added to the source.
 func (trav *Traversor) AddLine(line string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil {
@@ -436,7 +438,7 @@ func (trav *Traversor) AddLine(line string) error {
 //   - If there are no lines, then nothing is done.
 func (trav *Traversor) AddLines(lines []string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil || len(lines) == 0 {
@@ -446,7 +448,7 @@ func (trav *Traversor) AddLines(lines []string) error {
 	for i, line := range lines {
 		err := trav.writeLine(line)
 		if err != nil {
-			return gcers.NewErrAt(i, "line", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" line", err)
 		}
 	}
 
@@ -471,7 +473,7 @@ func (trav *Traversor) AddLines(lines []string) error {
 //   - If fields is empty, then nothing is done.
 func (trav *Traversor) AddJoinedLine(sep string, fields ...string) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil || len(fields) == 0 {
@@ -517,8 +519,10 @@ func (trav *Traversor) EmptyLine() bool {
 
 // Write implements the io.Writer interface for the traversor.
 func (trav *Traversor) Write(p []byte) (int, error) {
-	if trav == nil {
-		return 0, gcers.NilReceiver
+	if len(p) == 0 {
+		return 0, nil
+	} else if trav == nil {
+		return 0, io.ErrShortWrite
 	}
 
 	if trav.source == nil {
@@ -546,7 +550,7 @@ func (trav *Traversor) Write(p []byte) (int, error) {
 //   - any other error returned by the fmt.Fprint function.
 func (trav *Traversor) Print(a ...interface{}) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil {
@@ -571,7 +575,7 @@ func (trav *Traversor) Print(a ...interface{}) error {
 //   - any other error returned by the fmt.Fprintf function.
 func (trav *Traversor) Printf(format string, a ...interface{}) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil {
@@ -595,7 +599,7 @@ func (trav *Traversor) Printf(format string, a ...interface{}) error {
 //   - any other error returned by the fmt.Fprintln function.
 func (trav *Traversor) Println(a ...interface{}) error {
 	if trav == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if trav.source == nil {
@@ -614,11 +618,7 @@ func (trav *Traversor) Println(a ...interface{}) error {
 // Returns:
 //   - *FormatConfig: A pointer to the copy of the configuration of the traversor.
 //   - error: An error of type errors.NilReceiver if the receiver is nil.
-func (trav *Traversor) GetConfig(options ...ConfigOption) (*FormatConfig, error) {
-	if trav == nil {
-		return nil, gcers.NilReceiver
-	}
-
+func (trav Traversor) GetConfig(options ...ConfigOption) (*FormatConfig, error) {
 	configCopy := trav.config.Copy()
 
 	for _, option := range options {

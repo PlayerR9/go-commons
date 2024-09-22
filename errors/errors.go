@@ -3,7 +3,6 @@ package errors
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	gcers "github.com/PlayerR9/go-commons/errors/error"
 )
@@ -25,6 +24,10 @@ const (
 	// FailFix occurs when a struct cannot be fixed or resolved
 	// due to an invalid internal state.
 	FailFix
+
+	// OperationFail occurs when an operation cannot be completed
+	// due to an internal error.
+	OperationFail
 )
 
 // NewErrInvalidParameter creates a new error.Err[ErrorCode] error.
@@ -82,156 +85,73 @@ func NewErrFix(message string) *gcers.Err[ErrorCode] {
 	return err
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-// ErrAt represents an error that occurs at a specific index.
-type ErrAt struct {
-	// Idx is the index of the error.
-	Idx int
-
-	// IdxType is the type of the index.
-	IdxType string
-
-	// Reason is the reason for the error.
-	Reason error
-}
-
-// Error implements the error interface.
-//
-// Message:
-//   - "something went wrong at the <ordinal> <idx_type>" if Reason is nil
-//   - "<ordinal> <idx_type> is invalid: <reason>" if Reason is not nil
-func (e ErrAt) Error() string {
-	var idx_type string
-
-	if e.IdxType != "" {
-		idx_type = e.IdxType
-	} else {
-		idx_type = "index"
-	}
-
-	var builder strings.Builder
-
-	if e.Reason == nil {
-		builder.WriteString("something went wrong at the ")
-		builder.WriteString(GetOrdinalSuffix(e.Idx))
-		builder.WriteRune(' ')
-		builder.WriteString(idx_type)
-	} else {
-		builder.WriteString(GetOrdinalSuffix(e.Idx))
-		builder.WriteRune(' ')
-		builder.WriteString(idx_type)
-		builder.WriteString(" is invalid: ")
-		builder.WriteString(e.Reason.Error())
-	}
-
-	return builder.String()
-}
-
-// Unwrap implements the errors.Unwrapper interface.
-func (e ErrAt) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the errors.Unwrapper interface.
-func (e *ErrAt) ChangeReason(new_reason error) {
-	if e == nil {
-		return
-	}
-
-	e.Reason = new_reason
-}
-
-// NewErrAt creates a new ErrAt error.
+// NewErrAt creates a new error.Err[ErrorCode] error.
 //
 // Parameters:
-//   - idx: The index of the error.
-//   - idx_type: The type of the index.
+//   - at: The operation at which the error occurred.
 //   - reason: The reason for the error.
 //
 // Returns:
-//   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
-//
-// Empty name will default to "index".
-func NewErrAt(idx int, idx_type string, reason error) *ErrAt {
-	return &ErrAt{
-		Idx:     idx,
-		IdxType: idx_type,
-		Reason:  reason,
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrAt(at string, reason error) *gcers.Err[ErrorCode] {
+	var msg string
+
+	if at == "" {
+		msg = "an error occurred somewhere"
+	} else {
+		msg = fmt.Sprintf("an error occurred at %s", at)
 	}
+
+	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
+	err.SetInner(reason)
+
+	return err
 }
 
-// ErrAfter represents an error that occurs after something.
-type ErrAfter struct {
-	// After is the element that was processed before the error occurred.
-	After string
+// NewErrAfter creates a new error.Err[ErrorCode] error.
+//
+// Parameters:
+//   - before: The operation after which the error occurred.
+//   - reason: The reason for the error.
+//   - should_quote: Whether the `before` should be quoted.
+//
+// Returns:
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrAfter(before string, reason error, should_quote bool) *gcers.Err[ErrorCode] {
+	if before == "" {
+		before = "something"
+	} else if should_quote {
+		before = strconv.Quote(before)
+	}
 
-	// Reason is the reason for the error.
-	Reason error
+	msg := fmt.Sprintf("an error occurred after %s", before)
 
-	// ShoulQuote is whether the error should be quoted.
-	ShouldQuote bool
+	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
+	err.SetInner(reason)
+
+	return err
 }
 
-// Error implements the error interface.
+// NewErrBefore creates a new error.Err[ErrorCode] error.
 //
-// Message: "after {after}: {reason}".
+// Parameters:
+//   - after: The operation before which the error occurred.
+//   - reason: The reason for the error.
+//   - should_quote: Whether the `before` should be quoted.
 //
-// However, if the reason is nil, the message is "something went wrong after {after}"
-// instead.
-func (e ErrAfter) Error() string {
-	var after string
-
-	if e.After == "" {
+// Returns:
+//   - *error.Err[ErrorCode]: The new error. Never returns nil.
+func NewErrBefore(after string, reason error, should_quote bool) *gcers.Err[ErrorCode] {
+	if after == "" {
 		after = "something"
-	} else if e.ShouldQuote {
-		after = strconv.Quote(e.After)
-	} else {
-		after = e.After
+	} else if should_quote {
+		after = strconv.Quote(after)
 	}
 
-	var builder strings.Builder
+	msg := fmt.Sprintf("an error occurred before %s", after)
 
-	if e.Reason == nil {
-		builder.WriteString("something went wrong after ")
-		builder.WriteString(after)
-	} else {
-		builder.WriteString("after ")
-		builder.WriteString(after)
-		builder.WriteString(": ")
-		builder.WriteString(e.Reason.Error())
-	}
+	err := gcers.NewErr(gcers.FATAL, OperationFail, msg)
+	err.SetInner(reason)
 
-	return builder.String()
-}
-
-// Unwrap implements the errors.Unwrapper interface.
-func (e ErrAfter) Unwrap() error {
-	return e.Reason
-}
-
-// ChangeReason implements the errors.Unwrapper interface.
-func (e *ErrAfter) ChangeReason(reason error) {
-	if e == nil {
-		return
-	}
-
-	e.Reason = reason
-}
-
-// NewErrAfter creates a new ErrAfter error.
-//
-// Parameters:
-//   - after: The element that was processed before the error occurred.
-//   - reason: The reason for the error.
-//   - should_quote: Whether the error should be quoted.
-//
-// Returns:
-//   - *ErrAfter: A pointer to the new ErrAfter error. Never returns nil.
-func NewErrAfter(after string, reason error, should_quote bool) *ErrAfter {
-	return &ErrAfter{
-		After:       after,
-		Reason:      reason,
-		ShouldQuote: should_quote,
-	}
+	return err
 }

@@ -168,3 +168,15 @@ func (e *Err[C]) AddFrame(prefix, call string) {
 		e.StackTrace.AddFrame(frame)
 	}
 }
+
+// SetInner sets the inner error. Does nothing if the receiver is nil.
+//
+// Parameters:
+//   - inner: The inner error.
+func (e *Err[C]) SetInner(inner error) {
+	if e == nil {
+		return
+	}
+
+	e.Inner = inner
+}

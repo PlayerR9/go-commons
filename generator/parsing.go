@@ -10,6 +10,7 @@ import (
 
 	gcers "github.com/PlayerR9/go-commons/errors"
 	gcslc "github.com/PlayerR9/go-commons/slices"
+	"github.com/dustin/go-humanize"
 )
 
 // PrintFlags prints the default values of the flags.
@@ -138,16 +139,12 @@ func init() {
 // is_generics_id checks if the input string is a valid single upper case letter and returns it as a rune.
 //
 // Parameters:
-//   - id: The id to check.
+//   - id: The id to check. Assumed to not be an empty string.
 //
 // Returns:
 //   - rune: The valid single upper case letter.
 //   - error: An error of type *ErrInvalidID if the input string is not a valid identifier.
 func is_generics_id(id string) (rune, error) {
-	if id == "" {
-		return '\000', gcers.NewErrEmpty(id)
-	}
-
 	size := utf8.RuneCountInString(id)
 	if size > 1 {
 		return '\000', errors.New("value must be a single character")
@@ -169,7 +166,7 @@ func is_generics_id(id string) (rune, error) {
 // parse_generics parses a string representing a list of generic types enclosed in square brackets.
 //
 // Parameters:
-//   - str: The string to parse.
+//   - str: The string to parse. Assumed to not be an empty string.
 //
 // Returns:
 //   - []rune: An array of runes representing the parsed generic types.
@@ -179,10 +176,6 @@ func is_generics_id(id string) (rune, error) {
 //   - *ErrNotGeneric: The string is not a valid list of generic types.
 //   - error: An error if the string is a possibly valid list of generic types but fails to parse.
 func parse_generics(str string) ([]rune, error) {
-	if str == "" {
-		return nil, NewErrNotGeneric(gcers.NewErrEmpty(str))
-	}
-
 	var letters []rune
 
 	ok := strings.HasSuffix(str, "]")
@@ -202,9 +195,13 @@ func parse_generics(str string) ([]rune, error) {
 		fields := strings.Split(generic, ",")
 
 		for i, field := range fields {
+			if field == "" {
+				continue
+			}
+
 			letter, err := is_generics_id(field)
 			if err != nil {
-				return nil, gcers.NewErrAt(i+1, "field", err)
+				return nil, gcers.NewErrAt(humanize.Ordinal(i+1)+" field", err)
 			}
 
 			letters = append(letters, letter)
@@ -251,6 +248,9 @@ func parse_generics_value(field string) (rune, string, error) {
 	}
 
 	left := sub_fields[0]
+	if left == "" {
+		return 0, "", errors.New("missing name of generic")
+	}
 
 	letter, err := is_generics_id(left)
 	if err != nil {

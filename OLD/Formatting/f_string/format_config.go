@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gcers "github.com/PlayerR9/go-commons/errors"
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -202,7 +203,7 @@ func ApplyFormMany[T FStringer](form *FormatConfig, trav *Traversor, elems []T) 
 	for i, elem := range elems {
 		err := elem.FString(otherTrav)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "FStringer element", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" element", err)
 		}
 	}
 
@@ -269,7 +270,7 @@ func ApplyFormManyFunc[T any](form *FormatConfig, trav *Traversor, elems []T, f 
 	for i, elem := range elems {
 		err := f(otherTrav, elem)
 		if err != nil {
-			return gcers.NewErrAt(i+1, "FStringer element", err)
+			return gcers.NewErrAt(humanize.Ordinal(i+1)+" element", err)
 		}
 	}
 

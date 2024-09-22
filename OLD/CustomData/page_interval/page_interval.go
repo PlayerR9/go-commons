@@ -208,7 +208,7 @@ func (pi PageInterval) GetLastPage() (int, bool) {
 //	fmt.Println(pi.pageCount) // Output: 12
 func (pi *PageInterval) AddPage(page int) error {
 	if pi == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if page < 1 {
@@ -382,7 +382,7 @@ func (pi PageInterval) HasPage(page int) bool {
 //	fmt.Println(pi.pageCount) // Output: 15
 func (pi *PageInterval) AddPagesBetween(first, last int) error {
 	if pi == nil {
-		return gcers.NilReceiver
+		return nil
 	}
 
 	if first < 1 {
