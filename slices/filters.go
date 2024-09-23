@@ -1,6 +1,6 @@
 package slices
 
-// PredicateFilter is a function that checks whether an element should be filtered.
+// PredicateFilter checks whether an element should be filtered.
 //
 // Parameters:
 //   - elem: The element of a slice.
@@ -9,25 +9,22 @@ package slices
 //   - bool: True if the element should be included, false otherwise.
 type PredicateFilter[T any] func(elem T) bool
 
-// SliceFilter is a function that iterates over the slice and applies the filter
-// function to each element.
+// FilterSlice removes every element that do not satisfy the filter function.
+// More specifically, if the 'filter' returns true for a given element, it is kept in the slice.
 //
 // Parameters:
-//   - slice: slice of elements.
-//   - filter: function that takes an element and returns a bool.
+//   - slice: The slice to filter.
+//   - filter: The filter function to use.
 //
 // Returns:
-//   - []T: slice of elements that satisfy the filter function.
+//   - []T: The filtered slice.
 //
-// Behavior:
-//   - If 'slice' is empty, the function returns a nil slice.
-//   - If 'slice' has only one element and it satisfies the filter function, the function
-//     returns a slice with that element. Otherwise, it returns a nil slice.
-//   - An element is said to satisfy the filter function if the function returns true
-//     when applied to the element.
-//   - If the filter function is nil, the function returns the original slice.
-//   - This function has side-effects on 'slice'.
-func SliceFilter[T any](slice []T, filter PredicateFilter[T]) []T {
+// If 'filter' is nil, a nil slice is returned.
+//
+// NOTES: This function has side-effects, meaning that it changes the original slice.
+// To avoid unintended side-effects, you may either want to use the optimized PureSliceFilter
+// or just copy the slice before applying the filter.
+func FilterSlice[T any](slice []T, filter PredicateFilter[T]) []T {
 	if len(slice) == 0 || filter == nil {
 		return nil
 	}
@@ -45,19 +42,24 @@ func SliceFilter[T any](slice []T, filter PredicateFilter[T]) []T {
 	return slice[:top:top]
 }
 
-// FilterNilValues is a function that iterates over the slice and removes the
-// nil elements.
+// FilterZeroValues removes every element that is equal to zero.
+// More specifically:
+//   - pointers, slice, map, etc.: Checks if the pointer is nil.
+//   - string: Checks if the string is empty.
+//   - int, int8, ..., uint, rune, ...: Checks if the value is 0.
+//   - struct{}: Checks if the struct is the zero struct.
+//   - and so on.
 //
 // Parameters:
-//   - slice: slice of elements.
+//   - slice: The slice to filter.
 //
 // Returns:
-//   - []*T: slice of elements that satisfy the filter function.
+//   - []T: The filtered slice.
 //
-// Behavior:
-//   - If 'slice' is empty, the function returns a nil slice.
-//   - This function has side-effects on 'slice'.
-func FilterNilValues[T comparable](slice []T) []T {
+// NOTES: This function has side-effects, meaning that it changes the original slice.
+// To avoid unintended side-effects, you may either want to use the optimized PureFilterZeroValues
+// or just copy the slice before applying the filter.
+func FilterZeroValues[T comparable](slice []T) []T {
 	if len(slice) == 0 {
 		return nil
 	}
@@ -75,26 +77,28 @@ func FilterNilValues[T comparable](slice []T) []T {
 	return slice[:top:top]
 }
 
-// SFSeparate is a function that iterates over the slice and applies the filter
-// function to each element. The returned slices contain the elements that
-// satisfy and do not satisfy the filter function.
+// GroupByFilter splits the slice into two slices according to the filter function.
 //
 // Parameters:
-//   - S: slice of elements.
-//   - filter: function that takes an element and returns a bool.
+//   - slice: The slice to split.
+//   - filter: The filter function to use.
 //
 // Returns:
-//   - []T: slice of elements that satisfy the filter function.
-//   - []T: slice of elements that do not satisfy the filter function.
+//   - []T: The elements that satisfy the filter function.
+//   - []T: The elements that do not satisfy the filter function.
 //
-// Behavior:
-//   - If S is empty, the function returns two empty slices.
-func SFSeparate[T any](slice []T, filter PredicateFilter[T]) ([]T, []T) {
+// If 'filter' is nil, then the original slice is returned as the second slice while
+// the first is nil.
+//
+// NOTES: This function has side-effects, meaning that it changes the original slice.
+// To avoid unintended side-effects, you may either want to use the optimized PureGroupByFilter
+// or just copy the slice before applying the filter.
+func GroupByFilter[T any](slice []T, filter PredicateFilter[T]) ([]T, []T) {
 	if len(slice) == 0 || filter == nil {
 		return nil, slice
 	}
 
-	var failed []T
+	failed := make([]T, 0, len(slice)/2)
 	var top int
 
 	for i := 0; i < len(slice); i++ {
@@ -110,20 +114,25 @@ func SFSeparate[T any](slice []T, filter PredicateFilter[T]) ([]T, []T) {
 	return slice[:top:top], failed[:len(failed):len(failed)]
 }
 
-// SFSeparateEarly is a variant of SFSeparate that returns all successful elements.
-// If there are none, it returns the original slice and false.
+// SuccessOrSlice returns the successful elements of a slice and true. However,
+// if no elements are successful, it returns the original slice and false.
 //
 // Parameters:
-//   - S: slice of elements.
-//   - filter: function that takes an element and returns a bool.
+//   - slice: The slice to filter.
+//   - filter: The filter function to use.
 //
 // Returns:
-//   - []T: slice of elements that satisfy the filter function or the original slice.
+//   - []T: The filtered slice.
 //   - bool: true if there are successful elements, otherwise false.
 //
-// Behavior:
-//   - If S is empty, the function returns an empty slice and true.
-func SFSeparateEarly[T any](slice []T, filter PredicateFilter[T]) ([]T, bool) {
+// As a special case:
+//   - If the slice is empty, the function returns an empty slice and true.
+//   - If the filter is nil, the function returns the original slice and false.
+//
+// NOTES: This function has side-effects, meaning that it changes the original slice.
+// To avoid unintended side-effects, you may either want to use the optimized PureSuccessOrSlice
+// or just copy the slice before applying the filter.
+func SuccessOrSlice[T any](slice []T, filter PredicateFilter[T]) ([]T, bool) {
 	if len(slice) == 0 {
 		return nil, true
 	} else if filter == nil {
@@ -145,4 +154,41 @@ func SFSeparateEarly[T any](slice []T, filter PredicateFilter[T]) ([]T, bool) {
 	} else {
 		return slice[:top:top], true
 	}
+}
+
+// Unique removes duplicate elements from a slice. Order is guaranteed to be preserved.
+//
+// Parameters:
+//   - slice: The slice to remove duplicates from.
+//
+// Returns:
+//   - []T: The filtered slice.
+//
+// NOTES: This function has side-effects, meaning that it changes the original slice.
+// To avoid unintended side-effects, you may either want to use the optimized PureUnique
+// or just copy the slice before applying the filter.
+//
+// If order is not important, consider using PureUnique instead. Otherwise, copy the slice
+// before applying the filter.
+func Unique[T comparable](slice []T) []T {
+	if len(slice) == 0 {
+		return nil
+	}
+
+	for i := 0; i < len(slice)-1; i++ {
+		elem := slice[i]
+
+		top := i + 1
+
+		for j := i + 1; j < len(slice); j++ {
+			if slice[j] != elem {
+				slice[top] = slice[j]
+				top++
+			}
+		}
+
+		slice = slice[:top:top]
+	}
+
+	return slice
 }

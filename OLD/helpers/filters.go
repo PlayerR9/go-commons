@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	lus "github.com/PlayerR9/go-commons/OLD/slices"
+	lus "github.com/PlayerR9/go-commons/slices"
 )
 
 // EvalOneFunc is a function that evaluates one element.
@@ -130,7 +130,7 @@ func SuccessOrFail[T Helperer[O], O any](batch []T, useMax bool) ([]T, bool) {
 		return nil, true
 	}
 
-	success, fail := lus.SFSeparate(batch, FilterIsSuccess[T, O])
+	success, fail := lus.GroupByFilter(batch, FilterIsSuccess[T, O])
 
 	var target, solution []T
 
@@ -176,7 +176,7 @@ func EvaluateSimpleHelpers[T, O any](batch []T, f EvalOneFunc[T, O]) ([]*SimpleH
 		solutions = append(solutions, helper)
 	}
 
-	success, fail := lus.SFSeparate(solutions, FilterIsSuccess)
+	success, fail := lus.GroupByFilter(solutions, FilterIsSuccess)
 
 	var result []*SimpleHelper[O]
 
@@ -223,7 +223,7 @@ func EvaluateWeightHelpers[T, O any](batch []T, f EvalOneFunc[T, O], wf WeightFu
 		solutions = append(solutions, h)
 	}
 
-	success, fail := lus.SFSeparate(solutions, FilterIsSuccess)
+	success, fail := lus.GroupByFilter(solutions, FilterIsSuccess)
 
 	var target, result []*WeightedHelper[O]
 
