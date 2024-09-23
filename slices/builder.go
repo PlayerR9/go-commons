@@ -35,9 +35,11 @@ func (sb *Builder[T]) Reset() {
 		return
 	}
 
+	zero := *new(T)
+
 	if len(sb.slice) > 0 {
 		for i := range sb.slice {
-			sb.slice[i] = *new(T)
+			sb.slice[i] = zero
 		}
 
 		sb.slice = sb.slice[:0]
