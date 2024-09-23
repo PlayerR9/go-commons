@@ -117,7 +117,7 @@ func NewErrWhileAt(operation string, idx int, idx_type string, reason error) *Er
 //
 // Returns:
 //   - *ErrAt: A pointer to the newly created ErrAt. Never returns nil.
-func NewErrInvalidDigit(idx, digit, base int) *gcers.Err[gcerr.ErrorCode] {
+func NewErrInvalidDigit(idx, digit, base int) *gcers.Err {
 	return gcerr.NewErrAt(humanize.Ordinal(idx+1)+" digit", fmt.Errorf("value of %d is not in the range [0, %d)", digit, base))
 }
 
@@ -129,7 +129,7 @@ func NewErrInvalidDigit(idx, digit, base int) *gcers.Err[gcerr.ErrorCode] {
 //
 // Returns:
 //   - *errors.ErrInvalidParameter: A pointer to the newly created ErrInvalidParameter. Never returns nil.
-func NewErrInvalidBase(param_name string) *gcers.Err[gcerr.ErrorCode] {
+func NewErrInvalidBase(param_name string) *gcers.Err {
 	if param_name == "" {
 		param_name = "base"
 	}
