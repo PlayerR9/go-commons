@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	gcers "github.com/PlayerR9/errors"
 	gcstr "github.com/PlayerR9/go-commons/strings"
+	gcers "github.com/PlayerR9/go-errors"
 )
 
 // LimitReverseLines is a function that limits the lines of the data in reverse order.

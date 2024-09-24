@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	gcers "github.com/PlayerR9/errors"
 	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
+	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
 

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"strings"
 
-	gcers "github.com/PlayerR9/errors"
 	gcch "github.com/PlayerR9/go-commons/runes"
+	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
 

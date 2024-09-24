@@ -9,9 +9,9 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/errors"
 	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
 	mext "github.com/PlayerR9/go-commons/OLD/math"
+	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
 

@@ -4,8 +4,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	gcers "github.com/PlayerR9/errors"
 	gcstr "github.com/PlayerR9/go-commons/strings"
+	gcers "github.com/PlayerR9/go-errors"
 )
 
 // LongestLine finds the longest line in a table.

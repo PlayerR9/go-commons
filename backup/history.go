@@ -3,6 +3,8 @@ package backup
 import (
 	"errors"
 	"iter"
+
+	gers "github.com/PlayerR9/go-errors"
 )
 
 var (
@@ -85,8 +87,6 @@ func Align[T any, S interface {
 			break
 		}
 
-		if done {
-			panic(InvalidHistory)
-		}
+		gers.Assert(!done, InvalidHistory.Error())
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/errors"
+	gcers "github.com/PlayerR9/go-errors"
 )
 
 // TextSplit represents a split text with a maximum width and height.

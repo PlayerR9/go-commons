@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	gcerr "github.com/PlayerR9/errors"
-	gcers "github.com/PlayerR9/errors/error"
+	gcerr "github.com/PlayerR9/go-errors"
+	gcers "github.com/PlayerR9/go-errors/error"
 	"github.com/dustin/go-humanize"
 )
 

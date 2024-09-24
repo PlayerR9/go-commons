@@ -7,4 +7,4 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 )
 
-require github.com/PlayerR9/errors v0.1.1
+require github.com/PlayerR9/go-errors v0.1.2

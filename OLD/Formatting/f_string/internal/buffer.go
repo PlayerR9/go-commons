@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/errors"
 	gcf "github.com/PlayerR9/go-commons/OLD/fixer"
+	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
 

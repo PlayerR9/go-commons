@@ -3,8 +3,8 @@ package f_string
 import (
 	"strings"
 
-	gcers "github.com/PlayerR9/errors"
 	gcstr "github.com/PlayerR9/go-commons/strings"
+	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
 
