@@ -1,6 +1,7 @@
 package bytes
 
 import (
+	"bytes"
 	"index/suffixarray"
 	"slices"
 )
@@ -15,6 +16,9 @@ import (
 //
 // Returns:
 //   - int: the index of the last occurrence of the byte in the byte slice, or -1 if not found.
+//
+// WARNING: As a side effect, the sep parameter is reversed. Make sure to copy it before calling this function
+// if you intend to reuse it later.
 func ReverseSearch(data []byte, from int, sep []byte) int {
 	if len(data) == 0 || from < 0 || len(sep) == 0 {
 		return -1
@@ -26,7 +30,8 @@ func ReverseSearch(data []byte, from int, sep []byte) int {
 		from = len_data
 	}
 
-	sub_data := data[:from+1]
+	sub_data := make([]byte, from+1)
+	copy(sub_data, data)
 	slices.Reverse(sub_data)
 
 	rev_sep := make([]byte, len(sep))
@@ -42,7 +47,7 @@ func ReverseSearch(data []byte, from int, sep []byte) int {
 		return -1
 	}
 
-	return offsets[0]
+	return len(sub_data) - offsets[0]
 }
 
 // ForwardSearch searches for the first occurrence of a byte in a byte slice.
@@ -63,12 +68,10 @@ func ForwardSearch(data []byte, from int, sep []byte) int {
 		from = 0
 	}
 
-	idx := suffixarray.New(data[from:])
-
-	offsets := idx.Lookup(sep, 1)
-	if len(offsets) == 0 {
+	offset := bytes.Index(data[from:], sep)
+	if offset == -1 {
 		return -1
 	}
 
-	return offsets[0]
+	return from + offset
 }
