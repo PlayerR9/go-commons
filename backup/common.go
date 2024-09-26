@@ -5,11 +5,23 @@ import (
 	"slices"
 )
 
+// pairing represents a pairing of a history and a subject.
 type pairing[T any, S any] struct {
+	// History is the history of the subject.
 	History *History[T]
+
+	// Subject is the subject of the pairing.
 	Subject S
 }
 
+// new_pairing returns a new pairing of a history and a subject.
+//
+// Parameters:
+//   - history: The history of the subject.
+//   - subject: The subject of the pairing.
+//
+// Returns:
+//   - *pairing[T, S]: The pairing. Never returns nil.
 func new_pairing[T any, S any](history *History[T], subject S) *pairing[T, S] {
 	if history == nil {
 		history = &History[T]{}
@@ -21,6 +33,14 @@ func new_pairing[T any, S any](history *History[T], subject S) *pairing[T, S] {
 	}
 }
 
+// advance advances the history of the subject by one event.
+//
+// Parameters:
+//   - history: The history of the subject.
+//   - subject: The subject of the pairing.
+//
+// Returns:
+//   - bool: True if the subject is done, false otherwise.
 func advance[T any, S interface {
 	ApplyEvent(event T) bool
 }](history *History[T], subject S) bool {
@@ -35,6 +55,15 @@ func advance[T any, S interface {
 	return ok
 }
 
+// nexts returns the next possible histories of the subject.
+//
+// Parameters:
+//   - history: The history of the subject.
+//   - subject: The subject of the pairing.
+//
+// Returns:
+//   - []*History[T]: The next possible histories.
+//   - bool: True if the subject is done, false otherwise.
 func nexts[T any, S interface {
 	DetermineNextEvents() []T
 	HasError() bool
@@ -66,6 +95,15 @@ func nexts[T any, S interface {
 	return new_histories, true
 }
 
+// execute_one executes one possible state of the subject.
+//
+// Parameters:
+//   - history: The history of the subject.
+//   - subject: The subject of the pairing.
+//
+// Returns:
+//   - []*History[T]: The next possible histories.
+//   - bool: True if the subject is done, false otherwise.
 func execute_one[T any, S interface {
 	ApplyEvent(event T) bool
 	DetermineNextEvents() []T

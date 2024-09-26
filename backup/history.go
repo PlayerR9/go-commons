@@ -8,6 +8,9 @@ import (
 )
 
 var (
+	// InvalidHistory is an error that is returned when the subject is done before
+	// the history. Readers must return this error as is and not wrap it as callers
+	// are expected to check for this error using ==.
 	InvalidHistory error
 )
 
@@ -38,6 +41,7 @@ func (h History[T]) Copy() *History[T] {
 	}
 }
 
+// Restart restarts the history. Does nothing if the receiver is nil.
 func (h *History[T]) Restart() {
 	if h == nil {
 		return
@@ -59,6 +63,10 @@ func (h *History[T]) AddEvent(event T) {
 	h.timeline = append(h.timeline, event)
 }
 
+// Event returns a sequence of events in the history.
+//
+// Returns:
+//   - iter.Seq[T]: A sequence of events in the history. Never returns nil.
 func (h *History[T]) Event() iter.Seq[T] {
 	if h == nil {
 		return func(yield func(T) bool) {}
@@ -77,6 +85,11 @@ func (h *History[T]) Event() iter.Seq[T] {
 	}
 }
 
+// Align aligns the history with the subject.
+//
+// Parameters:
+//   - history: The history of the subject.
+//   - subject: The subject of the pairing.
 func Align[T any, S interface {
 	ApplyEvent(event T) bool
 	HasError() bool
