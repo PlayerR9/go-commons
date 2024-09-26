@@ -4,7 +4,8 @@ import (
 	"errors"
 	"math/big"
 
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 var (
@@ -90,8 +91,7 @@ func Add(n1, n2 []int, base int) []int {
 //   - *errors.ErrInvalidParameter: The base is less than or equal to 0.
 func Subtract(n1, n2 []int, base int) ([]int, error) {
 	if base <= 0 {
-		err := gcers.NewErrInvalidParameter("base must be positive")
-		err.AddFrame("math", "Subtract()")
+		err := gerr.New(gers.BadParameter, "base must be positive")
 
 		return nil, err
 	}

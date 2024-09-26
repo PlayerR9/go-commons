@@ -2,6 +2,8 @@ package ints
 
 import (
 	"math"
+
+	gers "github.com/PlayerR9/go-errors"
 )
 
 const (
@@ -157,8 +159,11 @@ func BaseToBase(digits []int, base_from, base_to int) ([]int, error) {
 		return nil, NewErrInvalidBase("base_to")
 	}
 
-	res, _ := BaseToDec(digits, base_from)
-	new_digits, _ := DecToBase(res, base_to)
+	res, ok := BaseToDec(digits, base_from)
+	gers.AssertOk(ok, "BaseToDec(digits, %d)", base_from)
+
+	new_digits, ok := DecToBase(res, base_to)
+	gers.AssertOk(ok, "DecToBase(%d, %d)", res, base_to)
 
 	return new_digits, nil
 }
@@ -171,6 +176,8 @@ func BaseToBase(digits []int, base_from, base_to int) ([]int, error) {
 // Returns:
 //   - []int: The digits of the number.
 func GetDigits(number int) []int {
-	digits, _ := DecToBase(number, Decimal)
+	digits, ok := DecToBase(number, Decimal)
+	gers.AssertOk(ok, "DecToBase(%d, %d)", number, Decimal)
+
 	return digits
 }

@@ -4,7 +4,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // TextSplit represents a split text with a maximum width and height.
@@ -71,16 +72,12 @@ func (ts TextSplit) Runes() [][]rune {
 //     maxHeight is less than 0.
 func NewTextSplit(max_width, max_height int) (*TextSplit, error) {
 	if max_width < 0 {
-		err := gcers.NewErrInvalidParameter("max_width must be non-negative")
-		err.AddFrame("strings", "NewTextSplit()")
-
+		err := gerr.New(gers.BadParameter, "max_width must be non-negative")
 		return nil, err
 	}
 
 	if max_height < 0 {
-		err := gcers.NewErrInvalidParameter("max_height must be non-negative")
-		err.AddFrame("strings", "NewTextSplit()")
-
+		err := gerr.New(gers.BadParameter, "max_height must be non-negative")
 		return nil, err
 	}
 
@@ -149,7 +146,9 @@ func (ts *TextSplit) InsertWord(word string) bool {
 	for !ok && last_line_index >= 0 {
 		last_line := ts.lines[last_line_index]
 
-		first_word, _ := last_line.shift_left()
+		first_word, ok := last_line.shift_left()
+		gers.AssertOk(ok, "last_line.shift_left()")
+
 		last_line.insert_word(word)
 
 		word = first_word
@@ -219,7 +218,8 @@ func (ts *TextSplit) shift_up(line_index int) bool {
 	}
 
 	lastLine := ts.lines[line_index]
-	firstWord, _ := lastLine.shift_left()
+	firstWord, ok := lastLine.shift_left()
+	gers.AssertOk(ok, "lastLine.shift_left()")
 
 	secondLastLine := ts.lines[line_index-1]
 	secondLastLine.insert_word(firstWord)

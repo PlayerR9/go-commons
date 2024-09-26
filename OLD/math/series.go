@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 	"github.com/dustin/go-humanize"
 )
 
@@ -36,16 +38,13 @@ type Serieser interface {
 //     there are not enough values to calculate the average.
 func ApproximateConvergence(values []*big.Float, n int) (*big.Float, error) {
 	if n <= 0 {
-		err := gcers.NewErrInvalidParameter("n must be positive")
-		err.AddFrame("math", "ApproximateConvergence()")
-
+		err := gerr.New(gers.BadParameter, "n must be positive")
 		return nil, err
 	} else if len(values) < n {
 		err := gcers.NewErrInvalidUsage(
 			"not enough values to calculate the average",
 			"make sure that the number of values is at least n",
 		)
-		err.AddFrame("math", "ApproximateConvergence()")
 
 		return nil, err
 	}

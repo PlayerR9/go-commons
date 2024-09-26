@@ -11,7 +11,8 @@ import (
 
 	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
 	mext "github.com/PlayerR9/go-commons/OLD/math"
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 	"github.com/dustin/go-humanize"
 )
 
@@ -36,7 +37,7 @@ var (
 
 func init() {
 	calculate_split_ratio = func(candidate *TextSplit) (float64, bool) {
-		// uc.Assert(candidate != nil, "in calculate_split_ratio: candidate is nil")
+		gers.AssertNotNil(candidate, "candidate")
 
 		height := candidate.Height()
 		// uc.AssertF(height > 0, "in calculate_split_ratio: %s", uc.NewErrVariableError("height", uc.NewErrGT(0)).Error())
@@ -47,8 +48,8 @@ func init() {
 			values = append(values, float64(line.len))
 		}
 
-		sqm, _ := mext.SQM(values)
-		// uc.Assert(ok, "in calculateSplitRatio: failed to calculate SQM as slice is empty")
+		sqm, ok := mext.SQM(values)
+		gers.AssertOk(ok, "math.SQM(values)")
 
 		return sqm, true
 	}
@@ -98,14 +99,7 @@ func ReplaceSuffix(str, suffix string) (string, bool) {
 		return suffix, true
 	}
 
-	var builder strings.Builder
-
-	builder.WriteString(str[:count_str-count_suffix])
-	builder.WriteString(suffix)
-
-	s := builder.String()
-
-	return s, true
+	return str[:count_str-count_suffix] + suffix, true
 }
 
 // GenerateID generates a random ID of the specified size (in bytes).
@@ -127,9 +121,7 @@ func ReplaceSuffix(str, suffix string) (string, bool) {
 //   - The ID is returned as a hexadecimal string.
 func GenerateID(size int) (string, error) {
 	if size < 1 {
-		err := gcers.NewErrInvalidParameter("size must be positive")
-		err.AddFrame("strings", "GenerateID()")
-
+		err := gerr.New(gers.BadParameter, "size must be positive")
 		return "", err
 	}
 
@@ -217,8 +209,7 @@ func FitString(s string, width int) string {
 // It also returns the calculated number of lines when it errors out
 func CalculateNumberOfLines(text []string, width int) (int, error) {
 	if width <= 0 {
-		err := gcers.NewErrInvalidParameter("width must be positive")
-		err.AddFrame("strings", "CalculateNumberOfLines()")
+		err := gerr.New(gers.BadParameter, "width must be positive")
 
 		return 0, err
 	} else if len(text) == 0 {
@@ -331,8 +322,7 @@ func CalculateNumberOfLines(text []string, width int) (int, error) {
 // the text within the width using the CalculateNumberOfLines function.
 func SplitInEqualSizedLines(text []string, width, height int) (*TextSplit, error) {
 	if len(text) == 0 {
-		err := gcers.NewErrInvalidParameter("text must not be empty")
-		err.AddFrame("strings", "SplitInEqualSizedLines()")
+		err := gerr.New(gers.BadParameter, "text must not be empty")
 
 		return nil, err
 	}
@@ -371,8 +361,8 @@ func SplitInEqualSizedLines(text []string, width, height int) (*TextSplit, error
 	//		*** World, this ***
 	//		 *** is a test ***
 
-	group, _ := NewTextSplit(width, height)
-	// uc.AssertErr(err, "NewTextSplit(%d, %d)", width, height)
+	group, err := NewTextSplit(width, height)
+	gers.AssertErr(err, "NewTextSplit(%d, %d)", width, height)
 
 	for _, word := range text {
 		ok := group.InsertWord(word)
@@ -431,9 +421,7 @@ func SplitInEqualSizedLines(text []string, width, height int) (*TextSplit, error
 			// Copy the candidate as we don't want to modify the original one.
 			candidateCopy := candidate.Copy()
 			ok = candidateCopy.shift_up(j)
-			if !ok {
-				panic("can't shift up")
-			}
+			gers.AssertOk(ok, "can't shift up")
 
 			candidates = append(candidates, candidateCopy)
 		}
@@ -553,15 +541,13 @@ func FirstInstanceOfWS(chars []rune, from_idx, to_idx int) int {
 //   - error: An error if the input string is empty or has invalid UTF-8 encoding.
 func Title(str string) (string, error) {
 	if str == "" {
-		err := gcers.NewErrInvalidParameter("str must not be empty")
-		err.AddFrame("strings", "Title()")
-
+		err := gerr.New(gers.BadParameter, "str must not be empty")
 		return str, err
 	}
 
 	r, size := utf8.DecodeRuneInString(str)
 	if r == utf8.RuneError {
-		return "", gcers.NewErrAt(humanize.Ordinal(1)+" character", errors.New("invalid UTF-8 encoding"))
+		return "", gers.NewErrAt(humanize.Ordinal(1)+" character", errors.New("invalid UTF-8 encoding"))
 	}
 
 	remaining := str[size:]

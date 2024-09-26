@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	gcers "github.com/PlayerR9/go-errors"
+	gcerr "github.com/PlayerR9/go-errors/error"
 )
 
 var (
@@ -120,8 +121,8 @@ func FindContentIndexes(op_token, cl_token []byte, tokens [][]byte) (result [2]i
 	result[1] = -1
 
 	if len(cl_token) == 0 {
-		err := gcers.NewErrInvalidParameter("cl_token must not be empty")
-		err.AddFrame("bytes", "FindContentIndexes()")
+		err := gcerr.New(gcers.BadParameter, "cl_token must not be empty")
+		err.AddFrame("bytes.FindContentIndexes()")
 
 		return result, err
 	}

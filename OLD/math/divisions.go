@@ -3,7 +3,8 @@ package MathExt
 import (
 	"math/big"
 
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // PrimeFactorization is a function that performs prime factorization on an
@@ -118,15 +119,13 @@ func GreatestCommonDivisor(a, b int) int {
 //     the denominator is less than or equal to 0.
 func BigFloatDivision(numerator, denominator int) (*big.Float, error) {
 	if numerator < 0 {
-		err := gcers.NewErrInvalidParameter("numerator must be non-negative")
-		err.AddFrame("math", "BigFloatDivision()")
+		err := gerr.New(gers.BadParameter, "numerator must be non-negative")
 
 		return new(big.Float), err
 	}
 
 	if denominator <= 0 {
-		err := gcers.NewErrInvalidParameter("denominator must be positive")
-		err.AddFrame("math", "BigFloatDivision()")
+		err := gerr.New(gers.BadParameter, "denominator must be positive")
 
 		return new(big.Float), err
 	}

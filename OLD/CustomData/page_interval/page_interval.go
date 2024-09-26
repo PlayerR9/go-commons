@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	gcint "github.com/PlayerR9/go-commons/OLD/ints"
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // PageInterval represents a collection of page intervals, where each
@@ -212,8 +213,8 @@ func (pi *PageInterval) AddPage(page int) error {
 	}
 
 	if page < 1 {
-		err := gcers.NewErrInvalidParameter("page must be positive")
-		err.AddFrame("*PageInterval", "AddPage()")
+		err := gerr.New(gers.BadParameter, "page must be positive")
+		err.AddFrame("*PageInterval.AddPage()")
 
 		return err
 	}
@@ -257,7 +258,7 @@ func (pi *PageInterval) AddPage(page int) error {
 	}
 
 	pi.page_count++
-	_ = pi.reduce()
+	pi.reduce()
 
 	return nil
 }
@@ -323,7 +324,7 @@ func (pi *PageInterval) RemovePage(page int) bool {
 
 	pi.page_count--
 
-	_ = pi.reduce()
+	pi.reduce()
 
 	return true
 }
@@ -463,15 +464,11 @@ func (pi *PageInterval) RemovePagesBetween(first, last int) bool {
 // If the PageInterval contains less than two intervals, no operation is
 // performed.
 //
-// Parameters:
-//   - pi: A pointer to the PageInterval to reduce.
-func (pi *PageInterval) reduce() bool {
-	if pi == nil {
-		return false
-	}
-
-	if len(pi.intervals) < 2 {
-		return true
+// Returns:
+//   - bool: True if the receiver is not nil, otherwise false.
+func (pi *PageInterval) reduce() {
+	if pi == nil || len(pi.intervals) < 2 {
+		return
 	}
 
 	criteria_sort := func(i, j int) bool {
@@ -497,8 +494,6 @@ func (pi *PageInterval) reduce() bool {
 
 	merged_intervals = append(merged_intervals, current_interval)
 	pi.intervals = merged_intervals
-
-	return true
 }
 
 // find_page_interval searches for the interval that contains the given page

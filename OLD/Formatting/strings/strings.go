@@ -2,12 +2,11 @@ package strings
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
-	gcint "github.com/PlayerR9/go-commons/OLD/ints"
+	"github.com/dustin/go-humanize"
 )
 
 // DateStringer prints the date in the format "1st January, 2006".
@@ -20,15 +19,11 @@ import (
 //
 //   - string: The date in the format "1st January, 2006".
 func DateStringer(date time.Time) string {
-	var builder strings.Builder
-
-	builder.WriteString(gcint.GetOrdinalSuffix(date.Day()))
-	builder.WriteRune(' ')
-	builder.WriteString(date.Month().String())
-	builder.WriteString(", ")
-	builder.WriteString(strconv.Itoa(date.Year()))
-
-	return builder.String()
+	return fmt.Sprintf("%s %v, %d",
+		humanize.Ordinal(date.Day()),
+		date.Month(),
+		date.Year(),
+	)
 }
 
 // TimeStringer prints the time in the format "3:04 PM".
@@ -70,13 +65,7 @@ func StringsJoiner[T fmt.Stringer](values []T, sep string) string {
 // Returns:
 //   - string: The formatted array.
 func ArrayFormatter(values []string) string {
-	var builder strings.Builder
-
-	builder.WriteRune('[')
-	builder.WriteString(strings.Join(values, ", "))
-	builder.WriteRune(']')
-
-	return builder.String()
+	return "[" + strings.Join(values, ", ") + "]"
 }
 
 // FixTabStop fixes the tab stops in a string.

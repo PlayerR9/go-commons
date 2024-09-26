@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	gcstr "github.com/PlayerR9/go-commons/strings"
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // LimitReverseLines is a function that limits the lines of the data in reverse order.
@@ -90,8 +91,7 @@ func FindContentIndexes(op_token, cl_token string, tokens []string) (result [2]i
 	result[1] = -1
 
 	if cl_token == "" {
-		err := gcers.NewErrInvalidParameter("cl_token must not be empty")
-		err.AddFrame("strings", "FindContentIndexes()")
+		err := gerr.New(gers.BadParameter, "cl_token must not be empty")
 
 		return result, err
 	}

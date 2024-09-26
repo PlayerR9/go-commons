@@ -5,7 +5,8 @@ import (
 	"text/tabwriter"
 
 	gcstr "github.com/PlayerR9/go-commons/strings"
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // LongestLine finds the longest line in a table.
@@ -46,7 +47,7 @@ func LongestLine[T any](table [][]T) int {
 //   - *errors.ErrInvalidParameter: If the tabSize is less than 1.
 func TableEntriesAlign(table [][]string, tab_size int) ([]string, error) {
 	if tab_size < 1 {
-		return nil, gcers.NewErrInvalidParameter("tab_size must be positive")
+		return nil, gerr.New(gers.BadParameter, "tab_size must be positive")
 	}
 
 	var lb gcstr.LineBuffer

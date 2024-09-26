@@ -9,7 +9,8 @@ import (
 	"strings"
 
 	gcstr "github.com/PlayerR9/go-commons/strings"
-	gcers "github.com/PlayerR9/go-errors"
+	gers "github.com/PlayerR9/go-errors"
+	gerr "github.com/PlayerR9/go-errors/error"
 )
 
 // FileExists checks if a file exists.
@@ -107,13 +108,10 @@ func AddSuffixToFileName(filename, new_suffix string, ext string) string {
 //   - error: An error if the file name does not have one of the given extensions.
 func ErrIfInvalidExt(file_name string, exts ...string) error {
 	if file_name == "" {
-		err := gcers.NewErrInvalidParameter("no file name was provided")
-		err.AddFrame("file_manager", "ErrIfInvalidExt()")
-
+		err := gerr.New(gers.BadParameter, "no file name was provided")
 		return err
 	} else if len(exts) == 0 {
-		err := gcers.NewErrInvalidParameter("no extensions were provided")
-		err.AddFrame("file_manager", "ErrIfInvalidExt()")
+		err := gerr.New(gers.BadParameter, "no extensions were provided")
 
 		return err
 	}
@@ -182,9 +180,7 @@ func ModifyPath(path, suffix string, sub_directories ...string) (string, error) 
 //   - error: An error if the directory could not be read.
 func ReadDir(loc string) ([]string, error) {
 	if loc == "" {
-		err := gcers.NewErrInvalidParameter("no location was provided")
-		err.AddFrame("file_manager", "ReadDir()")
-
+		err := gerr.New(gers.BadParameter, "no location was provided")
 		return nil, err
 	}
 
