@@ -1,5 +1,30 @@
 package slices
 
+// PureFilterNonNil is the same as FilterNonNil, but without any side-effects.
+//
+// Parameters:
+//   - slice: The slice to filter.
+//
+// Returns:
+//   - []T: The filtered slice.
+func PureFilterNonNil[T Pointer](slice []T) []T {
+	if len(slice) == 0 {
+		return nil
+	}
+
+	result := make([]T, 0, len(slice)/2)
+
+	for i := 0; i < len(slice); i++ {
+		elem := slice[i]
+
+		if !elem.IsNil() {
+			result = append(result, elem)
+		}
+	}
+
+	return result[:len(result):len(result)]
+}
+
 // PureFilterSlice is the same as SliceFilter, but without any side-effects.
 //
 // Parameters:
