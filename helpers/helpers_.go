@@ -39,14 +39,14 @@ type Helperer[O any] interface {
 // DoIfSuccess executes a function for each successful helper.
 //
 // Parameters:
-//   - S: slice of helpers.
+//   - slice: slice of helpers.
 //   - f: the function to execute.
-func DoIfSuccess[T Helperer[O], O any](S []T, f DoFunc[O]) {
-	if len(S) == 0 || f == nil {
+func DoIfSuccess[T Helperer[O], O any](slice []T, f DoFunc[O]) {
+	if len(slice) == 0 || f == nil {
 		return
 	}
 
-	for _, h := range S {
+	for _, h := range slice {
 		data, err := h.Data()
 		if err == nil {
 			f(data)
@@ -57,14 +57,14 @@ func DoIfSuccess[T Helperer[O], O any](S []T, f DoFunc[O]) {
 // DoIfFailure executes a function for each failed helper.
 //
 // Parameters:
-//   - S: slice of helpers.
+//   - slice: slice of helpers.
 //   - f: the function to execute.
-func DoIfFailure[T Helperer[O], O any](S []T, f DualDoFunc[O, error]) {
-	if len(S) == 0 || f == nil {
+func DoIfFailure[T Helperer[O], O any](slice []T, f DualDoFunc[O, error]) {
+	if len(slice) == 0 || f == nil {
 		return
 	}
 
-	for _, h := range S {
+	for _, h := range slice {
 		data, err := h.Data()
 		if err != nil {
 			f(data, err)
@@ -77,21 +77,21 @@ func DoIfFailure[T Helperer[O], O any](S []T, f DualDoFunc[O, error]) {
 // errors.
 //
 // Parameters:
-//   - S: slice of helpers.
+//   - slice: slice of helpers.
 //
 // Returns:
 //   - []O: slice of results.
 //
 // Behaviors:
 //   - The results are returned regardless of whether the helper is successful or not.
-func ExtractResults[T Helperer[O], O any](S []T) []O {
-	if len(S) == 0 {
+func ExtractResults[T Helperer[O], O any](slice []T) []O {
+	if len(slice) == 0 {
 		return nil
 	}
 
-	results := make([]O, 0, len(S))
+	results := make([]O, 0, len(slice))
 
-	for _, h := range S {
+	for _, h := range slice {
 		data, _ := h.Data()
 
 		results = append(results, data)

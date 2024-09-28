@@ -1,13 +1,13 @@
 package helpers
 
 import (
-	lus "github.com/PlayerR9/go-commons/slices"
+	gcslc "github.com/PlayerR9/go-commons/slices"
 )
 
 // EvalOneFunc is a function that evaluates one element.
 //
 // Parameters:
-//   - elem: The element to evaluate.
+//   - elem: The element to evaluate. Assumes that the element is not nil.
 //
 // Returns:
 //   - R: The result of the evaluation.
@@ -27,47 +27,6 @@ type EvalOneFunc[E, R any] func(elem E) (R, error)
 func FilterIsSuccess[T Helperer[O], O any](h T) bool {
 	_, err := h.Data()
 	return err == nil
-}
-
-// FilterByPositiveWeight is a function that iterates over weight results and
-// returns the elements with the maximum weight.
-//
-// Parameters:
-//   - S: slice of weight results.
-//
-// Returns:
-//   - []T: slice of elements with the maximum weight.
-//
-// Behaviors:
-//   - If S is empty, the function returns a nil slice.
-//   - If multiple elements have the same maximum weight, they are all returned.
-//   - If S contains only one element, that element is returned.
-func FilterByPositiveWeight[T Helperer[O], O any](S []T) []T {
-	if len(S) == 0 {
-		return nil
-	}
-
-	maxWeight := S[0].Weight()
-	indices := []int{0}
-
-	for i, e := range S[1:] {
-		currentWeight := e.Weight()
-
-		if currentWeight > maxWeight {
-			maxWeight = currentWeight
-			indices = []int{i + 1}
-		} else if currentWeight == maxWeight {
-			indices = append(indices, i+1)
-		}
-	}
-
-	solution := make([]T, 0, len(indices))
-
-	for _, index := range indices {
-		solution = append(solution, S[index])
-	}
-
-	return solution
 }
 
 // FilterByNegativeWeight is a function that iterates over weight results and
@@ -130,7 +89,7 @@ func SuccessOrFail[T Helperer[O], O any](batch []T, useMax bool) ([]T, bool) {
 		return nil, true
 	}
 
-	success, fail := lus.GroupByFilter(batch, FilterIsSuccess[T, O])
+	success, fail := gcslc.GroupByFilter(batch, FilterIsSuccess[T, O])
 
 	var target, solution []T
 
@@ -176,7 +135,7 @@ func EvaluateSimpleHelpers[T, O any](batch []T, f EvalOneFunc[T, O]) ([]*SimpleH
 		solutions = append(solutions, helper)
 	}
 
-	success, fail := lus.GroupByFilter(solutions, FilterIsSuccess)
+	success, fail := gcslc.GroupByFilter(solutions, FilterIsSuccess)
 
 	var result []*SimpleHelper[O]
 
@@ -223,7 +182,7 @@ func EvaluateWeightHelpers[T, O any](batch []T, f EvalOneFunc[T, O], wf WeightFu
 		solutions = append(solutions, h)
 	}
 
-	success, fail := lus.GroupByFilter(solutions, FilterIsSuccess)
+	success, fail := gcslc.GroupByFilter(solutions, FilterIsSuccess)
 
 	var target, result []*WeightedHelper[O]
 

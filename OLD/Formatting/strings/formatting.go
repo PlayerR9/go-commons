@@ -9,8 +9,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	hlp "github.com/PlayerR9/go-commons/OLD/helpers"
 	mext "github.com/PlayerR9/go-commons/OLD/math"
+	hlp "github.com/PlayerR9/go-commons/helpers"
 	gers "github.com/PlayerR9/go-errors"
 	gerr "github.com/PlayerR9/go-errors/error"
 	"github.com/dustin/go-humanize"
