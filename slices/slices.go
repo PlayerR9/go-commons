@@ -1,43 +1,34 @@
 package slices
 
-import (
-	"cmp"
-	"slices"
-)
-
-// ApplyOnSlice applies a function to each element of a slice.
-//
-// Parameters:
-//   - slice: The slice to apply the function to.
-//   - fn: The function to apply.
-func ApplyOnSlice[T any](slice []T, fn func(value T) T) {
-	if len(slice) == 0 || fn == nil {
-		return
-	}
-
-	for i := 0; i < len(slice); i++ {
-		slice[i] = fn(slice[i])
-	}
+// Pointer is an interface for a pointer.
+type Pointer interface {
+	// IsNil checks if the pointer is nil.
+	//
+	// Returns:
+	//   - bool: True if the pointer is nil, false otherwise.
+	IsNil() bool
 }
 
-// TryInsert is a helper function that inserts an element into a slice only
-// if the element is not already in the slice.
+// FilterNonNil removes all nil elements from the given slice of elements.
 //
-// Parameters:
-//   - slc: The slice to insert into.
-//   - e: The element to insert.
+// This function assumes that the receiver is not nil and that the receiver is
+// not empty.
 //
 // Returns:
-//   - []T: The slice with the inserted element.
-//
-// This function only works if the slice is sorted.
-func TryInsert[T cmp.Ordered](slc []T, e T) []T {
-	pos, ok := slices.BinarySearch(slc, e)
-	if ok {
-		return slc
+//   - []T: The slice of elements with all nils removed.
+func FilterNonNil[T Pointer](elems []T) []T {
+	if len(elems) == 0 {
+		return nil
 	}
 
-	slc = slices.Insert(slc, pos, e)
+	var top int
 
-	return slc
+	for i := 0; i < len(elems); i++ {
+		if !elems[i].IsNil() {
+			elems[top] = elems[i]
+			top++
+		}
+	}
+
+	return elems[:top:top]
 }
