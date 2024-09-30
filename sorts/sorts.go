@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	gers "github.com/PlayerR9/go-errors"
+	"github.com/PlayerR9/go-errors/assert"
 )
 
 // CmpBucketSort returns a sorted slice of keys from the given table, sorted by the
@@ -43,7 +44,7 @@ func CmpBucketSort[K cmp.Ordered, V any](table map[K]V, fn func(value V) int) ([
 			indices = slices.Insert(indices, pos, weight)
 		} else {
 			prev, ok = buckets[weight]
-			gers.AssertOk(ok, "buckets[%d]", weight)
+			assert.Ok(ok, "buckets[%d]", weight)
 
 			prev = append(prev, k)
 		}
@@ -59,7 +60,7 @@ func CmpBucketSort[K cmp.Ordered, V any](table map[K]V, fn func(value V) int) ([
 
 	for _, idx := range indices {
 		vals, ok := buckets[idx]
-		gers.AssertOk(ok, "buckets[%d]", idx)
+		assert.Ok(ok, "buckets[%d]", idx)
 
 		keys = append(keys, vals...)
 	}

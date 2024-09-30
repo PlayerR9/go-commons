@@ -5,6 +5,7 @@ import (
 	"iter"
 
 	gers "github.com/PlayerR9/go-errors"
+	"github.com/PlayerR9/go-errors/assert"
 )
 
 // History is a stack of events that can be replayed.
@@ -63,7 +64,7 @@ func (h *History[E]) Restart() {
 // Parameters:
 //   - event: The event to add to the history.
 func (h *History[E]) AddEvent(event E) {
-	gers.AssertNotNil(h, "h")
+	assert.NotNil(h, "h")
 
 	h.timeline = append(h.timeline, event)
 }
@@ -125,7 +126,7 @@ func init() {
 //   - HistoryEnded: If the history has ended.
 func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 	if h == nil {
-		return false, NewErrNilReceiver()
+		return false, gers.NewErrNilReceiver()
 	} else if subject == nil {
 		return false, gers.NewErrNilParameter("subject")
 	}
@@ -162,7 +163,7 @@ func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 //   - SubjectIsDone: If the subject is done due to internal success.
 func (h *History[E]) Align(subject Subjecter[E]) error {
 	if h == nil {
-		return NewErrNilReceiver()
+		return gers.NewErrNilReceiver()
 	} else if subject == nil {
 		return gers.NewErrNilParameter("subject")
 	}

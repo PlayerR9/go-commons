@@ -3,7 +3,7 @@ package history
 import (
 	"iter"
 
-	gers "github.com/PlayerR9/go-errors"
+	"github.com/PlayerR9/go-errors/assert"
 )
 
 // execute_until executes events from the history until the subject is done, or
@@ -23,8 +23,8 @@ import (
 //   - bool: True if the subject is done due to exhaustion of the history, false
 //     otherwise.
 func execute_until[E any](history *History[E], subject Subjecter[E]) ([]*History[E], bool) {
-	gers.AssertNotNil(history, "history")
-	gers.AssertNotNil(subject, "subject")
+	assert.NotNil(history, "history")
+	assert.NotNil(subject, "subject")
 
 	var paths []*History[E]
 
@@ -84,7 +84,7 @@ func Execute[E any, S Subjecter[E]](init_fn func() S) iter.Seq[S] {
 			return
 		}
 
-		pair := gers.AssertNew(
+		pair := assert.New(
 			NewPair(nil, subject),
 		)
 
@@ -94,8 +94,8 @@ func Execute[E any, S Subjecter[E]](init_fn func() S) iter.Seq[S] {
 			first := queue[0]
 			queue = queue[1:]
 
-			gers.AssertNotNil(first, "top")
-			subject = gers.AssertConv[S](first.subject, "top.subject")
+			assert.NotNil(first, "top")
+			subject = assert.Conv[S](first.subject, "top.subject")
 
 			err := first.history.Align(subject)
 			if err == SubjectHasError {
@@ -117,7 +117,7 @@ func Execute[E any, S Subjecter[E]](init_fn func() S) iter.Seq[S] {
 				new_paths := make([]*Pair[E], 0, len(paths))
 
 				for _, path := range paths {
-					gers.AssertNotNil(path, "path")
+					assert.NotNil(path, "path")
 
 					subject := init_fn()
 					if subject.IsNil() {
@@ -125,7 +125,7 @@ func Execute[E any, S Subjecter[E]](init_fn func() S) iter.Seq[S] {
 						continue
 					}
 
-					pair = gers.AssertNew(
+					pair = assert.New(
 						NewPair(path, subject),
 					)
 

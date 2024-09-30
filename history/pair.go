@@ -11,6 +11,11 @@ type Pair[E any] struct {
 	history *History[E]
 }
 
+// IsNil implements the errors.Pointer interface.
+func (p *Pair[E]) IsNil() bool {
+	return p == nil
+}
+
 // NewPair creates a new pair from the given history and subject.
 //
 // If the given history is nil, a new one is created.
