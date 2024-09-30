@@ -18,7 +18,10 @@ func EvaluateTeams[T interface {
 	Equals(other T) bool
 }](members []T, enemy_fn AreEnemyFunc[T]) ([]League[T], error) {
 	if enemy_fn == nil {
-		return nil, gers.NewErrNilParameter("enemy_fn")
+		err := gers.NewErrNilParameter("enemy_fn")
+		err.AddFrame("EvaluateTeams()")
+
+		return nil, err
 	}
 
 	tm := &_Global[T]{
@@ -45,7 +48,10 @@ func EvaluateTeams[T interface {
 	}
 
 	if len(success) == 0 {
-		return nil, gers.New(gers.OperationFail, "no teams found")
+		err := gers.New(gers.OperationFail, "no teams found")
+		err.AddFrame("EvaluateTeams()")
+
+		return nil, err
 	}
 
 	var leagues []League[T]

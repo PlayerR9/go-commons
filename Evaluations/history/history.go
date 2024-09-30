@@ -126,9 +126,15 @@ func init() {
 //   - HistoryEnded: If the history has ended.
 func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 	if h == nil {
-		return false, gers.NewErrNilReceiver()
+		err := gers.NewErrNilReceiver()
+		err.AddFrame("history.AdvanceOne()")
+
+		return false, err
 	} else if subject == nil {
-		return false, gers.NewErrNilParameter("subject")
+		err := gers.NewErrNilParameter("subject")
+		err.AddFrame("history.AdvanceOne()")
+
+		return false, err
 	}
 
 	if h.arrow >= len(h.timeline) {
@@ -163,9 +169,15 @@ func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 //   - SubjectIsDone: If the subject is done due to internal success.
 func (h *History[E]) Align(subject Subjecter[E]) error {
 	if h == nil {
-		return gers.NewErrNilReceiver()
+		err := gers.NewErrNilReceiver()
+		err.AddFrame("history.Align()")
+
+		return err
 	} else if subject == nil {
-		return gers.NewErrNilParameter("subject")
+		err := gers.NewErrNilParameter("subject")
+		err.AddFrame("history.Align()")
+
+		return err
 	}
 
 	for h.arrow < len(h.timeline) {

@@ -29,7 +29,10 @@ func (p *Pair[E]) IsNil() bool {
 //   - error: If the subject is nil.
 func NewPair[E any](history *History[E], subject Subjecter[E]) (*Pair[E], error) {
 	if subject == nil {
-		return nil, gers.NewErrNilParameter("subject")
+		err := gers.NewErrNilParameter("subject")
+		err.AddFrame("NewPair()")
+
+		return nil, err
 	}
 
 	if history == nil {

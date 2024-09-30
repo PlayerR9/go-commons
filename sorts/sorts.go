@@ -27,7 +27,10 @@ func CmpBucketSort[K cmp.Ordered, V any](table map[K]V, fn func(value V) int) ([
 	if len(table) == 0 {
 		return nil, nil
 	} else if fn == nil {
-		return nil, gers.NewErrNilParameter("fn")
+		err := gers.NewErrNilParameter("fn")
+		err.AddFrame("CmpBucketSort()")
+
+		return nil, err
 	}
 
 	buckets := make(map[int][]K)
