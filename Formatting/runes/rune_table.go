@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"strings"
 
-	gcch "github.com/PlayerR9/go-commons/runes"
 	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
@@ -45,12 +44,12 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	table := make([][]rune, 0, len(lines))
 
 	for i, line := range lines {
-		row, err := gcch.BytesToUtf8(line)
+		row, err := BytesToUtf8(line)
 		if err != nil {
 			return gcers.NewErrAt(humanize.Ordinal(i+1)+" line", err)
 		}
 
-		row, err = gcch.NormalizeRunes(row)
+		row, err = NormalizeRunes(row)
 		if err != nil {
 			return err
 		}
@@ -99,7 +98,7 @@ func (rt *RuneTable) FromStrings(lines []string) error {
 	table := make([][]rune, 0, len(lines))
 
 	for i, line := range lines {
-		row, err := gcch.StringToUtf8(line)
+		row, err := StringToUtf8(line)
 		if err != nil {
 			return gcers.NewErrAt(humanize.Ordinal(i+1)+" line", err)
 		}
@@ -244,7 +243,7 @@ func (rt RuneTable) Byte() []byte {
 
 	var buffer bytes.Buffer
 
-	buffer.Grow(gcch.JoinSize(rt.table))
+	buffer.Grow(JoinSize(rt.table))
 
 	for _, r := range rt.table[0] {
 		buffer.WriteRune(r)
@@ -266,5 +265,55 @@ func (rt RuneTable) Byte() []byte {
 // Returns:
 //   - []rune: The rune representation of the table.
 func (rt RuneTable) Rune() []rune {
-	return gcch.Join(rt.table, '\n')
+	return Join(rt.table, '\n')
+}
+
+// JoinSize returns the number of runes in the data.
+//
+// Parameters:
+//   - data: The data to join.
+//
+// Returns:
+//   - int: The number of runes.
+func JoinSize(data [][]rune) int {
+	if len(data) == 0 {
+		return 0
+	}
+
+	var size int
+
+	for _, line := range data {
+		size += len(line)
+	}
+
+	size += len(data) - 1
+
+	return size
+}
+
+// Join is a function that joins the data. Returns nil if the data is empty.
+//
+// Parameters:
+//   - data: The data to join.
+//   - sep: The separator to use.
+//
+// Returns:
+//   - []rune: The joined data.
+func Join(data [][]rune, sep rune) []rune {
+	if len(data) == 0 {
+		return nil
+	}
+
+	size := JoinSize(data)
+
+	result := make([]rune, 0, size)
+
+	result = append(result, data[0]...)
+
+	for _, line := range data[1:] {
+		result = append(result, sep)
+		result = append(result, line...)
+	}
+
+	return result
 }

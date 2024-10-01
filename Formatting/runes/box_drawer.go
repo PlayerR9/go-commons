@@ -1,7 +1,6 @@
 package runes
 
 import (
-	gcch "github.com/PlayerR9/go-commons/runes"
 	gcers "github.com/PlayerR9/go-errors"
 )
 
@@ -221,6 +220,30 @@ func make_tb_border(width int, border, left_corner, right_corner rune) []rune {
 	return row
 }
 
+// Repeat is a function that repeats the character.
+//
+// Parameters:
+//   - char: The character to repeat.
+//   - count: The number of times to repeat the character.
+//
+// Returns:
+//   - []rune: The repeated character. Returns nil if count is less than 0.
+func Repeat(char rune, count int) []rune {
+	if count < 0 {
+		return nil
+	} else if count == 0 {
+		return []rune{}
+	}
+
+	chars := make([]rune, 0, count)
+
+	for i := 0; i < count; i++ {
+		chars = append(chars, char)
+	}
+
+	return chars
+}
+
 // Apply draws a box around a content that is specified in a table.
 //
 // Format: If the content is [['H', 'e', 'l', 'l', 'o'], ['W', 'o', 'r', 'l', 'd']], the box will be:
@@ -262,7 +285,7 @@ func (bs BoxStyle) Apply(table *RuneTable) error {
 	right_edge, _ := table.AlignRightEdge()
 
 	total_width := right_edge + bs.Padding[1] + bs.Padding[3]
-	empty_row := gcch.Repeat(' ', right_edge)
+	empty_row := Repeat(' ', right_edge)
 
 	top_border := make_tb_border(total_width, tbb_char, corners[0], corners[1])
 	bottom_border := make_tb_border(total_width, tbb_char, corners[2], corners[3])

@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/PlayerR9/go-commons/OLD/Formatting/f_string/internal"
-	gcch "github.com/PlayerR9/go-commons/runes"
 	gcers "github.com/PlayerR9/go-errors"
 	"github.com/dustin/go-humanize"
 )
@@ -173,7 +172,7 @@ func (trav *Traversor) writeString(str string) error {
 		return nil
 	}
 
-	chars, err := gcch.StringToUtf8(str)
+	chars, err := StringToUtf8(str)
 	if err != nil {
 		return err
 	}
@@ -213,7 +212,7 @@ func (trav *Traversor) writeLine(line string) error {
 	if line == "" {
 		_ = trav.source.WriteEmptyLine(trav.rightDelim)
 	} else {
-		chars, err := gcch.StringToUtf8(line)
+		chars, err := StringToUtf8(line)
 		if err != nil {
 			return err
 		}
