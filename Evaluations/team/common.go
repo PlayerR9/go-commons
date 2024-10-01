@@ -18,8 +18,7 @@ func EvaluateTeams[T interface {
 	Equals(other T) bool
 }](members []T, enemy_fn AreEnemyFunc[T]) ([]League[T], error) {
 	if enemy_fn == nil {
-		err := gers.NewErrNilParameter("enemy_fn")
-		err.AddFrame("EvaluateTeams()")
+		err := gers.NewErrNilParameter("EvaluateTeams()", "enemy_fn")
 
 		return nil, err
 	}

@@ -36,17 +36,15 @@ type Serieser interface {
 //     there are not enough values to calculate the average.
 func ApproximateConvergence(values []*big.Float, n int) (*big.Float, error) {
 	if n <= 0 {
-		err := gers.NewErrInvalidParameter("n must be positive")
-		err.AddFrame("math.ApproximateConvergence()")
+		err := gers.NewErrInvalidParameter("math.ApproximateConvergence()", "n must be positive")
 
 		return nil, err
 	} else if len(values) < n {
 		err := gers.NewErrInvalidUsage(
-			"not enough values to calculate the average",
-			"make sure that the number of values is at least n",
+			"math.ApproximateConvergence()",
+			"Not enough values to calculate the average",
+			"Make sure that the number of values is at least n",
 		)
-
-		err.AddFrame("math.ApproximateConvergence()")
 
 		return nil, err
 	}
@@ -73,8 +71,7 @@ func ApproximateConvergence(values []*big.Float, n int) (*big.Float, error) {
 //   - error: An error if the calculation fails.
 func CalculateConvergence(series Serieser, upperLimit int, delta int) (values []*big.Float, err error) {
 	if series == nil {
-		err := gers.NewErrNilParameter("series")
-		err.AddFrame("math.CalculateConvergence()")
+		err := gers.NewErrNilParameter("math.CalculateConvergence()", "series")
 
 		return nil, err
 	}

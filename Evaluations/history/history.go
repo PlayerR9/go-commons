@@ -126,13 +126,11 @@ func init() {
 //   - HistoryEnded: If the history has ended.
 func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 	if h == nil {
-		err := gers.NewErrNilReceiver()
-		err.AddFrame("history.AdvanceOne()")
+		err := gers.NewErrNilReceiver("history.AdvanceOne(subject)")
 
 		return false, err
 	} else if subject == nil {
-		err := gers.NewErrNilParameter("subject")
-		err.AddFrame("history.AdvanceOne()")
+		err := gers.NewErrNilParameter("history.AdvanceOne(subject)", "subject")
 
 		return false, err
 	}
@@ -169,13 +167,11 @@ func (h *History[E]) AdvanceOne(subject Subjecter[E]) (bool, error) {
 //   - SubjectIsDone: If the subject is done due to internal success.
 func (h *History[E]) Align(subject Subjecter[E]) error {
 	if h == nil {
-		err := gers.NewErrNilReceiver()
-		err.AddFrame("history.Align()")
+		err := gers.NewErrNilReceiver("history.Align(subject)")
 
 		return err
 	} else if subject == nil {
-		err := gers.NewErrNilParameter("subject")
-		err.AddFrame("history.Align()")
+		err := gers.NewErrNilParameter("history.Align(subject)", "subject")
 
 		return err
 	}
