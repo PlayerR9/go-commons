@@ -265,7 +265,9 @@ func Repeat(char rune, count int) []rune {
 // Each string of the content represents a row in the box.
 func (bs BoxStyle) Apply(table *RuneTable) error {
 	if table == nil {
-		return gcers.NewErrNilParameter("table")
+		err := gcers.NewErrNilParameter("BoxStyle.Apply()", "table")
+
+		return err
 	}
 
 	for i := 0; i < 4; i++ {

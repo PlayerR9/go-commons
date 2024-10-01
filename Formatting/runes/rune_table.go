@@ -38,7 +38,9 @@ func (rt RuneTable) String() string {
 //   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromBytes(lines [][]byte) error {
 	if rt == nil {
-		return gcers.NewErrNilParameter("RuneTable")
+		err := gcers.NewErrNilParameter("*RuneTable.FromBytes()", "RuneTable")
+
+		return err
 	}
 
 	table := make([][]rune, 0, len(lines))
@@ -71,7 +73,9 @@ func (rt *RuneTable) FromBytes(lines [][]byte) error {
 //   - error: An error of type *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromRunes(lines [][]rune) error {
 	if rt == nil {
-		return gcers.NewErrNilParameter("RuneTable")
+		err := gcers.NewErrNilParameter("*RuneTable.FromRunes()", "RuneTable")
+
+		return err
 	}
 
 	rt.table = lines
@@ -92,7 +96,9 @@ func (rt *RuneTable) FromRunes(lines [][]rune) error {
 //   - *errors.NilReceiver if the receiver is nil.
 func (rt *RuneTable) FromStrings(lines []string) error {
 	if rt == nil {
-		return gcers.NewErrNilParameter("RuneTable")
+		err := gcers.NewErrNilParameter("*RuneTable.FromStrings()", "RuneTable")
+
+		return err
 	}
 
 	table := make([][]rune, 0, len(lines))
